@@ -1,62 +1,178 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNotification } from "../../context/NotificationContextProvider";
 import NotificationModal from "../../modals/NotificationModel";
 import NotificationBell from "../../utils/NotificationBell";
 import { motion } from "framer-motion";
 import Stepper from "../../utils/Stepper";
+import JobModel from "../../modals/JobModal";
+import { UpdateRequisitionContextProvider } from "../../context/UpdateRequisitionContextProvider";
+import { TestContext } from "../../context/TestContext";
 function SubAdminDashboard() {
 
-  const requisitionDummyData=[
+  const requisitionDummyData = [
   {
-    "id": 1,
-    "name": "Surya Pratap Singh",
-    "role": "Frontend Dev",
-    "status": "Pending",
-    "designation": "Deupty Manager",
-    "department": "Electric and Control",
-    "jobProfile": "PLC Engineer hiring",
-    "dateOfRFQ": "09/02/2026",
-    "deadline": "25/02/2026"
+    id: 1,
+    name: "Surya Pratap Singh",
+    role: "Frontend Dev",
+    status: "Pending",
+    designation: "Deupty Manager",
+    department: "Electric and Control",
+    jobProfile: "PLC Engineer hiring",
+    dateOfRFQ: "09/02/2026",
+    deadline: "25/02/2026",
+
+    // ✅ New Fields Added
+    createdAt: new Date("2026-04-13T22:40:15"),
+    empID: "PMA002",
+    reqType: "New",
+    jobTitle: "Database admin handler hiring",
+    job_type: "Full Time",
+    location: "Both",
+    description: "All skills required",
+    requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
+    requisition_reason: "New Project is Taken view our company, required employee.",
+    highest_qualification: "B.Tech Computer Science",
+    experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
+    year_of_experience: 2,
+    skills: [
+      "Full Stack Development",
+      "Frontend Development",
+      "Cloud Computing",
+      "Machine Learning",
+      "AI Basics",
+      "Android Development",
+      "C++",
+      "Java",
+      "Git Version Control",
+      "Agile Methodology"
+    ],
+    vacancy: 9
   },
   {
-    "id": 2,
-    "name": "Mhd. Harish",
-    "role": "Backend Dev",
-    "status": "Pending",
-    "designation": "A.G.M",
-    "department": "Purchase",
-    "jobProfile": "Software specific hardare purchase",
-    "dateOfRFQ": "05/03/2026",
-    "deadline": "16/03/2026"
+    id: 2,
+    name: "Mhd. Harish",
+    role: "Backend Dev",
+    status: "Pending",
+    designation: "A.G.M",
+    department: "Purchase",
+    jobProfile: "Software specific hardare purchase",
+    dateOfRFQ: "05/03/2026",
+    deadline: "16/03/2026",
+
+    // ✅ New Fields
+    createdAt: new Date("2026-04-13T22:40:15"),
+    empID: "PMA002",
+    reqType: "New",
+    jobTitle: "Database admin handler hiring",
+    job_type: "Full Time",
+    location: "Both",
+    description: "All skills required",
+    requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
+    requisition_reason: "New Project is Taken view our company, required employee.",
+    highest_qualification: "B.Tech Computer Science",
+    experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
+    year_of_experience: 2,
+    skills: [
+      "Full Stack Development",
+      "Frontend Development",
+      "Cloud Computing",
+      "Machine Learning",
+      "AI Basics",
+      "Android Development",
+      "C++",
+      "Java",
+      "Git Version Control",
+      "Agile Methodology"
+    ],
+    vacancy: 9
   },
   {
-    "id": 3,
-    "name": "Akash Kumar",
-    "role": "UI Designer",
-    "status": "Approved",
-    "designation": "Consultant",
-    "department": "Application",
-    "jobProfile": "Application Management Tool",
-    "dateOfRFQ": "02/10/2025",
-    "deadline": "02/02/2026"
+    id: 3,
+    name: "Akash Kumar",
+    role: "UI Designer",
+    status: "Approved",
+    designation: "Consultant",
+    department: "Application",
+    jobProfile: "Application Management Tool",
+    dateOfRFQ: "02/10/2025",
+    deadline: "02/02/2026",
+
+    // ✅ New Fields
+    createdAt: new Date("2026-04-13T22:40:15"),
+    empID: "PMA002",
+    reqType: "New",
+    jobTitle: "Database admin handler hiring",
+    job_type: "Full Time",
+    location: "Both",
+    description: "All skills required",
+    requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
+    requisition_reason: "New Project is Taken view our company, required employee.",
+    highest_qualification: "B.Tech Computer Science",
+    experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
+    year_of_experience: 2,
+    skills: [
+      "Full Stack Development",
+      "Frontend Development",
+      "Cloud Computing",
+      "Machine Learning",
+      "AI Basics",
+      "Android Development",
+      "C++",
+      "Java",
+      "Git Version Control",
+      "Agile Methodology"
+    ],
+    vacancy: 9
   },
   {
-    "id": 4,
-    "name": "Ashoke Kumar",
-    "role": "DevOps Engineer",
-    "status": "Rejected",
-    "designation": "Head",
-    "department": "Design & Development",
-    "jobProfile": "Employee Condition Analysis",
-    "dateOfRFQ": "03/04/2026",
-    "deadline": "09/04/2026"
+    id: 4,
+    name: "Ashoke Kumar",
+    role: "DevOps Engineer",
+    status: "Rejected",
+    designation: "Head",
+    department: "Design & Development",
+    jobProfile: "Employee Condition Analysis",
+    dateOfRFQ: "03/04/2026",
+    deadline: "09/04/2026",
+
+    // ✅ New Fields
+    createdAt: new Date("2026-04-13T22:40:15"),
+    empID: "PMA002",
+    reqType: "New",
+    jobTitle: "Database admin handler hiring",
+    job_type: "Full Time",
+    location: "Both",
+    description: "All skills required",
+    requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
+    requisition_reason: "New Project is Taken view our company, required employee.",
+    highest_qualification: "B.Tech Computer Science",
+    experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
+    year_of_experience: 2,
+    skills: [
+      "Full Stack Development",
+      "Frontend Development",
+      "Cloud Computing",
+      "Machine Learning",
+      "AI Basics",
+      "Android Development",
+      "C++",
+      "Java",
+      "Git Version Control",
+      "Agile Methodology"
+    ],
+    vacancy: 9
   }
-]
+];
   const [requests, setRequests] = useState(requisitionDummyData);
+  const{setUpdateRequisitionData}=useContext(TestContext);
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [show, setShow] = useState(false)
+
+  const handleEdit = (row) => {
+  setUpdateRequisitionData(row);  // 🔥 send data to form
+};
 
   const updateStatus = (id, status) => {
     setRequests((prev) =>
@@ -108,7 +224,7 @@ function SubAdminDashboard() {
       value: requests.filter((r) => r.status === "Rejected").length,
     },
   ];
-
+const [open, setOpen] = useState(false);
   const requisition = {
     id: 1,
     title: "PLC Designer requisition",
@@ -255,6 +371,14 @@ function SubAdminDashboard() {
 
           </div>
 
+          {open && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+              <div className="w-full max-w-5xl">
+                <JobModel close={open} setClose={setOpen} modelTitleModification={"Modify requisition via your superviser"} differentOperationUrl={"https://localhost:6000/user"} operationMode={"update"} />
+              </div>
+            </div>
+          )}
+
 
 
           {/* TABLE */}
@@ -330,7 +454,7 @@ function SubAdminDashboard() {
 
                       <td className="p-3 text-gray-600">{r?.dateOfRFQ}</td> {/* created data on requisition form*/}
                       <td className="p-3 text-gray-600">{r?.deadline}</td> {/*  data on requisition form*/}
-                      
+
                       <td className="p-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "Approved"
                           ? "bg-green-100 text-green-700"
@@ -370,7 +494,8 @@ function SubAdminDashboard() {
 
                       <td className="p-3">
                         <button
-                          onClick={() => updateStatus(r.id, "View")}
+                          onClick={() => {updateStatus(r.id, "View"); setOpen(true); handleEdit(filteredRequests[idx])}}
+                          
                           className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                         >
                           Show

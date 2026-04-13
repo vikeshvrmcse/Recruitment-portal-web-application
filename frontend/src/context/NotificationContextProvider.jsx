@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, {useContext, useState } from "react";
 import { NotificationContext } from "./TestContext";
 
 
@@ -6,7 +6,7 @@ import { NotificationContext } from "./TestContext";
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
-  // ➕ Add notification
+  // Add notification
   const addNotification = (data) => {
     const newNotification = {
       id: Date.now(),
@@ -19,7 +19,7 @@ export const NotificationProvider = ({ children }) => {
     setNotifications((prev) => [newNotification, ...prev]);
   };
 
-  // ✅ mark as read
+  // mark as read
   const markAsRead = (id) => {
     setNotifications((prev) =>
       prev.map((n) =>
@@ -28,7 +28,7 @@ export const NotificationProvider = ({ children }) => {
     );
   };
 
-  // ❌ remove notification (optional)
+  // remove notification (optional)
   const removeNotification = (id) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
