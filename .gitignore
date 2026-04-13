@@ -1,0 +1,18 @@
+# Frontend
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+
+# Backend
+RecruitmentPortalBackend/bin/
+RecruitmentPortalBackend/obj/
+RecruitmentPortalBackend/*.user
+RecruitmentPortalBackend/*.log
+RecruitmentPortalBackend/appsettings.Development.json
+
+# General
+.env
+.vscode/
+.idea/
+*.log

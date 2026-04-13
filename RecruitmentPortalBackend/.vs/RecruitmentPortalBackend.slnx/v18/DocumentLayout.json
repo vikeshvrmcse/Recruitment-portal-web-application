@@ -1,0 +1,102 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|v:\\recruitmentportal\\recruitmentportalbackend\\recruitmentportalbackend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|solutionrelative:recruitmentportalbackend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|v:\\recruitmentportal\\recruitmentportalbackend\\recruitmentportalbackend\\models\\employeedetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|solutionrelative:recruitmentportalbackend\\models\\employeedetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|v:\\recruitmentportal\\recruitmentportalbackend\\recruitmentportalbackend\\controllers\\employeedetailscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|solutionrelative:recruitmentportalbackend\\controllers\\employeedetailscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|v:\\recruitmentportal\\recruitmentportalbackend\\recruitmentportalbackend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|solutionrelative:recruitmentportalbackend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|v:\\recruitmentportal\\recruitmentportalbackend\\recruitmentportalbackend\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BCFBAF5E-BD0A-8E36-6E91-6B04452F6A1F}|RecruitmentPortalBackend\\RecruitmentPortalBackend.csproj|solutionrelative:recruitmentportalbackend\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\Program.cs",
+              "RelativeDocumentMoniker": "RecruitmentPortalBackend\\Program.cs",
+              "ToolTip": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\Program.cs",
+              "RelativeToolTip": "RecruitmentPortalBackend\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T17:08:47.84Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "EmployeeDetailsController.cs",
+              "DocumentMoniker": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\Controllers\\EmployeeDetailsController.cs",
+              "RelativeDocumentMoniker": "RecruitmentPortalBackend\\Controllers\\EmployeeDetailsController.cs",
+              "ToolTip": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\Controllers\\EmployeeDetailsController.cs",
+              "RelativeToolTip": "RecruitmentPortalBackend\\Controllers\\EmployeeDetailsController.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAiwBcAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T16:58:24.084Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "EmployeeDetails.cs",
+              "DocumentMoniker": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\Models\\EmployeeDetails.cs",
+              "RelativeDocumentMoniker": "RecruitmentPortalBackend\\Models\\EmployeeDetails.cs",
+              "ToolTip": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\Models\\EmployeeDetails.cs",
+              "RelativeToolTip": "RecruitmentPortalBackend\\Models\\EmployeeDetails.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAADwvyAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T16:39:51.778Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "RecruitmentPortalBackend\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "RecruitmentPortalBackend\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T16:34:21.092Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\appsettings.json",
+              "RelativeDocumentMoniker": "RecruitmentPortalBackend\\appsettings.json",
+              "ToolTip": "V:\\RecruitmentPortal\\RecruitmentPortalBackend\\RecruitmentPortalBackend\\appsettings.json",
+              "RelativeToolTip": "RecruitmentPortalBackend\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-04-08T16:02:24.172Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
