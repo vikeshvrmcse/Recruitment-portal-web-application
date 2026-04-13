@@ -11,13 +11,13 @@ function Home() {
     <div className="min-h-screen overflow-hidden flex flex-col bg-gradient-to-br from-gray-100 to-white font-sans">
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-start mt-20 ml-10 text-start px-1">
+      <div className="flex-1 flex flex-col items-start  mt-10 md:mx-10 p-4 mx-5 text-start">
 
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-6xl md:text-9xl font-bold text-gray-900 mb-10 tracking-tight"
+          className="text-5xl md:text-9xl font-bold text-gray-900 mb-10 tracking-tight"
           style={{ fontFamily: "Arial, sans-serif" }}
         >
           PIONEER RECRUITMENT
@@ -27,7 +27,7 @@ function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-justify text-gray-600 px-5 font-light text-xl md:py-6 md:my-10"
+          className="text-justify text-gray-600 font-light text-xl md:py-6 md:my-10"
         >
           To fulfill the free license requirements, please
             read our Reuse guide. You can also request a file or request permission for a file already on the internet.

@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
 
       //Private Routes
       {
-        element: <PrivateRoute />,
+        element: <PublicRoute />,
         children: [
           { path: "/tl_dashboard", element: <TLDashboard /> },
         ],

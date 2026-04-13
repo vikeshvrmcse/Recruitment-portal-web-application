@@ -18,7 +18,7 @@ function Login() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigate=useNavigate()
+  const navigate = useNavigate()
   const captchaValue = "1234";
 
   const onSubmit = (data) => {
@@ -32,11 +32,21 @@ function Login() {
         return;
       }
 
-      toast.success("Login successful!");
+      if (data.empID === "PMA0002") {
+        toast.success("Login successful!");
+        navigate('/sub_admin_dashboard')
+        return;
+
+      }
+
+      if (data.empID === "PMA0662") {
+        toast.success("Login successful!");
+        navigate('/tl_dashboard')
+        return;
+      }
       reset();
     }, 1200);
 
-    navigate('/sub_admin_dashboard')
   };
 
   return (
@@ -77,21 +87,21 @@ function Login() {
             transition={{ delay: 0.3 }}
           >
             <label className="text-xl font-light text-gray-700">
-              Email address
+              Employee ID
             </label>
 
             <div className="mt-2 flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-500">
               <FaEnvelope className="text-gray-400 mr-2" />
               <input
-                type="email"
+                type="text"
                 className="w-full outline-none bg-transparent text-gray-700"
-                {...register("email", { required: "Email is required" })}
+                {...register("empID", { required: "Employee ID is required" })}
               />
             </div>
 
-            {errors.email && (
+            {errors.empID && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.email.message}
+                {errors.empID.message}
               </p>
             )}
           </motion.div>

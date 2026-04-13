@@ -5,12 +5,54 @@ import NotificationBell from "../../utils/NotificationBell";
 import { motion } from "framer-motion";
 import Stepper from "../../utils/Stepper";
 function SubAdminDashboard() {
-  const [requests, setRequests] = useState([
-    { id: 1, name: "Rahul Sharma", role: "Frontend Dev", status: "Pending" },
-    { id: 2, name: "Neha Verma", role: "Backend Dev", status: "Pending" },
-    { id: 3, name: "Aman Gupta", role: "UI Designer", status: "Approved" },
-    { id: 4, name: "Sahil Khan", role: "DevOps Engineer", status: "Rejected" },
-  ]);
+
+  const requisitionDummyData=[
+  {
+    "id": 1,
+    "name": "Surya Pratap Singh",
+    "role": "Frontend Dev",
+    "status": "Pending",
+    "designation": "Deupty Manager",
+    "department": "Electric and Control",
+    "jobProfile": "PLC Engineer hiring",
+    "dateOfRFQ": "09/02/2026",
+    "deadline": "25/02/2026"
+  },
+  {
+    "id": 2,
+    "name": "Mhd. Harish",
+    "role": "Backend Dev",
+    "status": "Pending",
+    "designation": "A.G.M",
+    "department": "Purchase",
+    "jobProfile": "Software specific hardare purchase",
+    "dateOfRFQ": "05/03/2026",
+    "deadline": "16/03/2026"
+  },
+  {
+    "id": 3,
+    "name": "Akash Kumar",
+    "role": "UI Designer",
+    "status": "Approved",
+    "designation": "Consultant",
+    "department": "Application",
+    "jobProfile": "Application Management Tool",
+    "dateOfRFQ": "02/10/2025",
+    "deadline": "02/02/2026"
+  },
+  {
+    "id": 4,
+    "name": "Ashoke Kumar",
+    "role": "DevOps Engineer",
+    "status": "Rejected",
+    "designation": "Head",
+    "department": "Design & Development",
+    "jobProfile": "Employee Condition Analysis",
+    "dateOfRFQ": "03/04/2026",
+    "deadline": "09/04/2026"
+  }
+]
+  const [requests, setRequests] = useState(requisitionDummyData);
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -47,7 +89,7 @@ function SubAdminDashboard() {
     return matchStatus && matchSearch;
   });
 
-  const tearClick=function(){
+  const tearClick = function () {
     setShow(!show);
   }
 
@@ -68,41 +110,41 @@ function SubAdminDashboard() {
   ];
 
   const requisition = {
+    id: 1,
+    title: "PLC Designer requisition",
+    status: "pending", // overall status
+    createdBy: "Ashish Sharma",
+    steps: [
+      {
         id: 1,
-        title: "PLC Designer requisition",
-        status: "pending", // overall status
-        createdBy: "Ashish Sharma",
-        steps: [
-            {
-                id: 1,
-                name: "Mr. Surya",
-                role: "Requester",
-                status: "confirmed",
-                date: "2026-04-10",
-            },
-            {
-                id: 2,
-                name: "Mhd. Harish",
-                role: "Reviewer",
-                status: "confirmed",
-                date: "2026-04-10",
-            },
-            {
-                id: 3,
-                name: "Arpana",
-                role: "Reviewer",
-                status: "confirmed",
-                date: "2026-07-10",
-            },
-            {
-                id: 4,
-                name: "Anuj",
-                role: "Approver",
-                status: "pending",
-                date: null,
-            },
-        ],
-    };
+        name: "Mr. Surya",
+        role: "Requester",
+        status: "confirmed",
+        date: "2026-04-10",
+      },
+      {
+        id: 2,
+        name: "Mhd. Harish",
+        role: "Reviewer",
+        status: "confirmed",
+        date: "2026-04-10",
+      },
+      {
+        id: 3,
+        name: "Arpana",
+        role: "Reviewer",
+        status: "confirmed",
+        date: "2026-07-10",
+      },
+      {
+        id: 4,
+        name: "Anuj",
+        role: "Approver",
+        status: "pending",
+        date: null,
+      },
+    ],
+  };
 
   const filters = ["All", "Pending", "Approved", "Rejected"];
 
@@ -130,7 +172,7 @@ function SubAdminDashboard() {
         <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
           <div className="flex flex-col justify-center items-center gap-3">
             <h1 className="font-light uppercase text-3xl">Welcome, Sub admin</h1>
-          <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Requisition Status</button>
+            <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Requisition Status</button>
           </div>
           <div className="flex items-center gap-3">
 
@@ -164,13 +206,13 @@ function SubAdminDashboard() {
           </div>
         </header>
 
-        <div className={`${show?"p-4 my-4 mx-2":""}`}>
+        <div className={`${show ? "p-4 my-4" : ""}`}>
           {show ? <h1 className="text-3xl text-gray-800 mb-6 uppercase font-light">Track Requisition </h1> : ''}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className={`${show ? 'h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
-            {show ? <div className="p-6">
+            {show ? <div className="p-2 md:p-6">
 
 
               <Stepper steps={requisition.steps} />
@@ -264,22 +306,31 @@ function SubAdminDashboard() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 text-gray-600">
                   <tr>
-                    <th className="p-3 text-left">Candidate</th>
-                    <th className="p-3 text-left">Role</th>
-                    <th className="p-3 text-left">Status</th>
-                    <th className="p-3 text-left">Action</th>
-                    <th className="p-3 text-left">Modification</th>
-                    <th className="p-3 text-left">View</th>
+                    <th className="p-3 text-center">RFQ Name</th>
+                    <th className="p-3 text-center">Designation</th>
+                    <th className="p-3 text-center">Department</th>
+                    <th className="p-3 text-center">Profile(Job Title) </th>
+                    <th className="p-3 text-center">Date of RFQ </th>
+                    <th className="p-3 text-center">Date of Deadline</th>
+                    <th className="p-3 text-center">Status</th>
+                    <th className="p-3 text-center">Action</th>
+                    <th className="p-3 text-center">Modification</th>
+                    <th className="p-3 text-center">View</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {filteredRequests.map((r) => (
+                  {filteredRequests.map((r, idx) => (
                     <tr key={r.id} className="border-b hover:bg-gray-50">
 
-                      <td className="p-3 font-medium">{r.name}</td>
-                      <td className="p-3 text-gray-600">{r.role}</td>
+                      <td className="p-3 font-medium">{r?.name}</td>
+                      <td className="p-3 font-medium">{r?.designation}</td>
+                      <td className="p-3 text-gray-600">{r?.department}</td>
+                      <td className="p-3 text-gray-600">{r?.jobProfile}</td> {/* Requisition job title name show */}
 
+                      <td className="p-3 text-gray-600">{r?.dateOfRFQ}</td> {/* created data on requisition form*/}
+                      <td className="p-3 text-gray-600">{r?.deadline}</td> {/*  data on requisition form*/}
+                      
                       <td className="p-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "Approved"
                           ? "bg-green-100 text-green-700"
@@ -291,17 +342,18 @@ function SubAdminDashboard() {
                         </span>
                       </td>
 
-                      <td className="p-3 flex gap-2">
+
+                      <td className="p-3 flex gap-2 justify-center">
                         <button
                           onClick={() => updateStatus(r.id, "Approved")}
-                          className="px-3 py-1 text-xs rounded bg-green-600 text-white"
+                          className="px-3 py-1 my-3 text-xs rounded bg-green-600 text-white"
                         >
                           Approve
                         </button>
 
                         <button
                           onClick={() => updateStatus(r.id, "Rejected")}
-                          className="px-3 py-1 text-xs rounded bg-red-600 text-white"
+                          className="px-3 py-2 my-3 text-xs rounded bg-red-600 text-white"
                         >
                           Reject
                         </button>
@@ -356,7 +408,7 @@ function SubAdminDashboard() {
                   </div>
 
                   {/* ACTIONS */}
-                  <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="mt-5 grid grid-cols-2 gap-2">
 
                     <button
                       onClick={() => updateStatus(r.id, "Approved")}

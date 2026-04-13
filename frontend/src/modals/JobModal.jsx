@@ -5,6 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { TestContext } from "../context/TestContext";
+import { departments, skills, qualifications } from "../data/ComboBoxData";
 function JobModel({ close, setClose }) {
   const { requisitionData, setRequisitionData } = useContext(TestContext)
   const [experiences, setExperiences] = useState([]);
@@ -37,7 +38,7 @@ function JobModel({ close, setClose }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const filteredSkills = skillOptions.filter((skill) =>
+  const filteredSkills = skills.filter((skill) =>
     skill.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -180,9 +181,8 @@ function JobModel({ close, setClose }) {
               defaultValue=""
             >
               <option value="">Highest Qualification</option>
-              <option>B.Tech</option>
-              <option>MCA</option>
-              <option>BCA</option>
+              {qualifications.map((item, idx)=><option key={idx}>{item}</option>)}
+            
             </select>
 
             {errors.highest_qualification && (
@@ -194,9 +194,7 @@ function JobModel({ close, setClose }) {
               defaultValue=""
             >
               <option value="">Department</option>
-              <option>IT</option>
-              <option>HR</option>
-              <option>Accounts</option>
+              {departments.map((item, idx)=>(<option key={idx}>{item}</option>))}
             </select>
 
             {errors.department && (

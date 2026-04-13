@@ -15,10 +15,34 @@ import { RiLogoutCircleLine } from "react-icons/ri";
 import Stepper from "../../utils/Stepper";
 import { TestContext } from "../../context/TestContext";
 import { useNavigate } from "react-router-dom";
+
 function TLDashboard() {
     const { requisitionData } = useContext(TestContext)
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
+
+    const departments = [
+        "NULL",
+        "Accounts",
+        "Admin",
+        "Application",
+        "Assembly",
+        "Design & Development",
+        "Electical & Control",
+        "Electrical & Control",
+        "Electrical Shop Floor",
+        "Fabrication",
+        "HR",
+        "IT",
+        "MECHANICAL",
+        "Operation",
+        "Pre Fab",
+        "Project Coordination",
+        "Purchase",
+        "Quality",
+        "Sales & Marketing",
+        "Tool Room"
+    ];
     // const requests = [
     //     {
     //         department: "Engineering",
@@ -46,12 +70,12 @@ function TLDashboard() {
     //     },
     // ];
 
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     console.log(requisitionData)
     const tearClick = () => {
         setShow(!show);
     }
-    
+
     const isNew = (date) => {
         const now = new Date();
         const created = new Date(date);
@@ -121,7 +145,7 @@ function TLDashboard() {
                     <div className="flex items-center gap-2 hover:text-black cursor-pointer">
                         <FaBriefcase /> Departments
                     </div>
-                    <div onClick={()=>navigate('/')} className="flex items-center gap-2 hover:text-black cursor-pointer">
+                    <div onClick={() => navigate('/')} className="flex items-center gap-2 hover:text-black cursor-pointer">
                         <RiLogoutCircleLine /> Logout
                     </div>
                 </div>
