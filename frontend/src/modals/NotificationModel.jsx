@@ -8,10 +8,10 @@ function NotificationModal({ data, onClose }) {
 
       <div className="bg-white w-96 p-5 rounded-xl shadow-lg">
 
-        <h2 className="text-lg font-bold">{data.title}</h2>
+        <h2 className="text-lg font-bold">{data.jobTitle}</h2>
 
         <p className="text-sm text-gray-600 mt-2">
-          {data.detail}
+          {data.status}
         </p>
 
         <button

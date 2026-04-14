@@ -6,11 +6,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { TestContext } from "../context/TestContext";
 import { departments, skills, qualifications } from "../data/ComboBoxData";
+import { useNotification } from "../context/NotificationContextProvider";
 function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode }) {
   const { requisitionData, setRequisitionData } = useContext(TestContext)
   const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const { addNotification } = useNotification();
   const {
     register,
     handleSubmit,
@@ -29,20 +30,31 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const filteredSkills = skills.filter((skill) =>
+  const filteredSkills = skills?.filter((skill) =>
     skill.toLowerCase().includes(search.toLowerCase())
   );
 
- const { updateRequisitionData } = useContext(TestContext);
+  const { updateRequisitionData } = useContext(TestContext);
 
-  useEffect(() => {
-    if (updateRequisitionData) {
-      reset(updateRequisitionData);  // 🔥 BEST WAY
-    }
-  }, [updateRequisitionData, reset]);
+  // useEffect(() => {
+  //   if (updateRequisitionData) {
+  //     reset(updateRequisitionData);  //BEST WAY
+  //   }
+  // }, [updateRequisitionData, reset]);
+
+  const createNewRequest = () => {
+    const newData = {
+      title: "New Candidate Applied",
+      message: "John Doe applied for Frontend role",
+      detail: "Full profile: React, Node, 3 years experience",
+    };
+
+    addNotification(newData);
+  };
+
   // SUBMIT
   const onSubmit = async (data) => {
-    
+
     const finalData = {
       ...data,
       empID: "PMA002",
@@ -55,22 +67,24 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
     try {
       setLoading(true);
 
-      if(operationMode==="update"){
+      if (operationMode === "update") {
         // await axios.post(differentOperationUrl, finalData);
-        alert(differentOperationUrl+operationMode)
-        
-      }
-      
-      if(operationMode==='create'){
-        // await axios.post(differentOperationUrl, finalData);
-        alert(differentOperationUrl+operationMode)
-        
-      }
-      setRequisitionData([...requisitionData, finalData])
+        alert(differentOperationUrl + operationMode)
+        if (updateRequisitionData) {
+          reset(updateRequisitionData);  //BEST WAY
+        }
 
-      toast.success("Requisition Created Successfully");
+      }
+
+      if (operationMode === 'create') {
+        // await axios.post(differentOperationUrl, finalData);
+        alert(differentOperationUrl+operationMode)
+        setRequisitionData([...requisitionData, finalData])
+        addNotification(finalData)
+      }
 
       reset();
+      toast.success("Requisition Created Successfully");
       setSelectedSkills([]);
       setExperiences([]);
 
@@ -82,18 +96,18 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 backdrop-blur-md bg-black/40 flex items-center justify-center z-50 p-4">
 
       {/* MODAL */}
       <motion.form
         onSubmit={handleSubmit(onSubmit)}
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-6xl bg-white rounded-xl shadow-2xl p-4 md:p-6 max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-6xl bg-white  rounded-xl shadow-2xl p-4 md:p-6 max-h-[90vh] overflow-y-auto"
       >
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center  mb-4">
           <span className="text-lg md:text-xl font-bold tracking-widest text-gray-800 uppercase">
             {modelTitleModification}
           </span>
@@ -189,8 +203,8 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
               defaultValue=""
             >
               <option value="">Highest Qualification</option>
-              {qualifications.map((item, idx)=><option key={idx}>{item}</option>)}
-            
+              {qualifications?.map((item, idx) => <option key={idx}>{item}</option>)}
+
             </select>
 
             {errors.highest_qualification && (
@@ -202,7 +216,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
               defaultValue=""
             >
               <option value="">Department</option>
-              {departments.map((item, idx)=>(<option key={idx}>{item}</option>))}
+              {departments?.map((item, idx) => (<option key={idx}>{item}</option>))}
             </select>
 
             {errors.department && (
@@ -374,8 +388,8 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
                         <label
                           key={exp}
                           className={`px-3 py-1 rounded-md border text-xs cursor-pointer ${current.includes(exp)
-                              ? "bg-purple-600 text-white"
-                              : "bg-white text-gray-700"
+                            ? "bg-purple-600 text-white"
+                            : "bg-white text-gray-700"
                             }`}
                         >
                           <input
@@ -468,7 +482,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
                     {open && (
                       <div className="absolute w-full mt-1 bg-white border rounded-md shadow-md max-h-40 md:max-h-48 overflow-y-auto z-50">
-                        {filteredSkills.map((skill, index) => (
+                        {filteredSkills?.map((skill, index) => (
                           <div
                             key={index}
                             onClick={() => handleToggle(skill)}

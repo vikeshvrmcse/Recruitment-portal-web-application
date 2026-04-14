@@ -21,33 +21,33 @@ function TLDashboard() {
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
 
-    
-    // const requests = [
-    //     {
-    //         department: "Engineering",
-    //         role: "Frontend Developer",
-    //         count: 3,
-    //         experience: "2-4 Years",
-    //         skills: "React, JS, Tailwind",
-    //         status: "Pending",
-    //     },
-    //     {
-    //         department: "HR",
-    //         role: "HR Executive",
-    //         count: 2,
-    //         experience: "1-3 Years",
-    //         skills: "Communication, Hiring",
-    //         status: "Approved",
-    //     },
-    //     {
-    //         department: "Marketing",
-    //         role: "SEO Specialist",
-    //         count: 1,
-    //         experience: "2+ Years",
-    //         skills: "SEO, Analytics",
-    //         status: "In Review",
-    //     },
-    // ];
+
+    const requests = [
+        {
+            department: "Engineering",
+            role: "Frontend Developer",
+            count: 3,
+            experience: "2-4 Years",
+            skills: "React, JS, Tailwind",
+            status: "Pending",
+        },
+        {
+            department: "HR",
+            role: "HR Executive",
+            count: 2,
+            experience: "1-3 Years",
+            skills: "Communication, Hiring",
+            status: "Approved",
+        },
+        {
+            department: "Marketing",
+            role: "SEO Specialist",
+            count: 1,
+            experience: "2+ Years",
+            skills: "SEO, Analytics",
+            status: "In Review",
+        },
+    ];
 
     const navigate = useNavigate();
     console.log(requisitionData)
@@ -265,7 +265,7 @@ function TLDashboard() {
                     )} */}
 
 
-                    {filteredRequests.map((item, index) => {
+                    {filteredRequests?.map((item, index) => {
                         const isItemNew = isNew(item.createdAt);
 
                         return (

@@ -59,7 +59,7 @@ function SubAdminDashboard() {
     dateOfRFQ: "05/03/2026",
     deadline: "16/03/2026",
 
-    // ✅ New Fields
+    // New Fields
     createdAt: new Date("2026-04-13T22:40:15"),
     empID: "PMA002",
     reqType: "New",
@@ -97,7 +97,7 @@ function SubAdminDashboard() {
     dateOfRFQ: "02/10/2025",
     deadline: "02/02/2026",
 
-    // ✅ New Fields
+    // New Fields
     createdAt: new Date("2026-04-13T22:40:15"),
     empID: "PMA002",
     reqType: "New",
@@ -135,7 +135,7 @@ function SubAdminDashboard() {
     dateOfRFQ: "03/04/2026",
     deadline: "09/04/2026",
 
-    // ✅ New Fields
+    // New Fields
     createdAt: new Date("2026-04-13T22:40:15"),
     empID: "PMA002",
     reqType: "New",
@@ -171,7 +171,7 @@ function SubAdminDashboard() {
   const [show, setShow] = useState(false)
 
   const handleEdit = (row) => {
-  setUpdateRequisitionData(row);  // 🔥 send data to form
+  setUpdateRequisitionData(row);  //send data to form
 };
 
   const updateStatus = (id, status) => {

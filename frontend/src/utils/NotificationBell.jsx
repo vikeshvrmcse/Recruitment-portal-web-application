@@ -9,7 +9,7 @@ function NotificationBell() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // 🔒 Close on outside click
+  //Close on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -70,18 +70,18 @@ function NotificationBell() {
                 No notifications
               </p>
             ) : (
-              notifications.map((n) => (
+              notifications?.map((n) => (
                 <div
                   key={n.id}
-                  onClick={() => markAsRead(n.id)}
+                  onClick={() => markAsRead(n?.id)}
                   className={`
                     p-3 border-b cursor-pointer transition
                     hover:bg-gray-100
                     ${!n.read ? "bg-yellow-50" : ""}
                   `}
                 >
-                  <p className="font-medium text-sm">{n.title}</p>
-                  <p className="text-xs text-gray-600">{n.message}</p>
+                  <p className="font-medium text-sm">{n?.jobTitle}</p>
+                  <p className="text-xs text-gray-600">{n?.status}</p>
 
                   {!n.read && (
                     <p className="text-xs text-blue-600 mt-1">

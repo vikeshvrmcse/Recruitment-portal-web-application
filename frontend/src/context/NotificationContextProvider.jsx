@@ -1,4 +1,4 @@
-import React, {useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import { NotificationContext } from "./TestContext";
 
 
@@ -10,9 +10,28 @@ export const NotificationProvider = ({ children }) => {
   const addNotification = (data) => {
     const newNotification = {
       id: Date.now(),
-      title: data.title,
-      message: data.message,
-      detail: data.detail,
+      createdAt: new Date(),
+
+      // mapping fields
+      jobTitle: data.jobTitle,
+      description: data.description,
+      requirements: data.requirements,
+
+      // additional fields (from form or defaults)
+      deadline: data.deadline,
+      department: data.department,
+      empID: data.empID,
+      experienceLevel: data.experienceLevel || [],
+      highest_qualification: data.highest_qualification,
+      job_type: data.job_type,
+      location: data.location,
+      reqType: data.reqType,
+      requisition_reason: data.requisition_reason,
+      skills: data.skills || [],
+      status: data.status,
+      vacancy: data.vacancy,
+      year_of_experience: data.year_of_experience,
+
       read: false,
     };
 
