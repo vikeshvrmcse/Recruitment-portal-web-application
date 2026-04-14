@@ -250,9 +250,7 @@ function SubAdminDashboard() {
                   <p className="text-2xl font-bold">{s.value}</p>
                 </div>
               ))}
-
             </div>
-
           </div>
 
 
@@ -266,7 +264,6 @@ function SubAdminDashboard() {
               <h2 className="font-light text-xl md:text-2xl">
                 Requisition Approvals
               </h2>
-
               <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
                 Generate Report
               </button>
@@ -327,7 +324,6 @@ function SubAdminDashboard() {
                       <td className="p-3 font-medium">{r?.designation}</td>
                       <td className="p-3 text-gray-600">{r?.department}</td>
                       <td className="p-3 text-gray-600">{r?.jobProfile}</td> {/* Requisition job title name show */}
-
                       <td className="p-3 text-gray-600">{r?.dateOfRFQ}</td> {/* created data on requisition form*/}
                       <td className="p-3 text-gray-600">{r?.deadline}</td> {/*  data on requisition form*/}
                       
@@ -385,7 +381,6 @@ function SubAdminDashboard() {
 
             {/* ================= MOBILE CARD VIEW ================= */}
             <div className="md:hidden p-4 space-y-4">
-
               {filteredRequests.map((r) => (
                 <div key={r.id} className="border rounded-lg p-4 shadow-sm bg-white">
 
