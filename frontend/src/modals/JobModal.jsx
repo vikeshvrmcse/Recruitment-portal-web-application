@@ -4,14 +4,33 @@ import { FaChevronDown, FaTimes } from "react-icons/fa";
 import { Controller, useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { TestContext } from "../context/TestContext";
+import { TestContext, UpdateRequisitionContext } from "../context/TestContext";
 import { departments, skills, qualifications } from "../data/ComboBoxData";
 import { useNotification } from "../context/NotificationContextProvider";
 function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode }) {
   const { requisitionData, setRequisitionData } = useContext(TestContext)
-  const [experiences, setExperiences] = useState([]);
+  // const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(false);
   const { addNotification } = useNotification();
+  const initialState = {
+    createdAt: null,
+    deadline: "",
+    department: "",
+    description: "",
+    empID: "",
+    experienceLevel: [],
+    highest_qualification: "",
+    jobTitle: "",
+    job_type: "",
+    location: "",
+    reqType: "",
+    requirements: "",
+    requisition_reason: "",
+    skills: [],
+    status: "pending",
+    vacancy: "",
+    year_of_experience: "",
+  };
   const {
     register,
     handleSubmit,
@@ -19,10 +38,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
     control,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      reqType: "",
-      location: "",
-    },
+    defaultValues: initialState,
   });
 
 
@@ -34,23 +50,27 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
     skill.toLowerCase().includes(search.toLowerCase())
   );
 
-  const { updateRequisitionData } = useContext(TestContext);
+  const { updateRequisitionData, setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
 
-  // useEffect(() => {
-  //   if (updateRequisitionData) {
-  //     reset(updateRequisitionData);  //BEST WAY
-  //   }
-  // }, [updateRequisitionData, reset]);
+  useEffect(() => {
+    if (updateRequisitionData) {
+      reset(updateRequisitionData);  //BEST WAY
+    }
 
-  const createNewRequest = () => {
-    const newData = {
-      title: "New Candidate Applied",
-      message: "John Doe applied for Frontend role",
-      detail: "Full profile: React, Node, 3 years experience",
-    };
 
-    addNotification(newData);
-  };
+  }, [updateRequisitionData, reset]);
+
+
+
+  // const createNewRequest = () => {
+  //   const newData = {
+  //     title: "New Candidate Applied",
+  //     message: "John Doe applied for Frontend role",
+  //     detail: "Full profile: React, Node, 3 years experience",
+  //   };
+
+  //   addNotification(newData);
+  // };
 
   // SUBMIT
   const onSubmit = async (data) => {
@@ -70,23 +90,22 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       if (operationMode === "update") {
         // await axios.post(differentOperationUrl, finalData);
         alert(differentOperationUrl + operationMode)
-        if (updateRequisitionData) {
-          reset(updateRequisitionData);  //BEST WAY
-        }
 
       }
 
       if (operationMode === 'create') {
         // await axios.post(differentOperationUrl, finalData);
-        alert(differentOperationUrl+operationMode)
+
+
+        alert(differentOperationUrl + operationMode)
         setRequisitionData([...requisitionData, finalData])
         addNotification(finalData)
       }
 
-      reset();
+      reset()
       toast.success("Requisition Created Successfully");
-      setSelectedSkills([]);
-      setExperiences([]);
+      setUpdateRequisitionData(null);
+
 
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed");
@@ -525,8 +544,6 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
             type="button"
             onClick={() => {
               reset();
-              setSelectedSkills([]);
-              setExperiences([]);
             }}
             className="w-full bg-slate-800 text-white py-2 rounded-lg text-sm md:text-lg"
           >

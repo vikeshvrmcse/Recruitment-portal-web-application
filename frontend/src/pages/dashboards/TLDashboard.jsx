@@ -22,33 +22,6 @@ function TLDashboard() {
     const [open, setOpen] = useState(false);
 
 
-    const requests = [
-        {
-            department: "Engineering",
-            role: "Frontend Developer",
-            count: 3,
-            experience: "2-4 Years",
-            skills: "React, JS, Tailwind",
-            status: "Pending",
-        },
-        {
-            department: "HR",
-            role: "HR Executive",
-            count: 2,
-            experience: "1-3 Years",
-            skills: "Communication, Hiring",
-            status: "Approved",
-        },
-        {
-            department: "Marketing",
-            role: "SEO Specialist",
-            count: 1,
-            experience: "2+ Years",
-            skills: "SEO, Analytics",
-            status: "In Review",
-        },
-    ];
-
     const navigate = useNavigate();
     console.log(requisitionData)
     const tearClick = () => {
@@ -151,7 +124,7 @@ function TLDashboard() {
                 {open && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                         <div className="w-full max-w-5xl">
-                            <JobModel close={open} setClose={setOpen} differentOperationUrl={"https://localhost:6000/user"} operationMode={"create"} />
+                            <JobModel key={open ? "open" : "closed"} close={open} setClose={setOpen} differentOperationUrl={"https://localhost:6000/user"} operationMode={"create"} />
                         </div>
                     </div>
                 )}

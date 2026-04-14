@@ -163,7 +163,7 @@ function Login() {
             className="w-full bg-slate-800 text-white py-2 rounded-lg hover:shadow-md hover:shadow-slate-800 hover:bg-white transition-all duration-300 text-2xl font-light hover:text-slate-800 flex items-center justify-center"
           >
             {loading ? (
-              <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+              <span className="animate-spin h-5 w-5 border-2 border-slate-800 border-t-transparent rounded-full"></span>
             ) : (
               "Sign In"
             )}
