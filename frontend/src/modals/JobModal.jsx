@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FaChevronDown, FaTimes } from "react-icons/fa";
 import { Controller, useForm } from "react-hook-form";
@@ -6,7 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { TestContext } from "../context/TestContext";
 import { departments, skills, qualifications } from "../data/ComboBoxData";
-function JobModel({ close, setClose }) {
+function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode }) {
   const { requisitionData, setRequisitionData } = useContext(TestContext)
   const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,16 +24,7 @@ function JobModel({ close, setClose }) {
     },
   });
 
-  const skillOptions = [
-    "React",
-    "Node.js",
-    "Python",
-    "Django",
-    "SQL",
-    "Tailwind",
-    "HR Management",
-    "PLC Design",
-  ];
+
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -42,9 +33,16 @@ function JobModel({ close, setClose }) {
     skill.toLowerCase().includes(search.toLowerCase())
   );
 
+ const { updateRequisitionData } = useContext(TestContext);
 
+  useEffect(() => {
+    if (updateRequisitionData) {
+      reset(updateRequisitionData);  // 🔥 BEST WAY
+    }
+  }, [updateRequisitionData, reset]);
   // SUBMIT
   const onSubmit = async (data) => {
+    
     const finalData = {
       ...data,
       empID: "PMA002",
@@ -52,12 +50,22 @@ function JobModel({ close, setClose }) {
       createdAt: new Date(),
     };
 
-    console.log("📦 Final Data:", finalData);
+    console.log("Final Data:", finalData);
 
     try {
       setLoading(true);
 
-      // await axios.post("https://example.com/api/requisition", finalData);
+      if(operationMode==="update"){
+        // await axios.post(differentOperationUrl, finalData);
+        alert(differentOperationUrl+operationMode)
+        
+      }
+      
+      if(operationMode==='create'){
+        // await axios.post(differentOperationUrl, finalData);
+        alert(differentOperationUrl+operationMode)
+        
+      }
       setRequisitionData([...requisitionData, finalData])
 
       toast.success("Requisition Created Successfully");
@@ -87,7 +95,7 @@ function JobModel({ close, setClose }) {
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <span className="text-lg md:text-xl font-bold tracking-widest text-gray-800 uppercase">
-            Create Job Requisition
+            {modelTitleModification}
           </span>
 
           <button
@@ -354,7 +362,7 @@ function JobModel({ close, setClose }) {
                   (value && value.length > 0) || "Select at least one experience level",
               }}
               render={({ field }) => {
-                // ✅ ALWAYS ensure array
+                // ALWAYS ensure array
                 const current = Array.isArray(field.value) ? field.value : [];
 
                 return (
@@ -430,13 +438,12 @@ function JobModel({ close, setClose }) {
                       onClick={() => setOpen(!open)}
                       className="border rounded-md p-2 flex flex-wrap gap-2 items-center cursor-pointer"
                     >
-                      {(field.value || []).map((skill) => (
+                      {(field.value || []).map((skill, index) => (
                         <span
-                          key={skill}
+                          key={index}
                           className="flex items-center gap-1 bg-slate-600 text-white px-2 py-1 rounded text-xs"
                         >
                           {skill}
-
                           <FaTimes
                             onClick={(e) => {
                               e.stopPropagation();
@@ -456,15 +463,14 @@ function JobModel({ close, setClose }) {
                         }}
                         className="flex-1 outline-none text-sm"
                       />
-
                       <FaChevronDown />
                     </div>
 
                     {open && (
                       <div className="absolute w-full mt-1 bg-white border rounded-md shadow-md max-h-40 md:max-h-48 overflow-y-auto z-50">
-                        {filteredSkills.map((skill) => (
+                        {filteredSkills.map((skill, index) => (
                           <div
-                            key={skill}
+                            key={index}
                             onClick={() => handleToggle(skill)}
                             className="px-3 py-2 text-sm cursor-pointer flex justify-between hover:bg-gray-100"
                           >
@@ -485,10 +491,7 @@ function JobModel({ close, setClose }) {
               }}
             />
           </div>
-
-
         </div>
-
 
 
         {/* BUTTONS */}

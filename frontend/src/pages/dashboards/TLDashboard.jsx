@@ -21,28 +21,7 @@ function TLDashboard() {
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
 
-    const departments = [
-        "NULL",
-        "Accounts",
-        "Admin",
-        "Application",
-        "Assembly",
-        "Design & Development",
-        "Electical & Control",
-        "Electrical & Control",
-        "Electrical Shop Floor",
-        "Fabrication",
-        "HR",
-        "IT",
-        "MECHANICAL",
-        "Operation",
-        "Pre Fab",
-        "Project Coordination",
-        "Purchase",
-        "Quality",
-        "Sales & Marketing",
-        "Tool Room"
-    ];
+    
     // const requests = [
     //     {
     //         department: "Engineering",
@@ -172,7 +151,7 @@ function TLDashboard() {
                 {open && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                         <div className="w-full max-w-5xl">
-                            <JobModel close={open} setClose={setOpen} />
+                            <JobModel close={open} setClose={setOpen} differentOperationUrl={"https://localhost:6000/user"} operationMode={"create"} />
                         </div>
                     </div>
                 )}
