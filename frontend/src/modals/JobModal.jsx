@@ -4,7 +4,7 @@ import { FaChevronDown, FaTimes } from "react-icons/fa";
 import { Controller, useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { TestContext, UpdateRequisitionContext } from "../context/TestContext";
+import { EmployeeLoginContext, TestContext, UpdateRequisitionContext } from "../context/TestContext";
 import { departments, skills, qualifications } from "../data/ComboBoxData";
 import { useNotification } from "../context/NotificationContextProvider";
 function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode }) {
@@ -45,6 +45,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const {tlLoginInformation}=useContext(EmployeeLoginContext)
 
   const filteredSkills = skills?.filter((skill) =>
     skill.toLowerCase().includes(search.toLowerCase())
@@ -56,28 +57,13 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
     if (updateRequisitionData) {
       reset(updateRequisitionData);  //BEST WAY
     }
-
-
   }, [updateRequisitionData, reset]);
-
-
-
-  // const createNewRequest = () => {
-  //   const newData = {
-  //     title: "New Candidate Applied",
-  //     message: "John Doe applied for Frontend role",
-  //     detail: "Full profile: React, Node, 3 years experience",
-  //   };
-
-  //   addNotification(newData);
-  // };
 
   // SUBMIT
   const onSubmit = async (data) => {
-
     const finalData = {
       ...data,
-      empID: "PMA002",
+      empID: tlLoginInformation?.empID,
       status: "pending",
       createdAt: new Date(),
     };
@@ -88,18 +74,17 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       setLoading(true);
 
       if (operationMode === "update") {
-        // await axios.post(differentOperationUrl, finalData);
-        alert(differentOperationUrl + operationMode)
+        await axios.put(differentOperationUrl, finalData);
+        alert(`${differentOperationUrl} and operation mode: ${operationMode}`)
 
       }
 
       if (operationMode === 'create') {
-        // await axios.post(differentOperationUrl, finalData);
-
-
-        alert(differentOperationUrl + operationMode)
+        await axios.post(differentOperationUrl, finalData);
         setRequisitionData([...requisitionData, finalData])
         addNotification(finalData)
+        alert(`${differentOperationUrl} and operation mode: ${operationMode}`)
+
       }
 
       reset()
@@ -175,8 +160,6 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
             {errors.requirements && (
               <p className="text-red-500 text-xs">{errors.requirements.message}</p>
             )}
-
-
 
             <textarea
               {...register("requisition_reason", { required: "Requisition required" })}

@@ -1,11 +1,18 @@
-// src/components/auth/PrivateRoute.jsx
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const PrivateRoute = () => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+const PrivateRoute = ({ allowedRoles }) => {
+  const { isAuthenticated, level } = useSelector((state) => state.auth);
+
+  if (level === null) {
+    return <div>Loading...</div>; // or spinner
+  }
 
   if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!allowedRoles.includes(level)) {
     return <Navigate to="/access-denied" replace />;
   }
 

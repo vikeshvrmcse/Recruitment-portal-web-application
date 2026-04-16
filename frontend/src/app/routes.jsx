@@ -19,7 +19,7 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
 
-      //Public Routes
+      // Public Routes
       {
         element: <PublicRoute />,
         children: [
@@ -28,32 +28,31 @@ export const router = createBrowserRouter([
         ],
       },
 
-
-      //Private Routes
+      // TL Dashboard (only TL allowed)
       {
-        element: <PublicRoute />,
+        element: <PrivateRoute allowedRoles={["L2"]} />,
         children: [
           { path: "/tl_dashboard", element: <TLDashboard /> },
         ],
       },
-      //Private Routes
+
+      // SubAdmin Dashboard (only SubAdmin allowed)
       {
-        element: <PublicRoute />,
+        element: <PrivateRoute allowedRoles={["L1"]} />,
         children: [
           { path: "/sub_admin_dashboard", element: <SubAdminDashboard /> },
         ],
       },
 
-      
-      //Access Denied
+      // Access Denied
       {
         path: "/access-denied",
         element: <AccessDenied />,
       },
 
       {
-        path:"*",
-        element:<NotFound/>
+        path: "*",
+        element: <NotFound />,
       }
 
     ],

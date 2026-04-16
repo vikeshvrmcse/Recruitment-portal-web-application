@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -7,45 +7,70 @@ import { motion } from "framer-motion";
 import pioneer_logo from "../../../assets/pioneer-logo.png";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { EmployeeLoginContext } from "../../../context/TestContext";
+import axios from "axios";
+const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../authSlice";
 
 function Login() {
+  const { setLoginInformation, setTLLoginInformation } = useContext(EmployeeLoginContext)
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
-
+const dispatch=useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
   const captchaValue = "1234";
 
   const onSubmit = (data) => {
-    setLoading(true);
+    try {
+      setLoading(true);
+      setTimeout(async () => {
+        setLoading(false);
 
-    setTimeout(() => {
-      setLoading(false);
+        if (data.captcha !== captchaValue) {
+          toast.error("Invalid captcha!");
+          return;
+        }
 
-      if (data.captcha !== captchaValue) {
-        toast.error("Invalid captcha!");
-        return;
-      }
+        if (data.empID === "PMA0171") {
+          localStorage.removeItem("auth");
+          const response = await axios.post(`${APP_BACKEND_URL}/EmployeeDetails`, {
+            empID: data.empID,
+            password: data.password
+          })
 
-      if (data.empID === "PMA0002") {
-        toast.success("Login successful!");
-        navigate('/sub_admin_dashboard')
-        return;
+          dispatch(loginSuccess(response.data?.data))
+          setLoginInformation(response.data?.data)
+          toast.success(response.data?.data?.message);
+          // navigate('/sub_admin_dashboard')
+          return;
 
-      }
+        }
 
-      if (data.empID === "PMA0662") {
-        toast.success("Login successful!");
-        navigate('/tl_dashboard')
-        return;
-      }
-      reset();
-    }, 1200);
+        if (data.empID === "PMA0170") {
+          localStorage.removeItem("auth");
+          const response = await axios.post(`${APP_BACKEND_URL}/EmployeeDetails`, {
+            empID: data.empID,
+            password: data.password
+          })
+          dispatch(loginSuccess(response.data?.data))
+          setTLLoginInformation(response.data?.data)
+          toast.success(response.data?.data?.message);
+          // navigate('/tl_dashboard')
+          return;
+        }
+        reset();
+      }, 1200);
+    } catch (error) {
+      toast.error(error.message)
+    }
+
 
   };
 

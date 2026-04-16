@@ -5,12 +5,20 @@ import NotificationBell from "../../utils/NotificationBell";
 import { motion } from "framer-motion";
 import Stepper from "../../utils/Stepper";
 import JobModel from "../../modals/JobModal";
-import { UpdateRequisitionContextProvider } from "../../context/UpdateRequisitionContextProvider";
-import { TestContext, UpdateRequisitionContext } from "../../context/TestContext";
+import { UpdateRequisitionContext, EmployeeLoginContext } from "../../context/TestContext";
+
+
 import EmployeeModal from "../../modals/EmployeeModal";
+import { useNavigate } from "react-router-dom";
+
+import { useDispatch } from "react-redux";
+import { logout } from "../../features/auth/authSlice";
+
 function SubAdminDashboard() {
+const dispatch=useDispatch();
 
-
+  const {loginInformation}=useContext(EmployeeLoginContext)
+  
   const requisitionDummyData = [
     {
       id: 1,
@@ -187,15 +195,8 @@ function SubAdminDashboard() {
   const { addNotification } = useNotification();
   const [selected, setSelected] = useState(null);
 
-  const createNewRequest = () => {
-    const newData = {
-      title: "New Candidate Applied",
-      message: "John Doe applied for Frontend role",
-      detail: "Full profile: React, Node, 3 years experience",
-    };
-
-    addNotification(newData);
-  };
+  const navigate=useNavigate()
+  
 
   // FILTER + SEARCH LOGIC
   const filteredRequests = requests.filter((r) => {
@@ -277,10 +278,10 @@ function SubAdminDashboard() {
         </div>
 
         <nav className="flex-1 p-4 space-y-3 text-sm">
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Dashboard</p>
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Recruitment</p>
+          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Profile</p>
           <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Approvals</p>
           <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Settings</p>
+          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={()=>{dispatch(logout())}}>Logout</p>
         </nav>
       </aside>
 
@@ -290,30 +291,31 @@ function SubAdminDashboard() {
         {/* TOP BAR */}
         <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
           <div className="flex flex-col justify-center items-center gap-3">
-            <h1 className="font-light uppercase text-3xl">Welcome, Sub admin</h1>
+            <h1 className="font-light uppercase text-3xl">Welcome, {loginInformation?.empName}</h1>
+            <span className="font-light uppercase text-sm">Location, {loginInformation?.companyLocation}</span>
             <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Requisition Status</button>
           </div>
           <div className="flex items-center gap-3">
 
 
-            <div className="p-6">
+            <div className="p-6 ">
 
               {/* TOP BAR */}
-              <div className="flex justify-between items-center">
-                <div className="w-9 h-9 rounded-full bg-pink-900 text-white flex items-center justify-center">
-                  SA
+              <div className="flex justify-between items-center gap-6">
+                <div className="w-9 h-9 uppercase rounded-full bg-pink-900 text-white flex items-center justify-center">
+                  {loginInformation?.empName?.slice(0,2)}
                 </div>
 
                 <NotificationBell />
               </div>
 
-              {/* ACTION */}
+              {/* ACTION
               <button
                 onClick={createNewRequest}
                 className="mt-5 bg-green-600 text-white px-4 py-2 rounded"
               >
                 Create New Candidate
-              </button>
+              </button> */}
 
               {/* MODAL */}
               <NotificationModal
@@ -392,11 +394,6 @@ function SubAdminDashboard() {
             </div>
           )}
 
-
-    
-
-
-
           {/* TABLE */}
           {/* TABLE */}
           <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
@@ -460,14 +457,14 @@ function SubAdminDashboard() {
 
                 <tbody>
                   {filteredRequests.map((r, idx) => (
-                    <tr key={r.id} className="border-b hover:bg-gray-50">
+                    <tr key={idx} className="border-b hover:bg-gray-50">
 
                       <td className="p-3 font-medium">{r?.name}</td>
                       <td className="p-3 font-medium">{r?.designation}</td>
                       <td className="p-3 text-gray-600">{r?.department}</td>
-                      <td className="p-3 text-gray-600">{r?.jobProfile}</td> {/* Requisition job title name show */}
-                      <td className="p-3 text-gray-600">{r?.dateOfRFQ}</td> {/* created data on requisition form*/}
-                      <td className="p-3 text-gray-600">{r?.deadline}</td> {/*  data on requisition form*/}
+                      <td className="p-3 text-gray-600">{r?.jobProfile}</td> 
+                      <td className="p-3 text-gray-600">{r?.dateOfRFQ}</td> 
+                      <td className="p-3 text-gray-600">{r?.deadline}</td> 
 
                       <td className="p-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "Approved"
@@ -524,7 +521,7 @@ function SubAdminDashboard() {
 
             {/* ================= MOBILE CARD VIEW ================= */}
             <div className="md:hidden p-4 space-y-4">
-              {filteredRequests.map((r) => (
+              {filteredRequests.map((r, idx) => (
                 <div key={r.id} className="border rounded-lg p-4 shadow-sm bg-white">
 
                   {/* NAME + ROLE */}
@@ -563,17 +560,17 @@ function SubAdminDashboard() {
                     </button>
 
                     <button
-                      onClick={() => updateStatus(r.id, "Modify")}
+                      onClick={() => { updateStatus(r.id, "Modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
                       className="bg-yellow-600 text-white text-xs py-2 rounded"
                     >
                       Modify
                     </button>
 
                     <button
-                      onClick={() => updateStatus(r.id, "View")}
+                       onClick={() => { updateStatus(r.id, "View"); setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
                       className="bg-blue-600 text-white text-xs py-2 rounded"
                     >
-                      View
+                      Show
                     </button>
 
                   </div>

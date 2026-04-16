@@ -1,12 +1,17 @@
-// src/components/auth/PublicRoute.jsx
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const PublicRoute = () => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, level } = useSelector((state) => state.auth);
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    if (level === "L1") {
+      return <Navigate to="/sub_admin_dashboard" replace />;
+    } else if (level === "L2") {
+      return <Navigate to="/tl_dashboard" replace />;
+    } else if (level === "L3") {
+      return <Navigate to="/admin_dashboard" replace />;
+    }
   }
 
   return <Outlet />;

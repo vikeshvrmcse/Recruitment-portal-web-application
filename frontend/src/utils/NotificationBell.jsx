@@ -81,7 +81,9 @@ function NotificationBell() {
                   `}
                 >
                   <p className="font-medium text-sm">{n?.jobTitle}</p>
-                  <p className="text-xs text-gray-600">{n?.status}</p>
+                  <p className="text-xs text-gray-600">{n?.description}</p>
+                  <p className="text-xs text-gray-600">{n?.requisition_reason}</p>
+                  {n?.status==='pending'?<button onClick={()=>alert("Status updated!!!")} className="bg-green-600 p-1 text-sm text-white focus:bg-slate-400 rounded-lg my-2">Confirm</button>:""}
 
                   {!n.read && (
                     <p className="text-xs text-blue-600 mt-1">

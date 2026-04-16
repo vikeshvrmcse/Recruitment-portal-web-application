@@ -13,11 +13,12 @@ import JobModel from "../../modals/JobModal";
 import { CgProfile } from "react-icons/cg";
 import { RiLogoutCircleLine } from "react-icons/ri";
 import Stepper from "../../utils/Stepper";
-import { TestContext } from "../../context/TestContext";
+import { EmployeeLoginContext, TestContext } from "../../context/TestContext";
 import { useNavigate } from "react-router-dom";
 
 function TLDashboard() {
     const { requisitionData } = useContext(TestContext)
+    const {tlLoginInformation}=useContext(EmployeeLoginContext)
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
 
@@ -92,10 +93,10 @@ function TLDashboard() {
                         <CgProfile /> Profile
                     </div>
                     <div className="flex items-center gap-2 hover:text-black cursor-pointer">
-                        <FaUsers /> Requests
+                        <FaUsers /> Requisitions
                     </div>
                     <div className="flex items-center gap-2 hover:text-black cursor-pointer">
-                        <FaBriefcase /> Departments
+                        <FaBriefcase /> Settings
                     </div>
                     <div onClick={() => navigate('/')} className="flex items-center gap-2 hover:text-black cursor-pointer">
                         <RiLogoutCircleLine /> Logout
@@ -111,7 +112,7 @@ function TLDashboard() {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 my-6"
                 >
-                    <h1 className="text-3xl font-bold text-gray-800 mb-6 uppercase">Welcome, <span className="text-pink-600">Team Leader </span></h1>
+                    <h1 className="text-3xl font-bold text-gray-800 mb-6 uppercase">Welcome, <span className="text-pink-600">{tlLoginInformation?.empName} </span></h1>
                     <div className="flex flex-wrap gap-2">
                         <button onClick={() => setOpen(true)} className="text-xl font-light bg-green-100 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
                         <button className="text-xl font-light bg-red-100 border-2 border-red-800 hover:border-red-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-red-700">- Resignation</button>
@@ -124,7 +125,7 @@ function TLDashboard() {
                 {open && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                         <div className="w-full max-w-5xl">
-                            <JobModel key={open ? "open" : "closed"} close={open} setClose={setOpen} differentOperationUrl={"https://localhost:6000/user"} operationMode={"create"} />
+                            <JobModel key={open ? "open" : "closed"} close={open} setClose={setOpen} differentOperationUrl={"https://localhost:7073/api/requisition"} operationMode={"create"} />
                         </div>
                     </div>
                 )}
