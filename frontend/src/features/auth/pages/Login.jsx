@@ -14,14 +14,14 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "../authSlice";
 
 function Login() {
-  const { setLoginInformation, setTLLoginInformation } = useContext(EmployeeLoginContext)
+  const { setLoginInformation, setTLLoginInformation, setRequisitionInformation } = useContext(EmployeeLoginContext)
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
-const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
@@ -44,9 +44,9 @@ const dispatch=useDispatch();
             empID: data.empID,
             password: data.password
           })
-
+          
           dispatch(loginSuccess(response.data?.data))
-          setLoginInformation(response.data?.data)
+          // setLoginInformation(response.data?.data)
           toast.success(response.data?.data?.message);
           // navigate('/sub_admin_dashboard')
           return;
@@ -60,7 +60,7 @@ const dispatch=useDispatch();
             password: data.password
           })
           dispatch(loginSuccess(response.data?.data))
-          setTLLoginInformation(response.data?.data)
+          // setLoginInformation(response.data?.data)
           toast.success(response.data?.data?.message);
           // navigate('/tl_dashboard')
           return;
@@ -76,9 +76,7 @@ const dispatch=useDispatch();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">
-
       <ToastContainer />
-
       {/* PAGE ANIMATION */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}

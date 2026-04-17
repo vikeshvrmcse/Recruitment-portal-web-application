@@ -8,34 +8,11 @@ export const NotificationProvider = ({ children }) => {
 
   // Add notification
   const addNotification = (data) => {
-    const newNotification = {
-      id: Date.now(),
-      createdAt: new Date(),
-
-      // mapping fields
-      jobTitle: data.jobTitle,
-      description: data.description,
-      requirements: data.requirements,
-
-      // additional fields (from form or defaults)
-      deadline: data.deadline,
-      department: data.department,
-      empID: data.empID,
-      experienceLevel: data.experienceLevel || [],
-      highest_qualification: data.highest_qualification,
-      job_type: data.job_type,
-      location: data.location,
-      reqType: data.reqType,
-      requisition_reason: data.requisition_reason,
-      skills: data.skills || [],
-      status: data.status,
-      vacancy: data.vacancy,
-      year_of_experience: data.year_of_experience,
-
-      read: false,
-    };
-
-    setNotifications((prev) => [newNotification, ...prev]);
+    // const newNotification = {
+    //   ...data,
+    //   read:false
+    // };
+    setNotifications([...data]);
   };
 
   // mark as read

@@ -47,10 +47,10 @@ export default function EmployeeModal({ isOpen, onClose }) {
                     <Info label="Employee ID" value={updateRequisitionData?.empID} />
                     <Info label="Designation" value={updateRequisitionData?.designation} />
                     <Info label="Department" value={updateRequisitionData?.department} />
-                    <Info label="Job Type" value={updateRequisitionData?.job_type} />
+                    <Info label="Job Type" value={updateRequisitionData?.jobType} />
                     <Info label="Location" value={updateRequisitionData?.location} />
-                    <Info label="Experience" value={`${updateRequisitionData?.year_of_experience} Years`} />
-                    <Info label="Qualification" value={updateRequisitionData?.highest_qualification} />
+                    <Info label="Experience" value={`${updateRequisitionData?.yearOfExperience} Years`} />
+                    <Info label="Qualification" value={updateRequisitionData?.highestQualification} />
                     <Info label="Vacancy" value={updateRequisitionData?.vacancy} />
                 </div>
 

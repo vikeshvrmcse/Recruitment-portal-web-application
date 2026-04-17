@@ -7,6 +7,8 @@ function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef();
 
+  console.log(notifications)
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   //Close on outside click
@@ -82,7 +84,7 @@ function NotificationBell() {
                 >
                   <p className="font-medium text-sm">{n?.jobTitle}</p>
                   <p className="text-xs text-gray-600">{n?.description}</p>
-                  <p className="text-xs text-gray-600">{n?.requisition_reason}</p>
+                  <p className="text-xs text-gray-600">{n?.requisitionReason}</p>
                   {n?.status==='pending'?<button onClick={()=>alert("Status updated!!!")} className="bg-green-600 p-1 text-sm text-white focus:bg-slate-400 rounded-lg my-2">Confirm</button>:""}
 
                   {!n.read && (

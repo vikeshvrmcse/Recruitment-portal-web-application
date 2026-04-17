@@ -1,6 +1,7 @@
 import React from "react";
 
 function NotificationModal({ data, onClose }) {
+  
   if (!data) return null;
 
   return (

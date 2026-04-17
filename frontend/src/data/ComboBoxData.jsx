@@ -335,4 +335,159 @@ const qualifications = [
   "Others"
 ];
 
-export {departments, skills, qualifications};
+  const requisitionDummyData = [
+    {
+      id: 1,
+      name: "Surya Pratap Singh",
+      role: "Frontend Dev",
+      status: "Pending",
+      designation: "Deupty Manager",
+      department: "Electrical & Control",
+      jobProfile: "PLC Engineer hiring",
+      dateOfRFQ: "09/02/2026",
+      deadline: "2026-02-25",
+
+      // New Fields Added
+      createdAt: new Date("2026-04-13T22:40:15"),
+      empID: "PMA002",
+      reqType: "New",
+      jobTitle: "Database admin handler hiring",
+      job_type: "Full Time",
+      location: "Both",
+      description: "All skills required",
+      requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
+      requisition_reason: "New Project is Taken view our company, required employee.",
+      highest_qualification: "B.Tech Computer Science",
+      experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
+      year_of_experience: 2,
+      skills: [
+        "Full Stack Development",
+        "Frontend Development",
+        "Cloud Computing",
+        "Machine Learning",
+        "AI Basics",
+        "Android Development",
+        "C++",
+        "Java",
+        "Git Version Control",
+        "Agile Methodology"
+      ],
+      vacancy: 9
+    },
+    {
+      id: 2,
+      name: "Mhd. Harish",
+      role: "Backend Dev",
+      status: "Pending",
+      designation: "A.G.M",
+      department: "Purchase",
+      jobProfile: "Software specific hardare purchase",
+      dateOfRFQ: "05/03/2026",
+      deadline: "2026-03-26",
+
+      // New Fields
+      createdAt: new Date("2026-04-13T22:40:15"),
+      empID: "PMA002",
+      reqType: "New",
+      jobTitle: "Database admin handler hiring",
+      job_type: "Full Time",
+      location: "Both",
+      description: "All skills required",
+      requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
+      requisition_reason: "New Project is Taken view our company, required employee.",
+      highest_qualification: "B.Tech Computer Science",
+      experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
+      year_of_experience: 2,
+      skills: [
+        "Full Stack Development",
+        "Frontend Development",
+        "Cloud Computing",
+        "Machine Learning",
+        "AI Basics",
+        "Android Development",
+        "C++",
+        "Java",
+        "Git Version Control",
+        "Agile Methodology"
+      ],
+      vacancy: 9
+    },
+    {
+      id: 3,
+      name: "Akash Kumar",
+      role: "UI Designer",
+      status: "Approved",
+      designation: "Consultant",
+      department: "Application",
+      jobProfile: "Application Management Tool",
+      dateOfRFQ: "02/10/2025",
+      deadline: "2026-02-02",
+
+      // New Fields
+      createdAt: new Date("2026-04-13T22:40:15"),
+      empID: "PMA002",
+      reqType: "New",
+      jobTitle: "Database admin handler hiring",
+      job_type: "Full Time",
+      location: "Both",
+      description: "All skills required",
+      requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
+      requisition_reason: "New Project is Taken view our company, required employee.",
+      highest_qualification: "B.Tech Computer Science",
+      experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
+      year_of_experience: 2,
+      skills: [
+        "Full Stack Development",
+        "Frontend Development",
+        "Cloud Computing",
+        "Machine Learning",
+        "AI Basics",
+        "Android Development",
+        "C++",
+        "Java",
+        "Git Version Control",
+        "Agile Methodology"
+      ],
+      vacancy: 9
+    },
+    {
+      id: 4,
+      name: "Ashoke Kumar",
+      role: "DevOps Engineer",
+      status: "Rejected",
+      designation: "Head",
+      department: "Design & Development",
+      jobProfile: "Employee Condition Analysis",
+      dateOfRFQ: "03/04/2026",
+      deadline: "2026-04-09",
+
+      // New Fields
+      createdAt: new Date("2026-04-13T22:40:15"),
+      empID: "PMA002",
+      reqType: "New",
+      jobTitle: "Database admin handler hiring",
+      job_type: "Full Time",
+      location: "Both",
+      description: "All skills required",
+      requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
+      requisition_reason: "New Project is Taken view our company, required employee.",
+      highest_qualification: "B.Tech Computer Science",
+      experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
+      year_of_experience: 2,
+      skills: [
+        "Full Stack Development",
+        "Frontend Development",
+        "Cloud Computing",
+        "Machine Learning",
+        "AI Basics",
+        "Android Development",
+        "C++",
+        "Java",
+        "Git Version Control",
+        "Agile Methodology"
+      ],
+      vacancy: 9
+    }
+  ];
+
+export {departments, skills, qualifications, requisitionDummyData};

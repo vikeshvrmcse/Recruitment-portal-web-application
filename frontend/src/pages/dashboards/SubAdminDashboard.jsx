@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNotification } from "../../context/NotificationContextProvider";
 import NotificationModal from "../../modals/NotificationModel";
 import NotificationBell from "../../utils/NotificationBell";
@@ -6,200 +6,71 @@ import { motion } from "framer-motion";
 import Stepper from "../../utils/Stepper";
 import JobModel from "../../modals/JobModal";
 import { UpdateRequisitionContext, EmployeeLoginContext } from "../../context/TestContext";
-
+import {reverseTransform} from '../../utils/dataFormatter'
 
 import EmployeeModal from "../../modals/EmployeeModal";
 import { useNavigate } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
-
+import axios from "axios";
+const API_BACKEND_URL=import.meta.env.VITE_DOTNET_BACKEND_URL
 function SubAdminDashboard() {
-const dispatch=useDispatch();
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const {loginInformation, requisitionInformation} = useContext(EmployeeLoginContext)
 
-  const {loginInformation}=useContext(EmployeeLoginContext)
-  
-  const requisitionDummyData = [
-    {
-      id: 1,
-      name: "Surya Pratap Singh",
-      role: "Frontend Dev",
-      status: "Pending",
-      designation: "Deupty Manager",
-      department: "Electrical & Control",
-      jobProfile: "PLC Engineer hiring",
-      dateOfRFQ: "09/02/2026",
-      deadline: "2026-02-25",
+  function formatDate(dateString) {
+    const date = new Date(dateString);
 
-      // New Fields Added
-      createdAt: new Date("2026-04-13T22:40:15"),
-      empID: "PMA002",
-      reqType: "New",
-      jobTitle: "Database admin handler hiring",
-      job_type: "Full Time",
-      location: "Both",
-      description: "All skills required",
-      requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
-      requisition_reason: "New Project is Taken view our company, required employee.",
-      highest_qualification: "B.Tech Computer Science",
-      experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
-      year_of_experience: 2,
-      skills: [
-        "Full Stack Development",
-        "Frontend Development",
-        "Cloud Computing",
-        "Machine Learning",
-        "AI Basics",
-        "Android Development",
-        "C++",
-        "Java",
-        "Git Version Control",
-        "Agile Methodology"
-      ],
-      vacancy: 9
-    },
-    {
-      id: 2,
-      name: "Mhd. Harish",
-      role: "Backend Dev",
-      status: "Pending",
-      designation: "A.G.M",
-      department: "Purchase",
-      jobProfile: "Software specific hardare purchase",
-      dateOfRFQ: "05/03/2026",
-      deadline: "2026-03-26",
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    });
+  }
 
-      // New Fields
-      createdAt: new Date("2026-04-13T22:40:15"),
-      empID: "PMA002",
-      reqType: "New",
-      jobTitle: "Database admin handler hiring",
-      job_type: "Full Time",
-      location: "Both",
-      description: "All skills required",
-      requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
-      requisition_reason: "New Project is Taken view our company, required employee.",
-      highest_qualification: "B.Tech Computer Science",
-      experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
-      year_of_experience: 2,
-      skills: [
-        "Full Stack Development",
-        "Frontend Development",
-        "Cloud Computing",
-        "Machine Learning",
-        "AI Basics",
-        "Android Development",
-        "C++",
-        "Java",
-        "Git Version Control",
-        "Agile Methodology"
-      ],
-      vacancy: 9
-    },
-    {
-      id: 3,
-      name: "Akash Kumar",
-      role: "UI Designer",
-      status: "Approved",
-      designation: "Consultant",
-      department: "Application",
-      jobProfile: "Application Management Tool",
-      dateOfRFQ: "02/10/2025",
-      deadline: "2026-02-02",
 
-      // New Fields
-      createdAt: new Date("2026-04-13T22:40:15"),
-      empID: "PMA002",
-      reqType: "New",
-      jobTitle: "Database admin handler hiring",
-      job_type: "Full Time",
-      location: "Both",
-      description: "All skills required",
-      requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
-      requisition_reason: "New Project is Taken view our company, required employee.",
-      highest_qualification: "B.Tech Computer Science",
-      experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
-      year_of_experience: 2,
-      skills: [
-        "Full Stack Development",
-        "Frontend Development",
-        "Cloud Computing",
-        "Machine Learning",
-        "AI Basics",
-        "Android Development",
-        "C++",
-        "Java",
-        "Git Version Control",
-        "Agile Methodology"
-      ],
-      vacancy: 9
-    },
-    {
-      id: 4,
-      name: "Ashoke Kumar",
-      role: "DevOps Engineer",
-      status: "Rejected",
-      designation: "Head",
-      department: "Design & Development",
-      jobProfile: "Employee Condition Analysis",
-      dateOfRFQ: "03/04/2026",
-      deadline: "2026-04-09",
 
-      // New Fields
-      createdAt: new Date("2026-04-13T22:40:15"),
-      empID: "PMA002",
-      reqType: "New",
-      jobTitle: "Database admin handler hiring",
-      job_type: "Full Time",
-      location: "Both",
-      description: "All skills required",
-      requirements: "MySQL, SQL, Mongodb, graphna, GraphQL etc",
-      requisition_reason: "New Project is Taken view our company, required employee.",
-      highest_qualification: "B.Tech Computer Science",
-      experienceLevel: ["Fresher", "Junior", "Mid", "Senior"],
-      year_of_experience: 2,
-      skills: [
-        "Full Stack Development",
-        "Frontend Development",
-        "Cloud Computing",
-        "Machine Learning",
-        "AI Basics",
-        "Android Development",
-        "C++",
-        "Java",
-        "Git Version Control",
-        "Agile Methodology"
-      ],
-      vacancy: 9
+  const [requests, setRequests] = useState([]);
+
+  useEffect(() => {
+    if (requisitionInformation && requisitionInformation.length > 0) {
+      setRequests(reverseTransform(requisitionInformation));
     }
-  ];
-  const [requests, setRequests] = useState(requisitionDummyData);
+  }, [requisitionInformation]);
   const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [show, setShow] = useState(false)
-  const [showModalOpen, setShowModelOpen]=useState(false)
+  const [showModalOpen, setShowModelOpen] = useState(false)
   const handleEdit = (row) => {
     setUpdateRequisitionData(row);  //send data to form
-    console.log(row);
   };
 
-  const updateStatus = (id, status) => {
-    setRequests((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status } : r))
+
+  const updateStatus = async(id, status) => {
+    // debugger
+
+    const updateResponse=await axios.put(`${API_BACKEND_URL}/RequisitionStatusUpdate`,{id:id, empID:loginInformation.empID, status:status});
+
+    setRequests(prev =>
+      prev.map(item => {
+        return item.id === id
+          ? { ...item, status: status }
+          : item
+
+      })
     );
+    setLoading(true);
+    updateResponse()
   };
 
-
-  const { addNotification } = useNotification();
   const [selected, setSelected] = useState(null);
 
-  const navigate=useNavigate()
-  
-
   // FILTER + SEARCH LOGIC
-  const filteredRequests = requests.filter((r) => {
+  const filteredRequests = requests?.filter((r) => {
     const matchStatus = filter === "All" || r.status === filter;
 
     const matchSearch = r.name
@@ -217,15 +88,15 @@ const dispatch=useDispatch();
     { label: "Total", value: requests.length },
     {
       label: "Pending",
-      value: requests.filter((r) => r.status === "Pending").length,
+      value: requests.filter((r) => r.status === "pending").length,
     },
     {
       label: "Approved",
-      value: requests.filter((r) => r.status === "Approved").length,
+      value: requests.filter((r) => r.status === "approved").length,
     },
     {
       label: "Rejected",
-      value: requests.filter((r) => r.status === "Rejected").length,
+      value: requests.filter((r) => r.status === "rejected").length,
     },
   ];
   const [open, setOpen] = useState(false);
@@ -266,7 +137,7 @@ const dispatch=useDispatch();
     ],
   };
 
-  const filters = ["All", "Pending", "Approved", "Rejected"];
+  const filters = ["All", "pending", "approved", "rejected"];
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -281,7 +152,7 @@ const dispatch=useDispatch();
           <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Profile</p>
           <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Approvals</p>
           <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Settings</p>
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={()=>{dispatch(logout())}}>Logout</p>
+          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => { dispatch(logout()) }}>Logout</p>
         </nav>
       </aside>
 
@@ -303,19 +174,11 @@ const dispatch=useDispatch();
               {/* TOP BAR */}
               <div className="flex justify-between items-center gap-6">
                 <div className="w-9 h-9 uppercase rounded-full bg-pink-900 text-white flex items-center justify-center">
-                  {loginInformation?.empName?.slice(0,2)}
+                  {loginInformation?.empName?.slice(0, 2)}
                 </div>
 
                 <NotificationBell />
               </div>
-
-              {/* ACTION
-              <button
-                onClick={createNewRequest}
-                className="mt-5 bg-green-600 text-white px-4 py-2 rounded"
-              >
-                Create New Candidate
-              </button> */}
 
               {/* MODAL */}
               <NotificationModal
@@ -373,8 +236,6 @@ const dispatch=useDispatch();
               ))}
             </div>
           </div>
-
-
 
           {open && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
@@ -462,14 +323,14 @@ const dispatch=useDispatch();
                       <td className="p-3 font-medium">{r?.name}</td>
                       <td className="p-3 font-medium">{r?.designation}</td>
                       <td className="p-3 text-gray-600">{r?.department}</td>
-                      <td className="p-3 text-gray-600">{r?.jobProfile}</td> 
-                      <td className="p-3 text-gray-600">{r?.dateOfRFQ}</td> 
-                      <td className="p-3 text-gray-600">{r?.deadline}</td> 
+                      <td className="p-3 text-gray-600">{r?.jobTitle}</td>
+                      <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
+                      <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
 
                       <td className="p-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "Approved"
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "approved"
                           ? "bg-green-100 text-green-700"
-                          : r.status === "Rejected"
+                          : r.status === "rejected"
                             ? "bg-red-100 text-red-700"
                             : "bg-yellow-100 text-yellow-700"
                           }`}>
@@ -478,17 +339,18 @@ const dispatch=useDispatch();
                       </td>
 
 
-                      <td className="p-3 flex gap-2 justify-center">
+                      <td className="p-3 flex gap-2 justify-center mt-5">
                         <button
-                          onClick={() => updateStatus(r.id, "Approved")}
-                          className="px-3 py-1 my-3 text-xs rounded bg-green-600 text-white"
+                          onClick={() => updateStatus(r.id, "approved")}
+                          className={`${loading ? "bg-gray-200 text-xs px-2 py-1 text-slate-500":"bg-green-600 text-white text-xs py-1 px-2 rounded" }`}
                         >
                           Approve
                         </button>
 
                         <button
-                          onClick={() => updateStatus(r.id, "Rejected")}
-                          className="px-3 py-2 my-3 text-xs rounded bg-red-600 text-white"
+                          onClick={() => updateStatus(r.id, "rejected")}
+                          
+                          className={`${loading ? "bg-gray-200 text-xs px-2 py-1 text-slate-500":"bg-red-600 text-white text-xs py-1 px-2 rounded" }`}
                         >
                           Reject
                         </button>
@@ -496,7 +358,7 @@ const dispatch=useDispatch();
 
                       <td className="p-3">
                         <button
-                          onClick={() => { updateStatus(r.id, "Modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
+                          onClick={() => { updateStatus(r.id, "modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
                           className="px-3 py-1 text-xs rounded bg-yellow-600 text-white"
                         >
                           Modify
@@ -506,7 +368,7 @@ const dispatch=useDispatch();
                       <td className="p-3">
                         <button
 
-                          onClick={() => { updateStatus(r.id, "View"); setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                          onClick={() => { updateStatus(r.id, "view"); setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
                           className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                         >
                           Show
@@ -528,13 +390,13 @@ const dispatch=useDispatch();
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="font-semibold">{r.name}</p>
-                      <p className="text-sm text-gray-500">{r.role}</p>
+                      <p className="text-sm text-gray-500">{r.jobTitle}</p>
                     </div>
 
                     {/* STATUS */}
-                    <span className={`text-xs px-2 py-1 rounded-full ${r.status === "Approved"
+                    <span className={`text-xs px-2 py-1 rounded-full ${r.status === "approved"
                       ? "bg-green-100 text-green-700"
-                      : r.status === "Rejected"
+                      : r.status === "rejected"
                         ? "bg-red-100 text-red-700"
                         : "bg-yellow-100 text-yellow-700"
                       }`}>
@@ -546,28 +408,29 @@ const dispatch=useDispatch();
                   <div className="mt-5 grid grid-cols-2 gap-2">
 
                     <button
-                      onClick={() => updateStatus(r.id, "Approved")}
-                      className="bg-green-600 text-white text-xs py-2 rounded"
+                      disabled={loading}
+                      onClick={() => updateStatus(r.id, "approved")}
+                      className={`${loading ? "bg-green-600 text-white text-xs py-2 rounded" : "bg-gray-200 text-slate-500"}`}
                     >
                       Approve
                     </button>
 
                     <button
-                      onClick={() => updateStatus(r.id, "Rejected")}
+                      onClick={() => updateStatus(r.id, "rejected")}
                       className="bg-red-600 text-white text-xs py-2 rounded"
                     >
                       Reject
                     </button>
 
                     <button
-                      onClick={() => { updateStatus(r.id, "Modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
+                      onClick={() => { updateStatus(r.id, "modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
                       className="bg-yellow-600 text-white text-xs py-2 rounded"
                     >
                       Modify
                     </button>
 
                     <button
-                       onClick={() => { updateStatus(r.id, "View"); setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                      onClick={() => { updateStatus(r.id, "view"); setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
                       className="bg-blue-600 text-white text-xs py-2 rounded"
                     >
                       Show

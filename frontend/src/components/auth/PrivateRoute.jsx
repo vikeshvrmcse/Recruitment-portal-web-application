@@ -1,11 +1,11 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const PrivateRoute = ({ allowedRoles }) => {
   const { isAuthenticated, level } = useSelector((state) => state.auth);
-
+  const navigate=useNavigate()
   if (level === null) {
-    return <div>Loading...</div>; // or spinner
+    navigate('/'); // or spinner
   }
 
   if (!isAuthenticated) {

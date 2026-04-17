@@ -9,9 +9,12 @@ import { departments, skills, qualifications } from "../data/ComboBoxData";
 import { useNotification } from "../context/NotificationContextProvider";
 function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode }) {
   const { requisitionData, setRequisitionData } = useContext(TestContext)
+  const { loginInformation } = useContext(EmployeeLoginContext);
   // const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(false);
   const { addNotification } = useNotification();
+
+  console.log(loginInformation)
   const initialState = {
     createdAt: null,
     deadline: "",
@@ -19,17 +22,16 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
     description: "",
     empID: "",
     experienceLevel: [],
-    highest_qualification: "",
+    highestQualification: "",
     jobTitle: "",
-    job_type: "",
+    jobType: "",
     location: "",
     reqType: "",
     requirements: "",
-    requisition_reason: "",
+    requisitionReason: "",
     skills: [],
     status: "pending",
-    vacancy: "",
-    year_of_experience: "",
+    vacancy: ""
   };
   const {
     register,
@@ -45,7 +47,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const {tlLoginInformation}=useContext(EmployeeLoginContext)
+
 
   const filteredSkills = skills?.filter((skill) =>
     skill.toLowerCase().includes(search.toLowerCase())
@@ -63,12 +65,10 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
   const onSubmit = async (data) => {
     const finalData = {
       ...data,
-      empID: tlLoginInformation?.empID,
+      empID: loginInformation?.empID,
       status: "pending",
       createdAt: new Date(),
     };
-
-    console.log("Final Data:", finalData);
 
     try {
       setLoading(true);
@@ -82,7 +82,6 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       if (operationMode === 'create') {
         await axios.post(differentOperationUrl, finalData);
         setRequisitionData([...requisitionData, finalData])
-        addNotification(finalData)
         alert(`${differentOperationUrl} and operation mode: ${operationMode}`)
 
       }
@@ -162,13 +161,13 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
             )}
 
             <textarea
-              {...register("requisition_reason", { required: "Requisition required" })}
+              {...register("requisitionReason", { required: "Requisition required" })}
               placeholder="Enter here reason for Requisition"
               className="w-full border p-2 rounded-md text-sm h-20 md:h-24 focus:ring-2 focus:ring-slate-500 outline-none"
             />
 
-            {errors.requisition_reason && (
-              <p className="text-red-500 text-xs">{errors.requisition_reason.message}</p>
+            {errors.requisitionReason && (
+              <p className="text-red-500 text-xs">{errors.requisitionReason.message}</p>
             )}
 
             <p className="text-sm">Requisition deadline</p>
@@ -184,7 +183,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
             )}
 
             <select
-              {...register("job_type", { required: "Job type required" })}
+              {...register("jobType", { required: "Job type required" })}
               className="w-full border p-2 rounded-md text-sm"
               defaultValue=""
             >
@@ -195,12 +194,12 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
               <option value="Internship">Internship</option>
             </select>
 
-            {errors.job_type && (
-              <p className="text-red-500 text-xs">{errors.job_type.message}</p>
+            {errors.jobType && (
+              <p className="text-red-500 text-xs">{errors.jobType.message}</p>
             )}
 
             <select
-              {...register("highest_qualification", { required: "Highest qualification required" })}
+              {...register("highestQualification", { required: "Highest qualification required" })}
               className="w-full border p-2 rounded-md text-sm"
               defaultValue=""
             >
@@ -209,8 +208,8 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
             </select>
 
-            {errors.highest_qualification && (
-              <p className="text-red-500 text-xs">{errors.highest_qualification.message}</p>
+            {errors.highestQualification && (
+              <p className="text-red-500 text-xs">{errors.highestQualification.message}</p>
             )}
             <select
               className="w-full border p-2 rounded-md text-sm"
@@ -339,7 +338,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
               )}
             />
             <Controller
-              name="year_of_experience"
+              name="yearOfExperience"
               control={control}
               rules={{
                 required: "Experience is required",
@@ -358,9 +357,9 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
                     className="w-full accent-slate-600"
                   />
 
-                  {errors.year_of_experience && (
+                  {errors.yearOfExperience && (
                     <p className="text-red-500 text-xs mt-1">
-                      {errors.year_of_experience.message}
+                      {errors.yearOfExperience.message}
                     </p>
                   )}
                 </div>
