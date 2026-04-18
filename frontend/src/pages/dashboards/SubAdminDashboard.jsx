@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import Stepper from "../../utils/Stepper";
 import JobModel from "../../modals/JobModal";
 import { UpdateRequisitionContext, EmployeeLoginContext } from "../../context/TestContext";
-import {reverseTransform} from '../../utils/dataFormatter'
+import { reverseTransform } from '../../utils/dataFormatter'
 
 import EmployeeModal from "../../modals/EmployeeModal";
 import { useNavigate } from "react-router-dom";
@@ -14,15 +14,33 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
 import axios from "axios";
-const API_BACKEND_URL=import.meta.env.VITE_DOTNET_BACKEND_URL
+import { fetchRequisitionsByEmpID } from "../../utils/fetchApprovedData";
+import { FidgetSpinner } from "react-loader-spinner";
+import { toast } from "react-toastify";
+// import { Hairball, HairballPreset } from 'react-loader-spinner/dist/beta';
+const API_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL
+
+
 function SubAdminDashboard() {
+
+
+  const [requests, setRequests] = useState([]);
+  const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
+  const [filter, setFilter] = useState("All");
+  const [search, setSearch] = useState("");
+  const [show, setShow] = useState(false)
+  const [showModalOpen, setShowModelOpen] = useState(false)
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const {loginInformation, requisitionInformation} = useContext(EmployeeLoginContext)
+  const { loginInformation, requisitionInformation } = useContext(EmployeeLoginContext)
+  const [tableData, setTableData] = useState([])
+  const [selected, setSelected] = useState(null);
+  const [open, setOpen] = useState(false);
+
+  const [requisitionUpdateId, setUpdateRequisitionId]=useState("")
 
   function formatDate(dateString) {
     const date = new Date(dateString);
-
     return date.toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "long",
@@ -30,76 +48,111 @@ function SubAdminDashboard() {
     });
   }
 
-
-
-  const [requests, setRequests] = useState([]);
-
   useEffect(() => {
     if (requisitionInformation && requisitionInformation.length > 0) {
       setRequests(reverseTransform(requisitionInformation));
     }
   }, [requisitionInformation]);
-  const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
 
-  const [filter, setFilter] = useState("All");
-  const [search, setSearch] = useState("");
-  const [show, setShow] = useState(false)
-  const [showModalOpen, setShowModelOpen] = useState(false)
   const handleEdit = (row) => {
-    setUpdateRequisitionData(row);  //send data to form
+    setUpdateRequisitionData(row);
   };
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        if (!loginInformation?.empID) return;
 
-  const updateStatus = async(id, status) => {
-    // debugger
+        const result = await fetchRequisitionsByEmpID(loginInformation.empID);
 
-    const updateResponse=await axios.put(`${API_BACKEND_URL}/RequisitionStatusUpdate`,{id:id, empID:loginInformation.empID, status:status});
+        setTableData(result || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-    setRequests(prev =>
-      prev.map(item => {
-        return item.id === id
-          ? { ...item, status: status }
-          : item
+    loadData();
+  }, [loginInformation?.empID]);
 
-      })
-    );
-    setLoading(true);
-    updateResponse()
+  const mergeStatus = (oldData, newData) => {
+    return oldData.map((item) => {
+      const match = newData.find(
+        (n) => n.requisitionID === item.id
+      );
+
+      return match
+        ? { ...item, status: match.status }
+        : item;
+    });
   };
 
-  const [selected, setSelected] = useState(null);
+  const updateStatus = async (id, status) => {
+    try {
+      setLoading(true);
+      
+      if(id!==''){
+        setUpdateRequisitionId(id)
+        const response = await axios.post(
+          `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdate`,
+          {
+            requisitionID: id,
+            empID: loginInformation.empID,
+            status
+          }
+        );
+      }
+
+      const updatedStatus = response.data?.data?.status;
+
+      setTableData((prev) =>
+        prev.map((item) =>
+          item.id === id || item.requisitionID === id
+            ? { ...item, status: updatedStatus || status }
+            : item
+        )
+      );
+
+      toast.success("Update status successfully")
+
+    } catch (error) {
+      toast.error(error.message )
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updatedData = mergeStatus(requests, tableData);
+
 
   // FILTER + SEARCH LOGIC
-  const filteredRequests = requests?.filter((r) => {
+  const filteredRequests = updatedData?.filter((r) => {
     const matchStatus = filter === "All" || r.status === filter;
-
-    const matchSearch = r.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
+    const matchSearch =
+      r.name?.toLowerCase().includes(search.toLowerCase());
     return matchStatus && matchSearch;
   });
+
 
   const tearClick = function () {
     setShow(!show);
   }
 
   const stats = [
-    { label: "Total", value: requests.length },
+    { label: "Total", value: updatedData.length },
     {
       label: "Pending",
-      value: requests.filter((r) => r.status === "pending").length,
+      value: updatedData.filter((r) => r.status === "pending").length,
     },
     {
       label: "Approved",
-      value: requests.filter((r) => r.status === "approved").length,
+      value: updatedData.filter((r) => r.status === "approved").length,
     },
     {
       label: "Rejected",
-      value: requests.filter((r) => r.status === "rejected").length,
+      value: updatedData.filter((r) => r.status === "rejected").length,
     },
   ];
-  const [open, setOpen] = useState(false);
+
   const requisition = {
     id: 1,
     title: "PLC Designer requisition",
@@ -240,7 +293,7 @@ function SubAdminDashboard() {
           {open && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
               <div className="w-full max-w-5xl">
-                <JobModel close={open} setClose={setOpen} modelTitleModification={"Modify requisition via your superviser"} differentOperationUrl={"https://localhost:6000/user"} operationMode={"update"} />
+                <JobModel requisitionId={requisitionUpdateId} close={open} setClose={setOpen} modelTitleModification={"Modify requisition via your superviser"} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} />
               </div>
             </div>
           )}
@@ -342,33 +395,65 @@ function SubAdminDashboard() {
                       <td className="p-3 flex gap-2 justify-center mt-5">
                         <button
                           onClick={() => updateStatus(r.id, "approved")}
-                          className={`${loading ? "bg-gray-200 text-xs px-2 py-1 text-slate-500":"bg-green-600 text-white text-xs py-1 px-2 rounded" }`}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
                         >
-                          Approve
+                          Approve {loading?<FidgetSpinner
+                          preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          />:""}
                         </button>
 
                         <button
                           onClick={() => updateStatus(r.id, "rejected")}
-                          
-                          className={`${loading ? "bg-gray-200 text-xs px-2 py-1 text-slate-500":"bg-red-600 text-white text-xs py-1 px-2 rounded" }`}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
-                          Reject
+                          Reject {loading?<FidgetSpinner
+                          preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          />:""}
                         </button>
                       </td>
 
                       <td className="p-3">
                         <button
                           onClick={() => { updateStatus(r.id, "modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
-                          className="px-3 py-1 text-xs rounded bg-yellow-600 text-white"
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
                         >
-                          Modify
+                          Modify {loading?<FidgetSpinner
+                          preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          />:""}
                         </button>
                       </td>
 
                       <td className="p-3">
                         <button
 
-                          onClick={() => { updateStatus(r.id, "view"); setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                          onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
                           className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                         >
                           Show

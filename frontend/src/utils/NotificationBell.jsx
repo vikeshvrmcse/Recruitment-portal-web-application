@@ -7,7 +7,6 @@ function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef();
 
-  console.log(notifications)
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 

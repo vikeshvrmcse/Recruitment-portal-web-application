@@ -124,7 +124,7 @@ function TLDashboard() {
                 {open && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                         <div className="w-full max-w-5xl">
-                            <JobModel key={open ? "open" : "closed"} close={open} setClose={setOpen} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
+                            <JobModel requisitionId={"NA"} key={open ? "open" : "closed"} close={open} setClose={setOpen} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
                         </div>
                     </div>
                 )}

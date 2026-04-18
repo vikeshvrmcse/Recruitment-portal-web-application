@@ -7,14 +7,14 @@ import { toast } from "react-toastify";
 import { EmployeeLoginContext, TestContext, UpdateRequisitionContext } from "../context/TestContext";
 import { departments, skills, qualifications } from "../data/ComboBoxData";
 import { useNotification } from "../context/NotificationContextProvider";
-function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode }) {
+function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode, requisitionId }) {
   const { requisitionData, setRequisitionData } = useContext(TestContext)
   const { loginInformation } = useContext(EmployeeLoginContext);
   // const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(false);
   const { addNotification } = useNotification();
 
-  console.log(loginInformation)
+
   const initialState = {
     createdAt: null,
     deadline: "",
@@ -65,16 +65,21 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
   const onSubmit = async (data) => {
     const finalData = {
       ...data,
-      empID: loginInformation?.empID,
+      empID: loginInformation?.level==="L1"?data?.empID:loginInformation?.empID,
       status: "pending",
       createdAt: new Date(),
+
+
     };
 
     try {
       setLoading(true);
 
       if (operationMode === "update") {
-        await axios.put(differentOperationUrl, finalData);
+        await axios.put(differentOperationUrl, {
+          id:requisitionId,
+          ...finalData
+        });
         alert(`${differentOperationUrl} and operation mode: ${operationMode}`)
 
       }
@@ -242,10 +247,9 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
                     {["New", "Replacement", "Both"].map((type) => (
                       <label
                         key={type}
-                        className={`px-3 py-1 rounded-md border text-xs cursor-pointer
-              ${field.value === type
-                            ? "bg-slate-600 text-white"
-                            : "bg-white text-gray-700"
+                        className={`px-3 py-1 rounded-md border text-xs cursor-pointer ${field.value === type
+                          ? "bg-slate-600 text-white"
+                          : "bg-white text-gray-700"
                           }`}
                       >
                         <input

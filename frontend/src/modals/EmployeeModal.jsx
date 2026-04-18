@@ -22,9 +22,10 @@ export default function EmployeeModal({ isOpen, onClose }) {
                 {/* Header */}
                 <div className="flex shadow-md w-full px-4 pt-4  justify-between items-start mb-4">
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-800">
-                            {updateRequisitionData?.jobTitle}
-                        </h2>
+                        <div className="text-xl font-semibold text-gray-800">
+                            <span className="text-sm font-light">Job Title </span> <br /> <b>{updateRequisitionData?.jobTitle}</b>
+                        </div>
+                        <span className="text-sm font-light mt-8">Job Status</span>
                         <p className="text-sm text-gray-600">{updateRequisitionData?.role}</p>
                         {/* Status Badge */}
                         <span className="inline-block px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 mb-4">
@@ -54,11 +55,30 @@ export default function EmployeeModal({ isOpen, onClose }) {
                     <Info label="Vacancy" value={updateRequisitionData?.vacancy} />
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 text-sm text-gray-700">
+                    {/* Timing */}
+                <div className="mt-4">
+                    <p className="text-sm text-gray-600 font-medium">RFQ Date</p>
+                    <p className="text-sm text-gray-800">{updateRequisitionData?.createdAt}</p>
+                </div>
+                {/* Timing */}
+                <div className="mt-4">
+                    <p className="text-sm text-gray-600 font-medium">Deadline</p>
+                    <p className="text-sm text-gray-800">{updateRequisitionData?.deadline}</p>
+                </div>
+                 
+                </div>
+
+               
+
                 {/* Description */}
                 <div className="mt-4 px-6">
                     <p className="text-sm text-gray-600 font-medium">Description</p>
                     <p className="text-sm text-gray-800">{updateRequisitionData?.description}</p>
                 </div>
+
+                
+
 
                 {/* Skills */}
                 <div className="mt-4 px-6">
