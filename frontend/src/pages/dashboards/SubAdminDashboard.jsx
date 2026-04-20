@@ -100,8 +100,7 @@ function SubAdminDashboard() {
             status
           }
         );
-      }
-
+      
       const updatedStatus = response.data?.data?.status;
 
       setTableData((prev) =>
@@ -113,6 +112,8 @@ function SubAdminDashboard() {
       );
 
       toast.success("Update status successfully")
+
+    }
 
     } catch (error) {
       toast.error(error.message )
@@ -432,7 +433,7 @@ function SubAdminDashboard() {
 
                       <td className="p-3">
                         <button
-                          onClick={() => { updateStatus(r.id, "modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
+                          onClick={() => {setOpen(true); handleEdit(filteredRequests[idx]) }}
                           className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
                           disabled={r.status === 'rejected' || r.status === 'approved'}
                         >

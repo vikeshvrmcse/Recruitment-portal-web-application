@@ -37,12 +37,17 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
     register,
     handleSubmit,
     reset,
+    watch,
     control,
     formState: { errors },
   } = useForm({
     defaultValues: initialState,
   });
 
+  const selectedSkills = watch("skills") || [];
+  const selectedDepartment = watch("department");
+  const selectedQualification = watch("highestQualification");
+  const [value, setValue] = useState("")
 
 
   const [open, setOpen] = useState(false);
@@ -63,21 +68,54 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
   // SUBMIT
   const onSubmit = async (data) => {
+
+    const {
+      otherSkill,
+      otherDepartment,
+      otherHighestQualification,
+      ...rest
+    } = data;
+
+    let updatedData = { ...rest };
+
+    // Skills
+    if (data.skills?.includes("Others")) {
+      updatedData.skills = data.skills
+        .filter(s => s !== "Others")
+        .concat(otherSkill ? [otherSkill] : []);
+    }
+
+    // Department
+    if (data.department === "Others" && otherDepartment) {
+      updatedData.department = otherDepartment;
+    }
+
+    // Qualification
+    if (
+      data.highestQualification === "Others" &&
+      otherHighestQualification
+    ) {
+      updatedData.highestQualification = otherHighestQualification;
+    }
+
     const finalData = {
-      ...data,
-      empID: loginInformation?.level==="L1"?data?.empID:loginInformation?.empID,
+      ...updatedData,
+      empID:
+        loginInformation?.level === "L1"
+          ? updatedData?.empID
+          : loginInformation?.empID,
       status: "pending",
       createdAt: new Date(),
-
-
     };
 
+
+    console.log(finalData)
     try {
       setLoading(true);
 
       if (operationMode === "update") {
         await axios.put(differentOperationUrl, {
-          id:requisitionId,
+          id: requisitionId,
           ...finalData
         });
         alert(`${differentOperationUrl} and operation mode: ${operationMode}`)
@@ -213,6 +251,16 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
             </select>
 
+            {selectedQualification === "Others" && (
+              <input
+                type="text"
+                placeholder="Enter Highest Qualification"
+                className="border p-2 rounded mt-2 w-full"
+                {...register("otherHighestQualification")}
+                onChange={(e) => setValue("otherHighestQualification", e.target.value)}
+              />
+            )}
+
             {errors.highestQualification && (
               <p className="text-red-500 text-xs">{errors.highestQualification.message}</p>
             )}
@@ -222,8 +270,25 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
               defaultValue=""
             >
               <option value="">Department</option>
-              {departments?.map((item, idx) => (<option key={idx}>{item}</option>))}
+
+              {departments?.map((item, idx) => (
+                <option key={idx} value={item}>
+                  {item}
+                </option>
+              ))}
+
+
             </select>
+
+            {selectedDepartment === "Others" && (
+              <input
+                type="text"
+                className="border p-2 rounded mt-2 w-full"
+                placeholder="Enter department"
+                {...register("otherDeparment")}
+                onChange={(e) => setValue("otherDeparment", e.target.value)}
+              />
+            )}
 
             {errors.department && (
               <p className="text-red-500 text-xs">{errors.department.message}</p>
@@ -346,7 +411,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
               control={control}
               rules={{
                 required: "Experience is required",
-                min: { value: 1, message: "Minimum 0 experience required" },
+                min: { value: 0, message: "Minimum 0 experience required" },
                 max: { value: 20, message: "Maximum 20 allowed" },
               }}
               render={({ field }) => (
@@ -356,7 +421,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
                     type="range"
                     min="0"
                     max="20"
-                    value={field.value || 1}
+                    value={field.value || 0}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                     className="w-full accent-slate-600"
                   />
@@ -500,6 +565,17 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
                       </div>
                     )}
 
+                    {selectedSkills.includes("Others") && (
+                      <input
+                        type="text"
+                        placeholder="Enter custom skill"
+                        className="border p-2 rounded mt-2 w-full"
+                        {...register("otherSkill", {
+                          required: "Please enter your skill"
+                        })}
+                      />
+                    )}
+
                     {errors.skills && (
                       <p className="text-red-500 text-xs mt-1">
                         {errors.skills.message}
@@ -510,6 +586,8 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
               }}
             />
           </div>
+
+
         </div>
 
 

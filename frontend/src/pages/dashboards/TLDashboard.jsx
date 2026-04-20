@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import {
     FaUsers,
     FaBuilding,
+    FaTimesCircle,
     FaBriefcase,
     FaCheckCircle,
     FaClock,
@@ -19,10 +20,10 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
 function TLDashboard() {
     const { requisitionData } = useContext(TestContext)
-    const {loginInformation}=useContext(EmployeeLoginContext)
+    const { loginInformation, requisitionApproveStatus } = useContext(EmployeeLoginContext)
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
-    const dispatch=useDispatch();
+    const dispatch = useDispatch();
 
     const tearClick = () => {
         setShow(!show);
@@ -43,7 +44,7 @@ function TLDashboard() {
     };
     const [activeFilter, setActiveFilter] = useState("approved");
 
-    const filteredRequests = requisitionData?.filter(
+    const filteredRequests = requisitionApproveStatus?.filter(
         (item) => item.status === activeFilter
     );
     const requisition = {
@@ -76,6 +77,26 @@ function TLDashboard() {
         ],
     };
 
+    const formatTimeAgo = (date) => {
+        if (!date) return "-";
+
+        const now = new Date();
+        const past = new Date(date);
+        const diffInSeconds = Math.floor((now - past) / 1000);
+
+        const minutes = Math.floor(diffInSeconds / 60);
+        const hours = Math.floor(diffInSeconds / 3600);
+        const days = Math.floor(diffInSeconds / 86400);
+
+        if (diffInSeconds < 60) return "Just now";
+        if (minutes < 60) return `${minutes} min ago`;
+        if (hours < 24) return `${hours} hrs ago`;
+        if (days === 1) return "Yesterday";
+        if (days < 7) return `${days} days ago`;
+
+        return past.toLocaleDateString();
+    };
+
 
 
     return (
@@ -97,7 +118,7 @@ function TLDashboard() {
                     <div className="flex items-center gap-2 hover:text-black cursor-pointer">
                         <FaBriefcase /> Settings
                     </div>
-                    <div onClick={()=>{dispatch(logout())}} className="flex items-center gap-2 hover:text-black cursor-pointer">
+                    <div onClick={() => { dispatch(logout()) }} className="flex items-center gap-2 hover:text-black cursor-pointer">
                         <RiLogoutCircleLine /> Logout
                     </div>
                 </div>
@@ -172,8 +193,7 @@ function TLDashboard() {
                         {/* Approved */}
                         <div
                             onClick={() => setActiveFilter("approved")}
-                            className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8
-        ${activeFilter === "approved"
+                            className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8 ${activeFilter === "approved"
                                     ? "bg-white text-green-700 shadow-xl shadow-green-500 scale-105"
                                     : "bg-green-300 text-green-800 border-green-600"
                                 }`}
@@ -207,9 +227,9 @@ function TLDashboard() {
 
                         {/* Cancel */}
                         <div
-                            onClick={() => setActiveFilter("cancel")}
+                            onClick={() => setActiveFilter("rejected")}
                             className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8
-        ${activeFilter === "cancel"
+        ${activeFilter === "rejected"
                                     ? "bg-white text-red-700 shadow-xl shadow-red-500 scale-105"
                                     : "bg-red-300 text-red-800 border-red-600"
                                 }`}
@@ -223,21 +243,11 @@ function TLDashboard() {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col justify-between items-start my-6"
-                >
+                    className="flex flex-col justify-between items-start my-6">
                     <h1 className="text-3xl text-gray-800 mb-6 uppercase font-light">Employee Hiring Requests </h1>
                 </motion.div>
 
-                {/* Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-
-                    {/* {isNew(item.createdAt) && (
-                        <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded ml-2">
-                            NEW
-                        </span>
-                    )} */}
-
-
                     {filteredRequests?.map((item, index) => {
                         const isItemNew = isNew(item.createdAt);
 
@@ -248,20 +258,40 @@ function TLDashboard() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: index * 0.08 }}
                                 whileHover={{ scale: 1.03 }}
-                                className={`rounded-xl shadow-md p-5 border transition-all duration-200
-        ${isItemNew
-                                        ? "bg-blue-50 border-blue-400 shadow-blue-100"
-                                        : "bg-white"
+                                className={`rounded-xl shadow-md p-5 border transition-all duration-200 ${isItemNew
+                                    ? "bg-blue-50 border-blue-400 shadow-blue-100"
+                                    : "bg-white"
                                     }`}
                             >
 
                                 {/* Header */}
-                                <div className="flex justify-between items-center mb-3">
+                                <div className="mt-3 space-y-3 text-sm">
 
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-semibold text-gray-800">
-                                            {item.department}
-                                        </h3>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Requisition Title</span>
+                                        <span className="font-bold text-gray-700 text-right">
+                                            {item.jobTitle}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Requisition Description</span>
+                                        <span className="font-light text-gray-700 text-right">
+                                            {item.description}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Requisition Status</span>
+                                        <span
+                                            className={`text-xs px-1 py-1 rounded-full flex items-center gap-1 capitalize ${statusStyles[item.status] || "bg-gray-100 text-gray-600"}`}>
+                                            {item.status === "approved" && <FaCheckCircle />}
+                                            {item.status === "pending" && <FaClock />}
+                                            {item.status === "rejected" && <FaTimesCircle />}
+                                            {item.status}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex justify-around gap-2">
 
                                         {isItemNew && (
                                             <span className="text-[10px] bg-blue-500 text-white px-2 py-[2px] rounded">
@@ -269,41 +299,73 @@ function TLDashboard() {
                                             </span>
                                         )}
                                     </div>
-
-                                    <span
-                                        className={`text-xs px-2 py-1 rounded-full flex items-center gap-1
-            ${statusStyles[item.status] || "bg-gray-100 text-gray-600"}
-          `}
-                                    >
-                                        {item.status === "approved" ? <FaCheckCircle /> : <FaClock />}
-                                        {item.status}
-                                    </span>
                                 </div>
 
-                                {/* Role */}
-                                <p className="text-lg font-medium text-gray-700">
-                                    {item.empID || "N/A"}
-                                </p>
-
                                 {/* Details */}
-                                <div className="mt-3 space-y-2 text-sm text-gray-600">
+                                <div className="mt-3 space-y-3 text-sm">
 
-                                    <p className="flex justify-between">
-                                        <span>Positions</span>
-                                        <span className="font-medium">{item.vacancy ?? "-"}</span>
-                                    </p>
-
-                                    <p className="flex justify-between">
-                                        <span>Experience</span>
-                                        <span className="font-medium">{item.year_of_experience ?? "-"} years</span>
-                                    </p>
-
-                                    <p className="flex justify-between items-start">
-                                        <span>Skills</span>
-                                        <span className="font-medium text-right max-w-[150px] break-words">
-                                            {item.skills || "-"}
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Vacancy</span>
+                                        <span className="font-semibold text-gray-800">
+                                            {item.vacancy ?? "-"}
                                         </span>
-                                    </p>
+                                    </div>
+
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Experience</span>
+                                        <span className="font-semibold text-gray-800">
+                                            {item.year_of_experience ?? "-"} yrs
+                                        </span>
+                                    </div>
+
+                                    {/* Skills as Badges */}
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-500">Skills</span>
+
+                                        <div className="flex flex-wrap justify-start gap-1 max-w-auto">
+                                            {Array.isArray(item.skills) && item.skills.length > 0 ? (
+                                                item.skills.map((skill, i) => {
+                                                    const colors = [
+                                                        "bg-blue-100 text-blue-700",
+                                                        "bg-green-100 text-green-700",
+                                                        "bg-purple-100 text-purple-700",
+                                                        "bg-orange-100 text-orange-700"
+                                                    ];
+
+                                                    return (
+                                                        <span
+                                                            key={i}
+                                                            className={`text-[10px] px-2 py-[2px] rounded-full ${colors[i % colors.length]}`}
+                                                        >
+                                                            {skill}
+                                                        </span>
+                                                    );
+                                                })
+                                            ) : (
+                                                <span className="text-gray-400">-</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Optional: Verifier Info */}
+                                    {item.verifiedBy && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Verified By</span>
+                                            <span className="font-medium text-gray-700 text-right">
+                                                {item.verifiedBy}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Optional: Verification Date */}
+                                    {item.verifiedAt && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Verified At</span>
+                                            <span className="font-medium text-gray-700 text-right">
+                                                {formatTimeAgo(item.verifiedAt)}
+                                            </span>
+                                        </div>
+                                    )}
 
                                 </div>
 

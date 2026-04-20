@@ -12,9 +12,11 @@ import axios from "axios";
 const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../authSlice";
+import { fetchRequisitionsByEmpID } from "../../../utils/FetchApprovedData";
+
 
 function Login() {
-  const { setLoginInformation, setTLLoginInformation, setRequisitionInformation } = useContext(EmployeeLoginContext)
+  const { setLoginInformation, setRequisitionInformation } = useContext(EmployeeLoginContext)
   const {
     register,
     handleSubmit,
@@ -27,52 +29,47 @@ function Login() {
   const navigate = useNavigate()
   const captchaValue = "1234";
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     try {
       setLoading(true);
-      setTimeout(async () => {
-        setLoading(false);
+      if (data.captcha !== captchaValue) {
+        toast.error("Invalid captcha!");
+        return;
+      }
 
-        if (data.captcha !== captchaValue) {
-          toast.error("Invalid captcha!");
-          return;
+      const response = await axios.post(
+        `${APP_BACKEND_URL}/EmployeeDetails`,
+        {
+          empID: data.empID,
+          password: data.password
         }
+      );
 
-        if (data.empID === "PMA0171") {
-          localStorage.removeItem("auth");
-          const response = await axios.post(`${APP_BACKEND_URL}/EmployeeDetails`, {
-            empID: data.empID,
-            password: data.password
-          })
-          
-          dispatch(loginSuccess(response.data?.data))
-          // setLoginInformation(response.data?.data)
-          toast.success(response.data?.data?.message);
-          // navigate('/sub_admin_dashboard')
-          return;
+      const user = response.data?.data;
 
-        }
+      if (!user) {
+        toast.error("Invalid login");
+        return;
+      }
 
-        if (data.empID === "PMA0170") {
-          localStorage.removeItem("auth");
-          const response = await axios.post(`${APP_BACKEND_URL}/EmployeeDetails`, {
-            empID: data.empID,
-            password: data.password
-          })
-          dispatch(loginSuccess(response.data?.data))
-          // setLoginInformation(response.data?.data)
-          toast.success(response.data?.data?.message);
-          // navigate('/tl_dashboard')
-          return;
-        }
-        reset();
-      }, 1200);
+      localStorage.clear();
+      setLoginInformation([])
+      localStorage.setItem("auth", JSON.stringify(user));
+
+      // Redux
+      dispatch(loginSuccess(user));
+      toast.success(user?.message || "Login successful");
+      await fetchRequisitionsByEmpID(user.empID);
+      reset();
+
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
-
-
   };
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">

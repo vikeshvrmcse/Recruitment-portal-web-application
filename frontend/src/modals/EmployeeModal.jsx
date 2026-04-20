@@ -3,6 +3,7 @@ import { UpdateRequisitionContext } from "../context/TestContext";
 import { motion } from 'framer-motion'
 export default function EmployeeModal({ isOpen, onClose }) {
     const { updateRequisitionData } = useContext(UpdateRequisitionContext);
+    console.log(updateRequisitionData)
     if (!isOpen) return null;
 
     return (
@@ -22,13 +23,15 @@ export default function EmployeeModal({ isOpen, onClose }) {
                 {/* Header */}
                 <div className="flex shadow-md w-full px-4 pt-4  justify-between items-start mb-4">
                     <div>
-                        <div className="text-xl font-semibold text-gray-800">
-                            <span className="text-sm font-light">Job Title </span> <br /> <b>{updateRequisitionData?.jobTitle}</b>
+                        <div className="text-gray-800">
+                            <span className="text-md font-light">Requisition Title </span> <br /> <b className="text-xl">{updateRequisitionData?.jobTitle}</b>
                         </div>
-                        <span className="text-sm font-light mt-8">Job Status</span>
-                        <p className="text-sm text-gray-600">{updateRequisitionData?.role}</p>
+                        <div className=" mt-3 text-gray-800">
+                            <span className="text-md font-light mt-8">Requistion Status</span>
+                        <p className="text-2xl text-gray-600">{updateRequisitionData?.role}</p>
+                        </div>
                         {/* Status Badge */}
-                        <span className="inline-block px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 mb-4">
+                        <span className="inline-block px-2 py-2 text-md rounded-full bg-yellow-100 text-yellow-700 mb-4">
                             {updateRequisitionData?.status}
                         </span>
                     </div>
@@ -45,9 +48,16 @@ export default function EmployeeModal({ isOpen, onClose }) {
 
                 {/* Content Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 text-sm text-gray-700">
-                    <Info label="Employee ID" value={updateRequisitionData?.empID} />
-                    <Info label="Designation" value={updateRequisitionData?.designation} />
-                    <Info label="Department" value={updateRequisitionData?.department} />
+                    <Info label="Requisition Creator Employee Name" value={updateRequisitionData?.name
+} />
+                    <Info label="Requisition Creator Employee ID" value={updateRequisitionData?.empID} />
+                    <Info label="Requisition Creator Designation" value={updateRequisitionData?.designation} />
+                    <Info label="Requisition Creator Department" value={updateRequisitionData?.department} />
+                    
+                    <Info label="Job Type" value={updateRequisitionData?.jobTitle} />
+                    <Info label="Requisition description" value={updateRequisitionData?.description} />
+                    <Info label="Requisition reason" value={updateRequisitionData?.requisitionReason} />
+                    <Info label="Requisition Requirements" value={updateRequisitionData?.requirements} />
                     <Info label="Job Type" value={updateRequisitionData?.jobType} />
                     <Info label="Location" value={updateRequisitionData?.location} />
                     <Info label="Experience" value={`${updateRequisitionData?.yearOfExperience} Years`} />
