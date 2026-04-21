@@ -1,0 +1,213 @@
+[
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.EmployeeDetailsController",
+    "Method": "GetEmployees",
+    "RelativePath": "api/EmployeeDetails",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.EmployeeDetailsController",
+    "Method": "SigninEmployees",
+    "RelativePath": "api/EmployeeDetails/GetUser",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "RecruitmentWebAPI.Models.EmployeeSigninModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
+    "Method": "GetRequisitionAll",
+    "RelativePath": "api/Requisition",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
+    "Method": "CreateRequisition",
+    "RelativePath": "api/Requisition",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "RecruitmentWebAPI.Models.RequisitionModels",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
+    "Method": "GetRequisitionById",
+    "RelativePath": "api/Requisition/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
+    "Method": "GetTLRequisitionsByUser",
+    "RelativePath": "api/Requisition/userTL/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
+    "Method": "GetApprovedRequisition",
+    "RelativePath": "api/Requisition/with-employee-by-id/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
+    "Method": "GetRequisitionByIRB",
+    "RelativePath": "api/Requisition/with-employee-by-irb/{irb}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "irb",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
+    "Method": "GetRequisitionWithEmployeeById",
+    "RelativePath": "api/Requisition/with-employee/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
+    "Method": "UpdateRequisition",
+    "RelativePath": "api/SubAdminAproval",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "RecruitmentWebAPI.Models.RequisitionModels",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
+    "Method": "GetByEmpID",
+    "RelativePath": "api/SubAdminAproval/GetByEmpID/{empID}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "empID",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
+    "Method": "RequisitionStatusUpdate",
+    "RelativePath": "api/SubAdminAproval/RequisitionStatusUpdate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "RecruitmentWebAPI.Models.RequisitionApprovalModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
+    "Method": "GetRequisitionsWithEmployee",
+    "RelativePath": "api/SubAdminAproval/with-employee",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.WeatherForecastController",
+    "Method": "Get",
+    "RelativePath": "WeatherForecast",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[RecruitmentWebAPI.WeatherForecast, RecruitmentWebAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ],
+    "EndpointName": "GetWeatherForecast"
+  }
+]
