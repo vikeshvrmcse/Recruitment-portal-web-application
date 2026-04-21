@@ -47,7 +47,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
   const selectedSkills = watch("skills") || [];
   const selectedDepartment = watch("department");
   const selectedQualification = watch("highestQualification");
-  const [value, setValue] = useState("")
+  const [valueData, setValue] = useState("")
 
 
   const [open, setOpen] = useState(false);
@@ -90,11 +90,10 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       updatedData.department = otherDepartment;
     }
 
+    console.log(otherDepartment)
+
     // Qualification
-    if (
-      data.highestQualification === "Others" &&
-      otherHighestQualification
-    ) {
+    if (data.highestQualification === "Others" && otherHighestQualification) {
       updatedData.highestQualification = otherHighestQualification;
     }
 
@@ -285,8 +284,8 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
                 type="text"
                 className="border p-2 rounded mt-2 w-full"
                 placeholder="Enter department"
-                {...register("otherDeparment")}
-                onChange={(e) => setValue("otherDeparment", e.target.value)}
+                {...register("otherDepartment")}
+                onChange={(e) => setValue("otherDepartment", e.target.value)}
               />
             )}
 

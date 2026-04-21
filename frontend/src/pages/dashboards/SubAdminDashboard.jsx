@@ -72,7 +72,7 @@ function SubAdminDashboard() {
     };
 
     loadData();
-  }, [loginInformation?.empID]);
+  }, [loginInformation?.empID, loading]);
 
   const mergeStatus = (oldData, newData) => {
     return oldData.map((item) => {

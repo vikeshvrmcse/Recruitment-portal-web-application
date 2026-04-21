@@ -58,23 +58,28 @@ export default function EmployeeModal({ isOpen, onClose }) {
                     <Info label="Requisition description" value={updateRequisitionData?.description} />
                     <Info label="Requisition reason" value={updateRequisitionData?.requisitionReason} />
                     <Info label="Requisition Requirements" value={updateRequisitionData?.requirements} />
+                    <Info label="Requisition Department" value={updateRequisitionData?.requisitionDepartment} />
                     <Info label="Job Type" value={updateRequisitionData?.jobType} />
                     <Info label="Location" value={updateRequisitionData?.location} />
                     <Info label="Experience" value={`${updateRequisitionData?.yearOfExperience} Years`} />
                     <Info label="Qualification" value={updateRequisitionData?.highestQualification} />
-                    <Info label="Vacancy" value={updateRequisitionData?.vacancy} />
+                    <Info label="Vacancy" value={updateRequisitionData?.vacancy} /> 
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 text-sm text-gray-700">
                     {/* Timing */}
                 <div className="mt-4">
                     <p className="text-sm text-gray-600 font-medium">RFQ Date</p>
-                    <p className="text-sm text-gray-800">{updateRequisitionData?.createdAt}</p>
+                    <p className="text-sm text-gray-800">{new Date(updateRequisitionData?.createdAt).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })}</p>
                 </div>
                 {/* Timing */}
                 <div className="mt-4">
                     <p className="text-sm text-gray-600 font-medium">Deadline</p>
-                    <p className="text-sm text-gray-800">{updateRequisitionData?.deadline}</p>
+                    <p className="text-sm text-gray-800">{new Date(updateRequisitionData?.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</p>
                 </div>
                  
                 </div>

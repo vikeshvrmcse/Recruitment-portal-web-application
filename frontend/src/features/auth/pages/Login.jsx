@@ -38,7 +38,7 @@ function Login() {
       }
 
       const response = await axios.post(
-        `${APP_BACKEND_URL}/EmployeeDetails`,
+        `${APP_BACKEND_URL}/EmployeeDetails/GetUser`,
         {
           empID: data.empID,
           password: data.password

@@ -12,6 +12,7 @@ import PublicRoute from "../components/auth/PublicRoute";
 import NotFound from "../pages/NotFound";
 import TLDashboard from "../pages/dashboards/TLDashboard";
 import SubAdminDashboard from "../pages/dashboards/SubAdminDashboard";
+import AdminDashboard from "../pages/dashboards/AdminDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +42,13 @@ export const router = createBrowserRouter([
         element: <PrivateRoute allowedRoles={["L1"]} />,
         children: [
           { path: "/sub_admin_dashboard", element: <SubAdminDashboard /> },
+        ],
+      },
+      // Admin Dashboard
+      {
+        element: <PrivateRoute allowedRoles={["L3"]} />,
+        children: [
+          { path: "/admin_dashboard", element: <AdminDashboard /> },
         ],
       },
 
