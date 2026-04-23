@@ -21,7 +21,7 @@ import { toast } from "react-toastify";
 const API_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL
 
 
-function SubAdminDashboard() {
+function UpperAdminDashboard() {
 
 
   const [requests, setRequests] = useState([]);
@@ -32,12 +32,12 @@ function SubAdminDashboard() {
   const [showModalOpen, setShowModelOpen] = useState(false)
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const { loginInformation, requisitionInformation } = useContext(EmployeeLoginContext)
+  const { loginInformation, requisitionStatusUpdateInformation, requisitionInformation } = useContext(EmployeeLoginContext)
   const [tableData, setTableData] = useState([])
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
 
-  const [requisitionUpdateId, setUpdateRequisitionId]=useState("")
+  const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
 
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -81,50 +81,44 @@ function SubAdminDashboard() {
       );
 
       return match
-        ? { ...item, status: match.status }
+        ? { ...item, previousStatus: match.status }
         : item;
     });
   };
 
+
+
   const updateStatus = async (id, status) => {
     try {
       setLoading(true);
-      
-      if(id!==''){
-        console.log({
-            requisitionID: id,
-            nextEmpID:loginInformation?.irb,
-            empID: loginInformation?.empID,
-            previousStatus:status
-          })
+
+      if (id !== '') {
         setUpdateRequisitionId(id)
         const response = await axios.post(
           `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdate`,
           {
             requisitionID: id,
-            nextEmpID:loginInformation?.irb,
+            nextEmpID: loginInformation?.irb,
             empID: loginInformation?.empID,
-            previousStatus:status
+            previousStatus: status
           }
         );
+        const updatedStatus = response.data?.data?.previousStatus;
 
-        
-      
-      const updatedStatus = response.data?.data?.previousStatus;
+        setTableData((prev) =>
+          prev.map((item) =>
+            item.id === id || item.requisitionID === id
+              ? { ...item, previousStatus: updatedStatus || status }
+              : item
+          )
+        );
 
-      setTableData((prev) =>
-        prev.map((item) =>
-          item.id === id || item.requisitionID === id
-            ? { ...item, status: updatedStatus || status }
-            : item
-        )
-      );
+        toast.success("Update status successfully")
 
-      toast.success("Update status successfully")
-    }
+      }
 
     } catch (error) {
-      toast.error(error.message )
+      toast.error(error.message)
     } finally {
       setLoading(false);
     }
@@ -132,15 +126,17 @@ function SubAdminDashboard() {
 
   const updatedData = mergeStatus(requests, tableData);
 
-
   // FILTER + SEARCH LOGIC
-  const filteredRequests = updatedData?.map((data)=>({...data, name:loginInformation?.empName, designation:loginInformation?.designation})).filter((r) => {
-    const matchStatus = filter === "All" || r.status === filter;
-    const matchSearch =
-      r.name?.toLowerCase().includes(search.toLowerCase());
+  const filteredRequests = updatedData
+  ?.map(data => ({
+    ...data,
+    previousStatus: data.previousStatus===undefined?data.status:data.previousStatus
+  }))
+  .filter((r) => {
+    const matchStatus = filter === "All" || r.previousStatus === filter;
+    const matchSearch = r.name?.toLowerCase().includes(search.toLowerCase());
     return matchStatus && matchSearch;
   });
-
 
   const tearClick = function () {
     setShow(!show);
@@ -150,15 +146,15 @@ function SubAdminDashboard() {
     { label: "Total", value: updatedData.length },
     {
       label: "Pending",
-      value: updatedData.filter((r) => r.status === "pending").length,
+      value: updatedData.filter((r) => r.previousStatus === "pending").length,
     },
     {
       label: "Approved",
-      value: updatedData.filter((r) => r.status === "approved").length,
+      value: updatedData.filter((r) => r.previousStatus === "approved").length,
     },
     {
       label: "Rejected",
-      value: updatedData.filter((r) => r.status === "rejected").length,
+      value: updatedData.filter((r) => r.previousStatus === "rejected").length,
     },
   ];
 
@@ -207,7 +203,7 @@ function SubAdminDashboard() {
       {/* SIDEBAR */}
       <aside className="w-64 bg-[#0f172a] text-white hidden md:flex flex-col">
         <div className="p-5 text-xl font-light border-b border-gray-700 uppercase">
-          SubAdmin Dashboard
+          Upper Admin Dashboard
         </div>
 
         <nav className="flex-1 p-4 space-y-3 text-sm">
@@ -318,13 +314,141 @@ function SubAdminDashboard() {
           )}
 
           {/* TABLE */}
+          <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
+
+            {/* HEADER */}
+            <div className="p-4 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+              <h2 className="font-light text-xl md:text-2xl">
+                Head1 Type Requisition Approvals
+              </h2>
+              <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
+                Generate Report
+              </button>
+            </div>
+
+            {/* TABLE */}
+            {/* ================= DESKTOP TABLE ================= */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 text-gray-600">
+                  <tr>
+                    <th className="p-3 text-center">RFQ Name</th>
+                    <th className="p-3 text-center">Designation</th>
+                    <th className="p-3 text-center">Department</th>
+                    <th className="p-3 text-center">Profile(Job Title) </th>
+                    <th className="p-3 text-center">Date of RFQ </th>
+                    <th className="p-3 text-center">Date of Deadline</th>
+                    <th className="p-3 text-center">Status</th>
+                    <th className="p-3 text-center">Action</th>
+                    <th className="p-3 text-center">Modification</th>
+                    <th className="p-3 text-center">View</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredRequests.map((r, idx) => (
+                    <tr key={idx} className="border-b hover:bg-gray-50">
+
+                      <td className="p-3 font-medium">{r?.name}</td>
+                      <td className="p-3 font-medium">{r?.designation}</td>
+                      <td className="p-3 text-gray-600">{r?.department}</td>
+                      <td className="p-3 text-gray-600">{r?.jobTitle}</td>
+                      <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
+                      <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
+
+                      <td className="p-3">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
+                          ? "bg-green-100 text-green-700"
+                          : r.previousStatus === "rejected"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                          }`}>
+                          {r.previousStatus}
+                        </span>
+                      </td>
+
+
+                      <td className="p-3 flex gap-2 justify-center mt-5">
+                        <button
+                          onClick={() => updateStatus(r.id, "approved")}
+                          className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                        >
+                          Approve {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
+                        </button>
+
+                        <button
+                          onClick={() => updateStatus(r.id, "rejected")}
+                          disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                          className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                        >
+                          Reject {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
+                        </button>
+                      </td>
+
+                      <td className="p-3">
+                        <button
+                          onClick={() => { setOpen(true); handleEdit(filteredRequests[idx]) }}
+                          className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
+                          disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                        >
+                          Modify {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
+                        </button>
+                      </td>
+
+                      <td className="p-3">
+                        <button
+
+                          onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                          className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
+                        >
+                          Show
+                        </button>
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
           {/* TABLE */}
           <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
 
             {/* HEADER */}
             <div className="p-4 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
               <h2 className="font-light text-xl md:text-2xl">
-                Requisition Approvals
+                Head2 Type Requisition Approvals
               </h2>
               <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
                 Generate Report
@@ -360,6 +484,7 @@ function SubAdminDashboard() {
               </div>
             </div>
 
+
             {/* ================= DESKTOP TABLE ================= */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
@@ -371,7 +496,8 @@ function SubAdminDashboard() {
                     <th className="p-3 text-center">Profile(Job Title) </th>
                     <th className="p-3 text-center">Date of RFQ </th>
                     <th className="p-3 text-center">Date of Deadline</th>
-                    <th className="p-3 text-center">Status</th>
+                    <th className="p-3 text-center">Previous Status</th>
+                    <th className="p-3 text-center">Current Status</th>
                     <th className="p-3 text-center">Action</th>
                     <th className="p-3 text-center">Modification</th>
                     <th className="p-3 text-center">View</th>
@@ -379,24 +505,38 @@ function SubAdminDashboard() {
                 </thead>
 
                 <tbody>
-                  {filteredRequests.map((r, idx) => (
+                  {requisitionStatusUpdateInformation.map((r, idx) => (
                     <tr key={idx} className="border-b hover:bg-gray-50">
 
-                      <td className="p-3 font-medium">{r?.name}</td>
+                      <td className="p-3 font-medium">{r?.createdByName}</td>
                       <td className="p-3 font-medium">{r?.designation}</td>
                       <td className="p-3 text-gray-600">{r?.department}</td>
                       <td className="p-3 text-gray-600">{r?.jobTitle}</td>
                       <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
                       <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
 
-                      <td className="p-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "approved"
+                      <td className="p-3  text-center">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
                           ? "bg-green-100 text-green-700"
-                          : r.status === "rejected"
+                          : r.previousStatus === "rejected"
                             ? "bg-red-100 text-red-700"
                             : "bg-yellow-100 text-yellow-700"
                           }`}>
-                          {r.status}
+                          {r.previousStatus}
+                          
+                        </span>
+                        <div>
+                          <span className="font-extralight mt-3 text-[8px] text-white bg-gray-800 rounded-lg p-1">{r.approverName}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.currentStatus === "approved"
+                          ? "bg-green-100 text-green-700"
+                          : r.currentStatus === "rejected"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                          }`}>
+                          {r.currentStatus}
                         </span>
                       </td>
 
@@ -404,11 +544,11 @@ function SubAdminDashboard() {
                       <td className="p-3 flex gap-2 justify-center mt-5">
                         <button
                           onClick={() => updateStatus(r.id, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.currentStatus === 'rejected' || r.currentStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : " bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.currentStatus === 'rejected' || r.currentStatus === 'approved'}
                         >
-                          Approve {loading?<FidgetSpinner
-                          preset='rainbow'
+                          Approve {loading ? <FidgetSpinner
+                            preset='rainbow'
                             visible={true}
                             height="20"
                             width="20"
@@ -417,16 +557,16 @@ function SubAdminDashboard() {
                             ariaLabel="watch-loading"
                             wrapperStyle={{}}
                             wrapperClass=""
-                          />:""}
+                          /> : ""}
                         </button>
 
                         <button
                           onClick={() => updateStatus(r.id, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.currentStatus === 'rejected' || r.currentStatus === 'approved'}
+                          className={`${r.currentStatus === 'rejected' || r.currentStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
-                          Reject {loading?<FidgetSpinner
-                          preset='rainbow'
+                          Reject {loading ? <FidgetSpinner
+                            preset='rainbow'
                             visible={true}
                             height="20"
                             width="20"
@@ -435,18 +575,18 @@ function SubAdminDashboard() {
                             ariaLabel="watch-loading"
                             wrapperStyle={{}}
                             wrapperClass=""
-                          />:""}
+                          /> : ""}
                         </button>
                       </td>
 
                       <td className="p-3">
                         <button
-                          onClick={() => {setOpen(true); handleEdit(filteredRequests[idx]) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
+                          onClick={() => { setOpen(true); handleEdit(filteredRequests[idx]) }}
+                          className={`${r.currentStatus === 'rejected' || r.currentStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
                           disabled={r.status === 'rejected' || r.status === 'approved'}
                         >
-                          Modify {loading?<FidgetSpinner
-                          preset='rainbow'
+                          Modify {loading ? <FidgetSpinner
+                            preset='rainbow'
                             visible={true}
                             height="20"
                             width="20"
@@ -455,7 +595,7 @@ function SubAdminDashboard() {
                             ariaLabel="watch-loading"
                             wrapperStyle={{}}
                             wrapperClass=""
-                          />:""}
+                          /> : ""}
                         </button>
                       </td>
 
@@ -524,7 +664,7 @@ function SubAdminDashboard() {
                     </button>
 
                     <button
-                      onClick={() => { /*updateStatus(r.id, "view");*/ setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                      onClick={() => { updateStatus(r.id, "view"); setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
                       className="bg-blue-600 text-white text-xs py-2 rounded"
                     >
                       Show
@@ -544,4 +684,4 @@ function SubAdminDashboard() {
   );
 }
 
-export default SubAdminDashboard;
+export default UpperAdminDashboard;

@@ -10,9 +10,11 @@ import AccessDenied from "../pages/AccessDenied";
 import PrivateRoute from "../components/auth/PrivateRoute";
 import PublicRoute from "../components/auth/PublicRoute";
 import NotFound from "../pages/NotFound";
-import TLDashboard from "../pages/dashboards/TLDashboard";
+import TeamLeaderDashboard from "../pages/dashboards/TeamLeaderDashboard";
 import SubAdminDashboard from "../pages/dashboards/SubAdminDashboard";
 import AdminDashboard from "../pages/dashboards/AdminDashboard";
+import PersonalAssitanceDashboard from "../pages/dashboards/PersonalAssistanceDashboard";
+import UpperAdminDashboard from "../pages/dashboards/UpperAdminDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -31,26 +33,23 @@ export const router = createBrowserRouter([
 
       // TL Dashboard (only TL allowed)
       {
-        element: <PrivateRoute allowedRoles={["L2"]} />,
+        element: <PrivateRoute allowedRoles={["L2", "L3"]} />,
         children: [
-          { path: "/tl_dashboard", element: <TLDashboard /> },
+          { path: "/team_leader_dashboard", element: <TeamLeaderDashboard /> },
         ],
       },
 
-      // SubAdmin Dashboard (only SubAdmin allowed)
+      // Admin and SubAdmin Dashboard (only SubAdmin allowed)
       {
         element: <PrivateRoute allowedRoles={["L1"]} />,
         children: [
+          { path: "/admin_dashboard", element: <AdminDashboard /> },
+          { path: "/upper_admin_dashboard", element: <UpperAdminDashboard /> },
+          {path: "/personal_assistance_dashboard", element: <PersonalAssitanceDashboard/>},
           { path: "/sub_admin_dashboard", element: <SubAdminDashboard /> },
         ],
       },
-      // Admin Dashboard
-      {
-        element: <PrivateRoute allowedRoles={["L3"]} />,
-        children: [
-          { path: "/admin_dashboard", element: <AdminDashboard /> },
-        ],
-      },
+      
 
       // Access Denied
       {

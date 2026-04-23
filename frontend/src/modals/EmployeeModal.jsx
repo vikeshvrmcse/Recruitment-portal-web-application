@@ -3,7 +3,6 @@ import { UpdateRequisitionContext } from "../context/TestContext";
 import { motion } from 'framer-motion'
 export default function EmployeeModal({ isOpen, onClose }) {
     const { updateRequisitionData } = useContext(UpdateRequisitionContext);
-    console.log(updateRequisitionData)
     if (!isOpen) return null;
 
     return (
@@ -28,7 +27,7 @@ export default function EmployeeModal({ isOpen, onClose }) {
                         </div>
                         <div className=" mt-3 text-gray-800">
                             <span className="text-md font-light mt-8">Requistion Status</span>
-                        <p className="text-2xl text-gray-600">{updateRequisitionData?.role}</p>
+                            <p className="text-2xl text-gray-600">{updateRequisitionData?.role}</p>
                         </div>
                         {/* Status Badge */}
                         <span className="inline-block px-2 py-2 text-md rounded-full bg-yellow-100 text-yellow-700 mb-4">
@@ -49,11 +48,11 @@ export default function EmployeeModal({ isOpen, onClose }) {
                 {/* Content Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 text-sm text-gray-700">
                     <Info label="Requisition Creator Employee Name" value={updateRequisitionData?.name
-} />
+                    } />
                     <Info label="Requisition Creator Employee ID" value={updateRequisitionData?.empID} />
                     <Info label="Requisition Creator Designation" value={updateRequisitionData?.designation} />
                     <Info label="Requisition Creator Department" value={updateRequisitionData?.department} />
-                    
+
                     <Info label="Job Type" value={updateRequisitionData?.jobTitle} />
                     <Info label="Requisition description" value={updateRequisitionData?.description} />
                     <Info label="Requisition reason" value={updateRequisitionData?.requisitionReason} />
@@ -63,28 +62,28 @@ export default function EmployeeModal({ isOpen, onClose }) {
                     <Info label="Location" value={updateRequisitionData?.location} />
                     <Info label="Experience" value={`${updateRequisitionData?.yearOfExperience} Years`} />
                     <Info label="Qualification" value={updateRequisitionData?.highestQualification} />
-                    <Info label="Vacancy" value={updateRequisitionData?.vacancy} /> 
+                    <Info label="Vacancy" value={updateRequisitionData?.vacancy} />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 text-sm text-gray-700">
                     {/* Timing */}
-                <div className="mt-4">
-                    <p className="text-sm text-gray-600 font-medium">RFQ Date</p>
-                    <p className="text-sm text-gray-800">{new Date(updateRequisitionData?.createdAt).toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })}</p>
-                </div>
-                {/* Timing */}
-                <div className="mt-4">
-                    <p className="text-sm text-gray-600 font-medium">Deadline</p>
-                    <p className="text-sm text-gray-800">{new Date(updateRequisitionData?.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</p>
-                </div>
-                 
+                    <div className="mt-4">
+                        <p className="text-sm text-gray-600 font-medium">RFQ Date</p>
+                        <p className="text-sm text-gray-800">{new Date(updateRequisitionData?.createdAt).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        })}</p>
+                    </div>
+                    {/* Timing */}
+                    <div className="mt-4">
+                        <p className="text-sm text-gray-600 font-medium">Deadline</p>
+                        <p className="text-sm text-gray-800">{new Date(updateRequisitionData?.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    </div>
+
                 </div>
 
-               
+
 
                 {/* Description */}
                 <div className="mt-4 px-6">
@@ -92,7 +91,7 @@ export default function EmployeeModal({ isOpen, onClose }) {
                     <p className="text-sm text-gray-800">{updateRequisitionData?.description}</p>
                 </div>
 
-                
+
 
 
                 {/* Skills */}

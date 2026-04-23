@@ -3,9 +3,10 @@ import { useSelector } from "react-redux";
 
 const PrivateRoute = ({ allowedRoles }) => {
   const { isAuthenticated, level } = useSelector((state) => state.auth);
-  const navigate=useNavigate()
+  const navigate = useNavigate()
+  
   if (level === null) {
-    navigate('/'); // or spinner
+    return <Navigate to="/" replace />;
   }
 
   if (!isAuthenticated) {

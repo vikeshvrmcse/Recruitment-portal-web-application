@@ -16,13 +16,15 @@ const authSlice = createSlice({
   initialState: {
     user: savedAuth || null,
     isAuthenticated: !!savedAuth,
-    level: savedAuth?.level || null
+    level: savedAuth?.level || null,
+    accessLevel:savedAuth?.accessLevel || null
   },
   reducers: {
     loginSuccess: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
       state.level = action.payload.level;
+      state.accessLevel=action.payload.accessLevel;
       // console.log(state.level);
       localStorage.setItem("auth", JSON.stringify(action.payload));
     },
@@ -30,7 +32,7 @@ const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       state.level = null;
-
+      state.accessLevel=null;
       localStorage.removeItem("auth");
     }
   }

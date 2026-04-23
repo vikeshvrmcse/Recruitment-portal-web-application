@@ -11,6 +11,7 @@ const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 function EmployeeLoginContextProvider({ children }) {
   const [loginInformation, setLoginInformation] = useState([])
   const [requisitionInformation, setRequisitionInformation] = useState([])
+  const [requisitionStatusUpdateInformation, setRequisitionStatusUpdateInformation] = useState([])
   const [requisitionApproveStatus, setRequisitionApproveStatus] = useState([])
   const storedUser = localStorage.getItem("auth");
   const { addNotification } = useNotification();
@@ -33,6 +34,18 @@ function EmployeeLoginContextProvider({ children }) {
 
 
       try {
+        
+        if (user?.level === "L1" && user.accessLevel === 1) {
+
+          setLoginInformation([]);
+          // const res = await axios.get(
+          //   `${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${user.empID}`
+          // );
+
+          // setRequisitionInformation(res.data);
+          // addNotification(reverseTransform(res.data));
+          setLoginInformation(user);
+        }
         if (user?.level === "L1" && user.accessLevel === 2) {
 
           setLoginInformation([]);
@@ -40,14 +53,39 @@ function EmployeeLoginContextProvider({ children }) {
             `${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${user.empID}`
           );
 
-          
+          setRequisitionInformation(res.data);
+          addNotification(reverseTransform(res.data));
+          setLoginInformation(user);
+        }
+        if (user?.level === "L1" && user.accessLevel === 3) {
+
+          setLoginInformation([]);
+          const approvalResponse = await axios.get(
+            `${APP_BACKEND_URL}/SubAdminAproval/ForNextEmployee/?empId=${user.empID}`
+          );
+          const requisitionResponse = await axios.get(
+            `${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${user.empID}`
+          );
+
+          setRequisitionStatusUpdateInformation(approvalResponse.data);
+          setRequisitionInformation(requisitionResponse.data);
+          //addNotification(reverseTransform(res.data));
+          setLoginInformation(user);
+        }
+
+        if (user?.level === "L1" && user.accessLevel === 4) {
+
+          setLoginInformation([]);
+          const res = await axios.get(
+            `${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${user.empID}`
+          );
 
           setRequisitionInformation(res.data);
           addNotification(reverseTransform(res.data));
           setLoginInformation(user);
         }
 
-        if (user?.level === "L2" && user.accessLevel === 3) {
+        if (user?.level === "L2" && user.accessLevel === 5) {
           setLoginInformation([]);
           const res = await axios.get(
             `${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user.empID}`
@@ -55,7 +93,7 @@ function EmployeeLoginContextProvider({ children }) {
           setRequisitionApproveStatus(res.data);
           setLoginInformation(user);
         }
-        if (user?.level === "L3" && user.accessLevel === 4) {
+        if (user?.level === "L3" && user.accessLevel === 6) {
           setLoginInformation([]);
           const res = await axios.get(
             `${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user.empID}`
@@ -63,14 +101,7 @@ function EmployeeLoginContextProvider({ children }) {
           setLoginInformation(user);
           setRequisitionApproveStatus(res.data);
         }
-        if (user?.level === "L4" && user.accessLevel === 5) {
-          setLoginInformation([]);
-          const res = await axios.get(
-            `${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user.empID}`
-          );
-          setRequisitionApproveStatus(res.data);
-          setLoginInformation(user);
-        }
+        
 
 
       } catch (error) {
@@ -93,7 +124,9 @@ function EmployeeLoginContextProvider({ children }) {
   return (
     <EmployeeLoginContext.Provider value={{
       loginInformation, setLoginInformation,
-      requisitionInformation, setRequisitionInformation, requisitionApproveStatus
+      requisitionInformation, setRequisitionInformation, 
+      requisitionApproveStatus, 
+      requisitionStatusUpdateInformation
     }}>
       {children}
     </EmployeeLoginContext.Provider>

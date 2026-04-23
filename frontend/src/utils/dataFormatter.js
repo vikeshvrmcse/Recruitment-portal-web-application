@@ -10,11 +10,11 @@
   }
 
 function reverseTransform(data) {
-  console.log(data)
     return data?.map(item => ({
       id: item.r.id,
       name: item.employee.empName,
       status: item.r.status,
+      previousStatus: item.r.previousStatus,
       designation: item.employee.designation,
       department: item.employee.dept,
       requisitionDepartment: item.r.department,

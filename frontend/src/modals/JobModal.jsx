@@ -595,12 +595,12 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-slate-800 text-white py-2 rounded-lg text-sm md:text-lg flex justify-center items-center gap-2"
+            className="w-full uppercase font-bold bg-slate-800 text-white py-2 rounded-lg text-sm md:text-lg flex justify-center items-center gap-2"
           >
             {loading && (
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             )}
-            {loading ? "Creating..." : "Create Requisition"}
+            {loading ? operationMode: `${operationMode} ${"Requisition"}`}
           </button>
 
           <button
@@ -608,7 +608,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
             onClick={() => {
               reset();
             }}
-            className="w-full bg-slate-800 text-white py-2 rounded-lg text-sm md:text-lg"
+            className="w-full uppercase font-bold bg-slate-800 text-white py-2 rounded-lg text-sm md:text-lg"
           >
             Reset Fields
           </button>

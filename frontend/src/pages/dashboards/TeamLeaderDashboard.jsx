@@ -14,13 +14,17 @@ import JobModel from "../../modals/JobModal";
 import { CgProfile } from "react-icons/cg";
 import { RiLogoutCircleLine } from "react-icons/ri";
 import Stepper from "../../utils/Stepper";
-import { EmployeeLoginContext, TestContext } from "../../context/TestContext";
+import { EmployeeLoginContext, TestContext, UpdateRequisitionContext } from "../../context/TestContext";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
+import EmployeeModal from "../../modals/EmployeeModal";
+import ProfileModal from "../../modals/ProfileModal";
 function TLDashboard() {
     const { requisitionData } = useContext(TestContext)
     const { loginInformation, requisitionApproveStatus } = useContext(EmployeeLoginContext)
+    const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
+    const [showModalOpen, setShowModelOpen] = useState(false)
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
     const dispatch = useDispatch();
@@ -44,7 +48,7 @@ function TLDashboard() {
     };
     const [activeFilter, setActiveFilter] = useState("approved");
 
-    const filteredRequests = requisitionApproveStatus?.filter(
+    const filteredRequests = requisitionApproveStatus?.map((data) => ({ ...data, name: loginInformation?.empName, designation: loginInformation?.designation })).filter(
         (item) => item.status === activeFilter
     );
     const requisition = {
@@ -76,6 +80,8 @@ function TLDashboard() {
             },
         ],
     };
+
+    console.log(filteredRequests)
 
     const formatTimeAgo = (date) => {
         if (!date) return "-";
@@ -124,21 +130,31 @@ function TLDashboard() {
                 </div>
             </div>
 
+            <div className="flex w-full">
+                {true && (<ProfileModal employeeData={loginInformation} />)}
+            </div>
             {/* Main Content */}
-            <div className="flex-1 p-4 md:p-8 overflow-auto">
+
+            
+            {false && (<div className="flex-1 p-4 md:p-8 overflow-auto">
 
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 my-6"
                 >
-                    <h1 className="text-3xl font-bold text-gray-800 mb-6 uppercase">Welcome, <span className="text-pink-600">{loginInformation?.empName} </span></h1>
+                    <div className="flex flex-col">
+                        <h1 className="text-3xl font-bold text-gray-800 uppercase">Welcome, <span className="text-slate-600">{loginInformation?.empName} </span></h1>
+                        <hr className="bg-black size-1 w-full" />
+                        <h5 className="text-md font-bold text-gray-800 mt-3 uppercase">Your Department, <span className="text-pink-600">{loginInformation?.dept} </span></h5>
+                        <h5 className="text-[18px] font-light text-gray-800 mb-6 uppercase">And Designation, <span className="text-purple-700">{loginInformation?.designation} </span></h5>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                         <button onClick={() => setOpen(true)} className="text-xl font-light bg-green-100 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
-                        <button className="text-xl font-light bg-red-100 border-2 border-red-800 hover:border-red-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-red-700">- Resignation</button>
+                        {/* <button className="text-xl font-light bg-red-100 border-2 border-red-800 hover:border-red-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-red-700">- Resignation</button> */}
                         <button className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 hover:bg-white p-2  transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center"> Notification</button>
                         <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center"> Requisition Status</button>
-                        <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center"> Resignation Status</button>
+                        {/* <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center"> Resignation Status</button> */}
                     </div>
                 </motion.div>
 
@@ -179,6 +195,17 @@ function TLDashboard() {
                         </div> : ""}
                     </motion.div>
                 </div>
+                {showModalOpen && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                        <div className="w-full max-w-5xl">
+                            <EmployeeModal
+                                isOpen={showModalOpen}
+                                onClose={() => setShowModelOpen(false)}
+                            />
+                        </div>
+                    </div>
+                )}
+
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -193,9 +220,9 @@ function TLDashboard() {
                         {/* Approved */}
                         <div
                             onClick={() => setActiveFilter("approved")}
-                            className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8 ${activeFilter === "approved"
-                                    ? "bg-white text-green-700 shadow-xl shadow-green-500 scale-105"
-                                    : "bg-green-300 text-green-800 border-green-600"
+                            className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg md:rounded-[100%] md:border-r-8 flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8 ${activeFilter === "approved"
+                                ? "bg-white text-green-700 shadow-md shadow-green-500 scale-105"
+                                : "bg-green-300 text-green-800 border-green-600"
                                 }`}
                         >
                             <FaCheckCircle className="mr-2 size-8" /> Approved
@@ -204,9 +231,9 @@ function TLDashboard() {
                         {/* In Review */}
                         <div
                             onClick={() => setActiveFilter("in review")}
-                            className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8
+                            className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg md:rounded-[100%] md:border-r-8 flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8
         ${activeFilter === "in review"
-                                    ? "bg-white text-indigo-700 shadow-xl shadow-indigo-500 scale-105"
+                                    ? "bg-white text-indigo-700 shadow-md shadow-indigo-500 scale-105"
                                     : "bg-indigo-300 text-indigo-800 border-indigo-600"
                                 }`}
                         >
@@ -216,9 +243,9 @@ function TLDashboard() {
                         {/* Pending */}
                         <div
                             onClick={() => setActiveFilter("pending")}
-                            className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8
+                            className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg md:rounded-[100%] md:border-r-8 flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8
         ${activeFilter === "pending"
-                                    ? "bg-white text-orange-700 shadow-xl shadow-orange-500 scale-105"
+                                    ? "bg-white text-orange-700 shadow-md shadow-orange-500 scale-105"
                                     : "bg-orange-300 text-orange-800 border-orange-600"
                                 }`}
                         >
@@ -228,10 +255,9 @@ function TLDashboard() {
                         {/* Cancel */}
                         <div
                             onClick={() => setActiveFilter("rejected")}
-                            className={`cursor-pointer w-full h-32 md:h-40 p-4 rounded-lg flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8
-        ${activeFilter === "rejected"
-                                    ? "bg-white text-red-700 shadow-xl shadow-red-500 scale-105"
-                                    : "bg-red-300 text-red-800 border-red-600"
+                            className={`cursor-pointer w-full h-32  md:h-40 p-4 rounded-lg md:rounded-[100%] md:border-r-8 flex items-center justify-center text-2xl font-light transition-all duration-300 border-b-8 ${activeFilter === "rejected"
+                                ? "bg-white text-red-700 shadow-md shadow-red-500 scale-105"
+                                : "bg-red-300 text-red-800 border-red-600"
                                 }`}
                         >
                             <MdCancel className="mr-2 size-8" /> Cancel
@@ -247,7 +273,7 @@ function TLDashboard() {
                     <h1 className="text-3xl text-gray-800 mb-6 uppercase font-light">Employee Hiring Requests </h1>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-3 gap-6">
                     {filteredRequests?.map((item, index) => {
                         const isItemNew = isNew(item.createdAt);
 
@@ -276,7 +302,7 @@ function TLDashboard() {
                                     <div className="flex justify-between">
                                         <span className="text-gray-500">Requisition Description</span>
                                         <span className="font-light text-gray-700 text-right">
-                                            {item.description}
+                                            {item.description.slice(0, 10) + `...`}
                                         </span>
                                     </div>
 
@@ -318,13 +344,33 @@ function TLDashboard() {
                                         </span>
                                     </div>
 
+                                    {/* Optional: Verifier Info */}
+                                    {item.verifiedBy && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Verified By</span>
+                                            <span className="font-medium text-gray-700 text-right">
+                                                {item.verifiedBy}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Optional: Verification Date */}
+                                    {item.verifiedAt && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Verified At</span>
+                                            <span className="font-medium text-gray-700 text-right">
+                                                {formatTimeAgo(item.verifiedAt)}
+                                            </span>
+                                        </div>
+                                    )}
+
                                     {/* Skills as Badges */}
-                                    <div className="flex flex-col">
+                                    <div className="">
                                         <span className="text-gray-500">Skills</span>
 
                                         <div className="flex flex-wrap justify-start gap-1 max-w-auto">
                                             {Array.isArray(item.skills) && item.skills.length > 0 ? (
-                                                item.skills.map((skill, i) => {
+                                                item.skills.slice(0, 3).map((skill, i) => {
                                                     const colors = [
                                                         "bg-blue-100 text-blue-700",
                                                         "bg-green-100 text-green-700",
@@ -347,30 +393,12 @@ function TLDashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Optional: Verifier Info */}
-                                    {item.verifiedBy && (
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Verified By</span>
-                                            <span className="font-medium text-gray-700 text-right">
-                                                {item.verifiedBy}
-                                            </span>
-                                        </div>
-                                    )}
 
-                                    {/* Optional: Verification Date */}
-                                    {item.verifiedAt && (
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Verified At</span>
-                                            <span className="font-medium text-gray-700 text-right">
-                                                {formatTimeAgo(item.verifiedAt)}
-                                            </span>
-                                        </div>
-                                    )}
 
                                 </div>
 
                                 {/* Actions */}
-                                <div className="mt-4 flex justify-between text-white text-xs">
+                                <div className="mt-4 flex justify-end gap-2 text-white text-xs">
 
                                     <button className="px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all">
                                         Edit
@@ -380,8 +408,8 @@ function TLDashboard() {
                                         Delete
                                     </button>
 
-                                    <button className="px-3 py-1 bg-black rounded-md hover:text-blue-300 hover:shadow-blue-500 transition-all">
-                                        Status
+                                    <button onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(item) }} className="px-3 py-1 bg-black rounded-md hover:text-blue-300 hover:shadow-blue-500 transition-all">
+                                        Show
                                     </button>
 
                                 </div>
@@ -391,7 +419,7 @@ function TLDashboard() {
                     })}
 
                 </div>
-            </div>
+            </div>)}
         </div>
     );
 }
