@@ -149,6 +149,22 @@
   },
   {
     "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
+    "Method": "ForNextEmployee",
+    "RelativePath": "api/SubAdminAproval/ForNextEmployee",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "empId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
     "Method": "GetByEmpID",
     "RelativePath": "api/SubAdminAproval/GetByEmpID/{empID}",
     "HttpMethod": "GET",

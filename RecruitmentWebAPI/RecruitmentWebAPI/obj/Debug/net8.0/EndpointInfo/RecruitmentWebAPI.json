@@ -295,6 +295,27 @@
         }
       }
     },
+    "/api/SubAdminAproval/ForNextEmployee": {
+      "get": {
+        "tags": [
+          "SubAdminAproval"
+        ],
+        "parameters": [
+          {
+            "name": "empId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/WeatherForecast": {
       "get": {
         "tags": [
@@ -358,8 +379,9 @@
       "RequisitionApprovalModel": {
         "required": [
           "empID",
-          "requisitionID",
-          "status"
+          "nextEmpID",
+          "previousStatus",
+          "requisitionID"
         ],
         "type": "object",
         "properties": {
@@ -379,7 +401,15 @@
             "type": "string",
             "nullable": true
           },
-          "status": {
+          "nextEmpID": {
+            "type": "string",
+            "nullable": true
+          },
+          "previousStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentStatus": {
             "type": "string",
             "nullable": true
           }

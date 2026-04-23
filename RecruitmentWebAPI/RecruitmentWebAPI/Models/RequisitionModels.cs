@@ -30,7 +30,9 @@
         public DateTime CreatedAt { get; set; }
         public required string EmpID { get; set; }
         public required string RequisitionID { get; set; }
-        public required string Status { get; set; }
+        public required string NextEmpID { get; set; }
+        public required string PreviousStatus { get; set; }
+        public string? CurrentStatus { get; set; }
     }
 
    

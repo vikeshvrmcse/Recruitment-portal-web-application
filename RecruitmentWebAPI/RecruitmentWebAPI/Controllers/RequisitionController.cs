@@ -172,18 +172,24 @@ namespace RecruitmentWebAPI.Controllers
                 {
                     //Requisition fields
                     Id = req.Id,
-                    CreateAt = req.CreatedAt,
+                    CreatedAt = req.CreatedAt,
                     JobTitle = req.JobTitle,
+                    RequisitionReason = req.RequisitionReason,
+                    Requirements = req.Requirements,
+                    RequisitionDepartment=req.Department,
+                    HighestQualification=req.HighestQualification,
+                    JobType=req.JobType,
                     Department = req.Department,
                     Location = req.Location,
                     Description=req.Description,
                     Skills = req.Skills,
                     year_of_experience = req.YearOfExperience,
                     EmpID = req.EmpID,
+                    Deadline=req.Deadline,
                     Vacancy = req.Vacancy,
-
+                    YearOfExperience=req.YearOfExperience,
                     //Final Status
-                    Status = subApp != null ? subApp.Status : "pending",
+                    Status = subApp != null ? subApp.PreviousStatus : "pending",
 
                     //Verifier Info (ONLY L1)
                     VerifiedBy = (verifier != null && verifier.Level == "L1")
@@ -206,5 +212,6 @@ namespace RecruitmentWebAPI.Controllers
 
             return Ok(data);
         }
+        
     }
 }

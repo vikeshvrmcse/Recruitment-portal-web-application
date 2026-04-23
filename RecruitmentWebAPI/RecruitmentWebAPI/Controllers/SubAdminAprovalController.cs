@@ -74,6 +74,11 @@ namespace RecruitmentWebAPI.Controllers
             // Update database here
             request.Id = Guid.NewGuid().ToString(); // since Id is string
             request.CreatedAt = DateTime.Now;
+            request.CurrentStatus = "pending";
+
+            Console.WriteLine(request.PreviousStatus);
+            Console.WriteLine(request.NextEmpID);
+            Console.WriteLine(request.CurrentStatus);
             //var entity = _context.RequisitionApprovalModels.FirstOrDefault(x => x.RequisitionId == request.RequisitionId);
             _context.RequisitionApprovalModels.Add(request);
             _context.SaveChanges();
@@ -97,7 +102,7 @@ namespace RecruitmentWebAPI.Controllers
                             r.Id,
                             r.EmpID,
                             r.RequisitionID,
-                            Status = a != null ? r.Status : "Pending"
+                            Status = a != null ? r.PreviousStatus : "Pending"
                         }).ToList();
 
             return Ok(data);
@@ -142,6 +147,62 @@ namespace RecruitmentWebAPI.Controllers
                 message = "Updated successfully",
                 data = existing
             });
+        }
+
+        [HttpGet("ForNextEmployee")]
+        public async Task<IActionResult> ForNextEmployee(string empId)
+        {
+            var approverName = _context.EmployeeDetails.AsNoTracking()
+                .FirstOrDefault(r => r.EmpID == empId);
+            if (approverName == null)
+            {
+                return NotFound("User is not found");
+            }
+            var data = await (
+                from approval in _context.RequisitionApprovalModels
+                join req in _context.Requisitions
+                    on approval.RequisitionID equals req.Id
+                join emp in _context.EmployeeDetails
+                    on req.EmpID equals emp.EmpID
+
+                join irbEmp in _context.EmployeeDetails
+                    on emp.IRB equals irbEmp.EmpID into irbGroup
+                from irbEmp in irbGroup.DefaultIfEmpty()
+                    //KEY CONDITION
+                where approval.NextEmpID == empId
+                      && approval.PreviousStatus == "approved"
+
+                select new
+                {
+                    //Approval Info
+                    ApprovalId = approval.Id,
+                    approval.RequisitionID,
+                    CurrentApprover = approval.EmpID,
+                    ApproverName = irbEmp.EmpName,
+                    NextApprover = approval.NextEmpID,
+                    PreviousStatus = approval.PreviousStatus,
+                    CurrentStatus = approval.CurrentStatus,
+                    //EmpName=approval.EmpName
+
+                    //Requisition Info
+                    req.Id,
+                    req.JobTitle,
+                    req.Description,
+                    req.Department,
+                    req.CreatedAt,
+                    req.Deadline,
+                    req.Vacancy,
+
+                    //Created By
+                    CreatedByEmpID = emp.EmpID,
+                    CreatedByName = emp.EmpName,
+                    emp.MailID,
+                    emp.Dept,
+                    emp.Designation
+                }
+            ).ToListAsync();
+
+            return Ok(data);
         }
     }
 }
