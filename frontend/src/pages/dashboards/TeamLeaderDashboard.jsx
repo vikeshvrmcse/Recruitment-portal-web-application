@@ -25,6 +25,7 @@ function TLDashboard() {
     const { loginInformation, requisitionApproveStatus } = useContext(EmployeeLoginContext)
     const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
     const [showModalOpen, setShowModelOpen] = useState(false)
+    const [profileModelShow, setProfileModelShow]=useState(false)
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
     const dispatch = useDispatch();
@@ -115,8 +116,8 @@ function TLDashboard() {
                 </h2>
 
                 <div className="space-y-4 text-gray-600">
-                    <div className="flex items-center gap-2 hover:text-black cursor-pointer">
-                        <CgProfile /> Profile
+                    <div onClick={()=>setProfileModelShow(!profileModelShow)} className={`flex items-center gap-2 hover:text-black cursor-pointer`}>
+                        <CgProfile /> <span className={`${profileModelShow?"scale-110 text-purple-700 font-bold":""}`}>{!profileModelShow?"Profile":"Close Profile"}</span>
                     </div>
                     <div className="flex items-center gap-2 hover:text-black cursor-pointer">
                         <FaUsers /> Requisitions
@@ -130,13 +131,13 @@ function TLDashboard() {
                 </div>
             </div>
 
-            <div className="flex w-full">
-                {true && (<ProfileModal employeeData={loginInformation} />)}
+            <div className={`${profileModelShow?"w-full":""}`}>
+                {profileModelShow && (<ProfileModal employeeData={loginInformation} />)}
             </div>
             {/* Main Content */}
 
-            
-            {false && (<div className="flex-1 p-4 md:p-8 overflow-auto">
+            <div className={`${!profileModelShow?"w-full":""}`}>
+            {!profileModelShow && (<div className="flex-1 p-4 md:p-8 overflow-auto">
 
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
@@ -420,6 +421,7 @@ function TLDashboard() {
 
                 </div>
             </div>)}
+            </div>
         </div>
     );
 }

@@ -12,7 +12,7 @@ import axios from "axios";
 const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../authSlice";
-import { fetchRequisitionsByEmpID } from "../../../utils/FetchApprovedData";
+import { fetchRequisitionsApprovalsByEmpID } from "../../../utils/FetchApprovedData";
 
 
 function Login() {
@@ -59,7 +59,7 @@ function Login() {
       // Redux
       dispatch(loginSuccess(user));
       toast.success(user?.message || "Login successful");
-      await fetchRequisitionsByEmpID(user.empID);
+      await fetchRequisitionsApprovalsByEmpID(user.empID);
       reset();
 
     } catch (error) {

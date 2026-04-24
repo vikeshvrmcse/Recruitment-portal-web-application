@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
 import axios from "axios";
-import { fetchRequisitionsByEmpID } from "../../utils/fetchApprovedData";
+import { fetchRequisitionsApprovalsByEmpID } from "../../utils/fetchApprovedData";
 import { FidgetSpinner } from "react-loader-spinner";
 import { toast } from "react-toastify";
 // import { Hairball, HairballPreset } from 'react-loader-spinner/dist/beta';
@@ -63,7 +63,7 @@ function SubAdminDashboard() {
       try {
         if (!loginInformation?.empID) return;
 
-        const result = await fetchRequisitionsByEmpID(loginInformation.empID);
+        const result = await fetchRequisitionsApprovalsByEmpID(loginInformation.empID);
 
         setTableData(result || []);
       } catch (error) {

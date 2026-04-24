@@ -5,6 +5,7 @@ export default function EmployeeModal({ isOpen, onClose }) {
     const { updateRequisitionData } = useContext(UpdateRequisitionContext);
     if (!isOpen) return null;
 
+    console.log(updateRequisitionData)
     return (
         <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -98,7 +99,7 @@ export default function EmployeeModal({ isOpen, onClose }) {
                 <div className="mt-4 px-6">
                     <p className="text-sm text-gray-600 font-medium">Skills</p>
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {updateRequisitionData?.skills.map((skill, i) => (
+                        {updateRequisitionData?.skills?.map((skill, i) => (
                             <span
                                 key={i}
                                 className="px-2 py-1 text-xs bg-gray-100 rounded-full border border-gray-200"

@@ -34,7 +34,7 @@ function EmployeeLoginContextProvider({ children }) {
 
 
       try {
-        
+
         if (user?.level === "L1" && user.accessLevel === 1) {
 
           setLoginInformation([]);
@@ -57,21 +57,34 @@ function EmployeeLoginContextProvider({ children }) {
           addNotification(reverseTransform(res.data));
           setLoginInformation(user);
         }
+
+
         if (user?.level === "L1" && user.accessLevel === 3) {
 
           setLoginInformation([]);
-          const approvalResponse = await axios.get(
-            `${APP_BACKEND_URL}/SubAdminAproval/ForNextEmployee/?empId=${user.empID}`
-          );
-          const requisitionResponse = await axios.get(
-            `${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${user.empID}`
-          );
 
-          setRequisitionStatusUpdateInformation(approvalResponse.data);
-          setRequisitionInformation(requisitionResponse.data);
-          //addNotification(reverseTransform(res.data));
+          const [
+            approvalResponse,
+            approvalResponseForNextEmployeeStatus,
+            requisitionResponse
+          ] = await Promise.all([
+            axios.get(`${APP_BACKEND_URL}/SubAdminAproval/ForNextEmployee/?empId=${user.empID}`),
+            axios.get(`${APP_BACKEND_URL}/SubAdminAproval/ForNextEmployeeApprovedStatus?empId=${user.empID}`),
+            axios.get(`${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${user.empID}`)
+          ]);
+
+          const approvalData = approvalResponse.data || [];
+          const approvedStatusData = approvalResponseForNextEmployeeStatus.data || [];
+
+          
+          const mergedData = [...approvalData, ...approvedStatusData];
+
+          console.log(mergedData)
+          setRequisitionStatusUpdateInformation(mergedData);
+          setRequisitionInformation(requisitionResponse.data || []);
           setLoginInformation(user);
         }
+
 
         if (user?.level === "L1" && user.accessLevel === 4) {
 
@@ -101,7 +114,7 @@ function EmployeeLoginContextProvider({ children }) {
           setLoginInformation(user);
           setRequisitionApproveStatus(res.data);
         }
-        
+
 
 
       } catch (error) {
@@ -124,13 +137,57 @@ function EmployeeLoginContextProvider({ children }) {
   return (
     <EmployeeLoginContext.Provider value={{
       loginInformation, setLoginInformation,
-      requisitionInformation, setRequisitionInformation, 
-      requisitionApproveStatus, 
+      requisitionInformation, setRequisitionInformation,
+      requisitionApproveStatus,
+      setRequisitionStatusUpdateInformation,
       requisitionStatusUpdateInformation
     }}>
       {children}
     </EmployeeLoginContext.Provider>
   )
 }
+
+
+const refreshRequisitionData = async () => {
+  const [
+    approvalResponse,
+    approvalResponseForNextEmployeeStatus,
+    requisitionResponse
+  ] = await Promise.all([
+    axios.get(`${APP_BACKEND_URL}/SubAdminAproval/ForNextEmployee/?empId=${loginInformation?.empID}`),
+    axios.get(`${APP_BACKEND_URL}/SubAdminAproval/ForNextEmployeeApprovedStatus?empId=${loginInformation?.empID}`),
+    axios.get(`${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${loginInformation?.empID}`)
+  ]);
+
+  const mergedData = [
+    ...(approvalResponse.data || []),
+    ...(approvalResponseForNextEmployeeStatus.data || [])
+  ];
+
+  const normalizedData = mergedData.map(item => ({
+    ...item,
+    requisitionID: item.requisitionID || item.RequisitionID
+  }));
+
+  const uniqueLatestData = Object.values(
+    normalizedData.reduce((acc, item) => {
+
+      const key = item.requisitionID;
+      const existing = acc[key];
+
+      const itemTime = new Date(item.createdAt || 0).getTime();
+      const existingTime = new Date(existing?.createdAt || 0).getTime();
+
+      if (!existing || itemTime > existingTime) {
+        acc[key] = item;
+      }
+
+      return acc;
+    }, {})
+  );
+
+  setRequisitionStatusUpdateInformation(uniqueLatestData);
+  setRequisitionInformation(requisitionResponse.data || []);
+};
 
 export { EmployeeLoginContextProvider }

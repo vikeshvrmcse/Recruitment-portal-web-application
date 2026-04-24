@@ -1,19 +1,31 @@
 import React from "react";
+import pioneer_logo from "../assets/pioneer-logo.png";
 
 function ProfileModal({ employeeData }) {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-9xl bg-white shadow-2xl rounded-2xl p-8">
+    <div className="w-full flex items-start justify-start p-4 bg-gray-100">
+      <div className="w-full bg-white p-5">
 
         {/* Welcome Section */}
-        <div className="mb-6">
-          <h1 className="text-[48px] font-bold text-gray-800 leading-tight">
-            Welcome Dear
-          </h1>
-          <h2 className="text-[32px] font-semibold text-blue-600">
-            {employeeData?.empName || "User"}
-          </h2>
+        <div className="flex justify-between items-center">
+          
+          <div className="mb-6">
+            <h1 className="text-xl md:text-5xl font-bold text-gray-800 uppercase leading-tight">
+              Welcome Dear
+            </h1>
+            <h2 className="lg:text-6xl text-xl sm:text-2xl uppercase font-light text-pink-900">
+              {employeeData?.empName || "User"}
+            </h2>
+          </div>
+          <img
+            src={pioneer_logo}
+            height={20}
+            width={80}
+            className="object-contain mt-1 mx-2 cursor-pointer"
+            onClick={() => navigate('/')}
+          />
         </div>
+        
 
         {/* Profile Card */}
         <div className="border rounded-xl p-6 shadow-sm">
@@ -23,7 +35,7 @@ function ProfileModal({ employeeData }) {
 
           {/* Header inside card */}
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center text-xl font-bold">
+            <div className="w-14 h-14 rounded-full bg-pink-900 text-white flex items-center justify-center text-xl font-bold">
               {employeeData?.empName?.charAt(0) || "U"}
             </div>
             <div>
@@ -37,7 +49,7 @@ function ProfileModal({ employeeData }) {
           </div>
 
           {/* Info Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <ProfileItem label="Employee ID" value={employeeData?.empID} />
             <ProfileItem label="Email" value={employeeData?.mailID} />
             <ProfileItem label="Designation" value={employeeData?.designation} />
