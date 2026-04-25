@@ -199,6 +199,49 @@
         }
       }
     },
+    "/api/Requisition/track/{empId}": {
+      "get": {
+        "tags": [
+          "Requisition"
+        ],
+        "parameters": [
+          {
+            "name": "empId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Requisition/RequisitionTracker": {
+      "get": {
+        "tags": [
+          "Requisition"
+        ],
+        "parameters": [
+          {
+            "name": "empID",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/SubAdminAproval/with-employee": {
       "get": {
         "tags": [
@@ -212,6 +255,37 @@
       }
     },
     "/api/SubAdminAproval/RequisitionStatusUpdate": {
+      "post": {
+        "tags": [
+          "SubAdminAproval"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisitionApprovalModel"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisitionApprovalModel"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisitionApprovalModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SubAdminAproval/RequisitionStatusUpdateWithNextUpdator": {
       "post": {
         "tags": [
           "SubAdminAproval"
@@ -296,6 +370,48 @@
       }
     },
     "/api/SubAdminAproval/ForNextEmployee": {
+      "get": {
+        "tags": [
+          "SubAdminAproval"
+        ],
+        "parameters": [
+          {
+            "name": "empId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SubAdminAproval/ForNextEmployeeApprovedStatus": {
+      "get": {
+        "tags": [
+          "SubAdminAproval"
+        ],
+        "parameters": [
+          {
+            "name": "empId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SubAdminAproval/ForNextEmployeeForMunjalApproval": {
       "get": {
         "tags": [
           "SubAdminAproval"

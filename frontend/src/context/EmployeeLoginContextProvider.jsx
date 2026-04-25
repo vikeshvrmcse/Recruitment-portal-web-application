@@ -4,7 +4,6 @@ import axios from 'axios'
 import { useNotification } from './NotificationContextProvider';
 import { reverseTransform } from '../utils/dataFormatter';
 import { toast } from 'react-toastify';
-// import { fetchRequisitionsByEmpID } from '../utils/fetchApprovedData';
 
 const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 
@@ -13,9 +12,40 @@ function EmployeeLoginContextProvider({ children }) {
   const [requisitionInformation, setRequisitionInformation] = useState([])
   const [requisitionStatusUpdateInformation, setRequisitionStatusUpdateInformation] = useState([])
   const [requisitionApproveStatus, setRequisitionApproveStatus] = useState([])
+  const [storeRequistionTrack, setStoreRequisitionTrack] = useState([])
   const storedUser = localStorage.getItem("auth");
   const { addNotification } = useNotification();
+
+
   useEffect(() => {
+
+    
+    const mergeApprovedData = (approvalData, approvedStatusData) => {
+      const merged = [...approvalData, ...approvedStatusData];
+      const grouped = merged.reduce((acc, item) => {
+        if (!acc[item.requisitionID]) {
+          acc[item.requisitionID] = [];
+        }
+        acc[item.requisitionID].push(item);
+        return acc;
+      }, {});
+
+      const result = Object.values(grouped).flatMap(group => {
+        const approvedItem = group.find(
+          item => item.currentStatus?.toLowerCase() === "approved" ||  item.currentStatus?.toLowerCase() === "rejected"
+        );
+
+        if (approvedItem) {
+          return [approvedItem];
+        }
+        return group;
+      });
+
+      return result;
+    };
+
+
+
     const fetchData = async () => {
       const storedUser = localStorage.getItem("auth");
 
@@ -27,8 +57,6 @@ function EmployeeLoginContextProvider({ children }) {
       }
 
       const user = JSON.parse(storedUser);
-
-      //MPORTANT: RESET OLD DATA FIRST
       setRequisitionInformation([]);
       setRequisitionApproveStatus([]);
 
@@ -36,7 +64,6 @@ function EmployeeLoginContextProvider({ children }) {
       try {
 
         if (user?.level === "L1" && user.accessLevel === 1) {
-
           setLoginInformation([]);
           // const res = await axios.get(
           //   `${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${user.empID}`
@@ -46,8 +73,10 @@ function EmployeeLoginContextProvider({ children }) {
           // addNotification(reverseTransform(res.data));
           setLoginInformation(user);
         }
-        if (user?.level === "L1" && user.accessLevel === 2) {
 
+
+
+        if (user?.level === "L1" && user.accessLevel === 2) {
           setLoginInformation([]);
           const res = await axios.get(
             `${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${user.empID}`
@@ -59,10 +88,10 @@ function EmployeeLoginContextProvider({ children }) {
         }
 
 
+
+
         if (user?.level === "L1" && user.accessLevel === 3) {
-
           setLoginInformation([]);
-
           const [
             approvalResponse,
             approvalResponseForNextEmployeeStatus,
@@ -75,37 +104,41 @@ function EmployeeLoginContextProvider({ children }) {
 
           const approvalData = approvalResponse.data || [];
           const approvedStatusData = approvalResponseForNextEmployeeStatus.data || [];
-
-          
-          const mergedData = [...approvalData, ...approvedStatusData];
-
-          console.log(mergedData)
+          const mergedData = mergeApprovedData(approvalData, approvedStatusData);
           setRequisitionStatusUpdateInformation(mergedData);
           setRequisitionInformation(requisitionResponse.data || []);
           setLoginInformation(user);
         }
 
 
-        if (user?.level === "L1" && user.accessLevel === 4) {
 
+        if (user?.level === "L1" && user.accessLevel === 4) {
           setLoginInformation([]);
           const res = await axios.get(
             `${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${user.empID}`
           );
-
           setRequisitionInformation(res.data);
           addNotification(reverseTransform(res.data));
           setLoginInformation(user);
         }
+
+
 
         if (user?.level === "L2" && user.accessLevel === 5) {
           setLoginInformation([]);
           const res = await axios.get(
             `${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user.empID}`
           );
+          const requisitionTrackResponse = await axios.get(
+            `${APP_BACKEND_URL}/Requisition/RequisitionTracker?empID=${user.empID}`
+          );
+          setStoreRequisitionTrack(requisitionTrackResponse.data)
           setRequisitionApproveStatus(res.data);
           setLoginInformation(user);
         }
+
+
+
         if (user?.level === "L3" && user.accessLevel === 6) {
           setLoginInformation([]);
           const res = await axios.get(
@@ -115,17 +148,12 @@ function EmployeeLoginContextProvider({ children }) {
           setRequisitionApproveStatus(res.data);
         }
 
-
-
       } catch (error) {
         if (error.response && error.response.status === 404) {
           toast.error("No user data found");
         } else {
-          // Real error (server down, network issue, etc.)
-          // console.error("API Error:", error);
           toast.error("Something went wrong");
         }
-        // console.error("API Error:", error);
       }
     };
 
@@ -140,6 +168,7 @@ function EmployeeLoginContextProvider({ children }) {
       requisitionInformation, setRequisitionInformation,
       requisitionApproveStatus,
       setRequisitionStatusUpdateInformation,
+      storeRequistionTrack,
       requisitionStatusUpdateInformation
     }}>
       {children}

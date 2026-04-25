@@ -69,6 +69,38 @@
   },
   {
     "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
+    "Method": "GetRequisitionStatusFlow",
+    "RelativePath": "api/Requisition/RequisitionTracker",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "empID",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
+    "Method": "GetFullTracking",
+    "RelativePath": "api/Requisition/track/{empId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "empId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.RequisitionController",
     "Method": "GetTLRequisitionsByUser",
     "RelativePath": "api/Requisition/userTL/{userId}",
     "HttpMethod": "GET",
@@ -165,6 +197,38 @@
   },
   {
     "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
+    "Method": "ForNextEmployeeApprovedStatus",
+    "RelativePath": "api/SubAdminAproval/ForNextEmployeeApprovedStatus",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "empId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
+    "Method": "ForNextEmployeeForMunjalApproval",
+    "RelativePath": "api/SubAdminAproval/ForNextEmployeeForMunjalApproval",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "empId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
     "Method": "GetByEmpID",
     "RelativePath": "api/SubAdminAproval/GetByEmpID/{empID}",
     "HttpMethod": "GET",
@@ -183,6 +247,22 @@
     "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
     "Method": "RequisitionStatusUpdate",
     "RelativePath": "api/SubAdminAproval/RequisitionStatusUpdate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "RecruitmentWebAPI.Models.RequisitionApprovalModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RecruitmentWebAPI.Controllers.SubAdminAprovalController",
+    "Method": "RequisitionStatusUpdateWithNextUpdator",
+    "RelativePath": "api/SubAdminAproval/RequisitionStatusUpdateWithNextUpdator",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,

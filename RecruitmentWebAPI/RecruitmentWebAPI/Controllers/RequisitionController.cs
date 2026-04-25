@@ -212,6 +212,171 @@ namespace RecruitmentWebAPI.Controllers
 
             return Ok(data);
         }
-        
+
+
+        [HttpGet("track/{empId}")]
+        public async Task<IActionResult> GetFullTracking(string empId)
+        {
+            // 1. Get requisitions created by employee
+            var requisitions = await _context.Requisitions
+                .Where(r => r.EmpID == empId)
+                .ToListAsync();
+
+            var requisitionIds = requisitions.Select(r => r.Id).ToList();
+
+            // 2. Get approval history
+            var approvals = await (
+                from ra in _context.RequisitionApprovalModels
+                join e1 in _context.EmployeeDetails
+                    on ra.EmpID equals e1.EmpID into emp1
+                from e1 in emp1.DefaultIfEmpty()
+
+                join e2 in _context.EmployeeDetails
+                    on ra.NextEmpID equals e2.EmpID into emp2
+                from e2 in emp2.DefaultIfEmpty()
+
+                where requisitionIds.Contains(ra.RequisitionID)
+
+                select new
+                {
+                    ra.RequisitionID,
+                    ra.Id,
+                    ActionBy = e1 != null ? e1.EmpName : "System",
+                    NextApprover = e2 != null ? e2.EmpName : "N/A",
+                    Status = ra.CurrentStatus,
+                    Date = ra.CreatedAt,
+                    Type = "Approval"
+                }
+            ).ToListAsync();
+
+            // 3. Build final timeline
+            var result = requisitions.Select(r =>
+            {
+                var steps = new List<object>();
+
+                // 🔥 STEP 1: Requisition Created
+                steps.Add(new
+                {
+                    Id = r.Id,
+                    ActionBy = "System",
+                    NextApprover = "First Approver",
+                    Status = "created",
+                    Date = r.CreatedAt,
+                    Type = "Requisition"
+                });
+
+                // 🔥 STEP 2+: Approval Steps
+                var approvalSteps = approvals
+                    .Where(a => a.RequisitionID == r.Id)
+                    .OrderBy(a => a.Date)
+                    .Select((a, index) => new
+                    {
+                        a.Id,
+                        a.ActionBy,
+                        a.NextApprover,
+                        Status =
+                            a.Status == "approved" ? "confirmed" :
+                            a.Status == "rejected" ? "cancelled" :
+                            "review",
+                        a.Date,
+                        StepNumber = index + 2,
+                        a.Type
+                    });
+
+                steps.AddRange(approvalSteps);
+
+                return new
+                {
+                    RequisitionID = r.Id,
+                    JobTitle = r.JobTitle,
+                    CreatedBy = r.EmpID,
+                    CreatedAt = r.CreatedAt,
+                    Status = r.Status,
+
+                    Steps = steps.OrderBy(s => ((dynamic)s).Date)
+                };
+            });
+
+            return Ok(result);
+        }
+
+        [HttpGet("RequisitionTracker")]
+        public async Task<IActionResult> GetRequisitionStatusFlow(string empID)
+        {
+            // Get employee
+            var employee = await _context.EmployeeDetails
+                .FirstOrDefaultAsync(x => x.EmpID == empID);
+
+            if (employee == null)
+                return NotFound("Employee not found");
+
+            // 🔥 Get ALL requisitions of this employee (NOT FirstOrDefault)
+            var requisitions = await _context.Requisitions
+                .Where(x => x.EmpID == empID)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+
+            if (!requisitions.Any())
+                return NotFound("No requisitions found");
+
+            var result = new List<object>();
+
+            foreach (var requisition in requisitions)
+            {
+                // Get approvals for each requisition
+                var approvals = await _context.RequisitionApprovalModels
+                    .Where(x => x.RequisitionID == requisition.Id)
+                    .OrderBy(x => x.CreatedAt)
+                    .ToListAsync();
+
+                var flow = new List<object>();
+
+                // STEP 1: Created
+                flow.Add(new
+                {
+                    stepType = "Requisition Created",
+                    requisitionId = requisition.Id,
+                    actionBy = employee.EmpName,
+                    status = requisition.Status,
+                    date = requisition.CreatedAt
+                });
+
+                // STEP 2+: Approval steps
+                foreach (var item in approvals)
+                {
+                    var actionBy = await _context.EmployeeDetails
+                        .FirstOrDefaultAsync(x => x.EmpID == item.EmpID);
+
+                    var nextApprover = await _context.EmployeeDetails
+                        .FirstOrDefaultAsync(x => x.EmpID == item.NextEmpID);
+
+                    flow.Add(new
+                    {
+                        stepType = "Approval Step",
+                        requisitionId = item.RequisitionID,
+                        actionBy = actionBy?.EmpName,
+                        nextApprover = nextApprover?.EmpName,
+                        status =
+                            item.CurrentStatus == "approved" ? "confirmed" :
+                            item.CurrentStatus == "rejected" ? "cancelled" :
+                            "review",
+                        rawStatus = item.CurrentStatus,
+                        date = item.CreatedAt
+                    });
+                }
+
+                result.Add(new
+                {
+                    requisitionId = requisition.Id,
+                    requisitionTitle = requisition.JobTitle, // if exists
+                    status = requisition.Status,
+                    createdAt = requisition.CreatedAt,
+                    flow
+                });
+            }
+
+            return Ok(result);
+        }
+
     }
 }

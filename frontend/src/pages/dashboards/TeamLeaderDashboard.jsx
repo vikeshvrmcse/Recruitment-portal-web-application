@@ -22,10 +22,11 @@ import EmployeeModal from "../../modals/EmployeeModal";
 import ProfileModal from "../../modals/ProfileModal";
 function TLDashboard() {
     const { requisitionData } = useContext(TestContext)
-    const { loginInformation, requisitionApproveStatus } = useContext(EmployeeLoginContext)
+    const { loginInformation, requisitionApproveStatus, storeRequistionTrack } = useContext(EmployeeLoginContext)
     const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
     const [showModalOpen, setShowModelOpen] = useState(false)
     const [profileModelShow, setProfileModelShow]=useState(false)
+    const [stepperData, setStepperData]=useState([])
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
     const dispatch = useDispatch();
@@ -82,7 +83,6 @@ function TLDashboard() {
         ],
     };
 
-    console.log(filteredRequests)
 
     const formatTimeAgo = (date) => {
         if (!date) return "-";
@@ -178,7 +178,7 @@ function TLDashboard() {
                         {show ? <div className="p-6">
 
 
-                            <Stepper steps={requisition.steps} />
+                            <Stepper data={stepperData} />
                             <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
                                 <h2 className="text-xl font-bold">
                                     {requisition.title}
@@ -405,8 +405,8 @@ function TLDashboard() {
                                         Edit
                                     </button>
 
-                                    <button className="px-3 py-1 bg-black rounded-md hover:text-red-300 hover:shadow-red-500 transition-all">
-                                        Delete
+                                    <button onClick={()=>setStepperData(storeRequistionTrack[index]["flow"])} className="px-3 py-1 bg-black rounded-md hover:text-red-300 hover:shadow-red-500 transition-all">
+                                        status
                                     </button>
 
                                     <button onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(item) }} className="px-3 py-1 bg-black rounded-md hover:text-blue-300 hover:shadow-blue-500 transition-all">
