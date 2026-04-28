@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecruitmentWebAPI.Data;
-using RecruitmentWebAPI.Migrations;
 using RecruitmentWebAPI.Models;
 
 namespace RecruitmentWebAPI.Controllers

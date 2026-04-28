@@ -16,3 +16,18 @@ RecruitmentPortalBackend/appsettings.Development.json
 .vscode/
 .idea/
 *.log
+
+# Visual Studio
+.vs/
+
+# Build folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.cache
+
+# Logs
+*.log

@@ -1,6 +1,0 @@
-@RecruitmentPortalBackend_HostAddress = http://localhost:5135
-
-GET {{RecruitmentPortalBackend_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
