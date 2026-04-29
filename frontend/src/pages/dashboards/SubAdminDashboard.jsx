@@ -137,7 +137,7 @@ function SubAdminDashboard() {
 
 
   // FILTER + SEARCH LOGIC
-  const filteredRequests = updatedData?.map((data) => ({ ...data, name: loginInformation?.empName, designation: loginInformation?.designation })).filter((r) => {
+  const filteredRequests = updatedData?.map((data) => ({ ...data})).filter((r) => {
     const matchStatus = filter === "All" || r.status === filter;
     const matchSearch =
       r.name?.toLowerCase().includes(search.toLowerCase());

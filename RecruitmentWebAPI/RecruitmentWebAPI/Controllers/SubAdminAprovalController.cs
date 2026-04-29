@@ -337,5 +337,70 @@ namespace RecruitmentWebAPI.Controllers
                 completed
             });
         }
+
+
+        [HttpGet("GetUniqueEmployeesWithStatus")]
+        public async Task<IActionResult> GetUniqueEmployeesWithStatus(string id, string status)
+        {
+            var selectData = await (
+                from data in _context.RequisitionApprovalModels
+                where data.EmpID == id
+                      && data.PreviousStatus == status   // 🔥 IMPORTANT FILTER
+                join req in _context.Requisitions
+                    on data.RequisitionID equals req.Id
+                join emp in _context.EmployeeDetails
+                    on req.EmpID equals emp.EmpID
+                join approver in _context.EmployeeDetails
+                    on data.EmpID equals approver.EmpID
+
+                select new
+                {
+                    approver,
+                    creator = emp,
+                    requisition = req
+                }
+            ).ToListAsync();
+
+            var result = new
+            {
+                approvedBy = selectData
+                    .Select(x => new
+                    {
+                        x.approver.EmpID,
+                        x.approver.EmpName,
+                        x.approver.Designation
+                    })
+                    .FirstOrDefault(),
+
+                creator = selectData
+                    .GroupBy(x => x.creator.EmpID)
+                    .Select(g => new
+                    {
+                        creator_employee = new
+                        {
+                            g.First().creator.EmpID,
+                            g.First().creator.EmpName,
+                            g.First().creator.Designation,
+                            g.First().creator.Dept,
+                            g.First().creator.CompanyLocation
+                        },
+
+                        requisition = g.Select(x => new
+                        {
+                            x.requisition.Id,
+                            x.requisition.JobTitle,
+                            x.requisition.Department,
+                            x.requisition.Description,
+                            x.requisition.Status,
+                            x.requisition.CreatedAt,
+                            x.requisition.Vacancy,
+                            x.requisition.Location
+                        }).ToList()
+                    })
+                    .ToList()
+            };
+
+            return Ok(result);
+        }
     }
 }

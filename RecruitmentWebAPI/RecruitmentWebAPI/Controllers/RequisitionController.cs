@@ -74,6 +74,7 @@ namespace RecruitmentWebAPI.Controllers
 
             model.Id = Guid.NewGuid().ToString(); // since Id is string
             model.CreatedAt = DateTime.Now;
+            model.UpdatedAt = DateTime.Now;
 
             _context.Requisitions.Add(model);
             _context.SaveChanges();
@@ -254,7 +255,7 @@ namespace RecruitmentWebAPI.Controllers
             {
                 var steps = new List<object>();
 
-                // 🔥 STEP 1: Requisition Created
+              
                 steps.Add(new
                 {
                     Id = r.Id,
@@ -310,7 +311,7 @@ namespace RecruitmentWebAPI.Controllers
             if (employee == null)
                 return NotFound("Employee not found");
 
-            // 🔥 Get ALL requisitions of this employee (NOT FirstOrDefault)
+  
             var requisitions = await _context.Requisitions
                 .Where(x => x.EmpID == empID)
                 .OrderByDescending(x => x.CreatedAt)

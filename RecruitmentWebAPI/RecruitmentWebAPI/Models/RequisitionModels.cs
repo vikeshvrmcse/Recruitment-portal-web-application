@@ -24,6 +24,7 @@ namespace RecruitmentWebAPI.Models
         public string Status { get; set; }
         public int Vacancy { get; set; }
         public int YearOfExperience { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 
 

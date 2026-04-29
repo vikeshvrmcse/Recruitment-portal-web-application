@@ -8,6 +8,8 @@ import { NotificationProvider } from './context/NotificationContextProvider';
 import { UpdateRequisitionContextProvider } from './context/UpdateRequisitionContextProvider';
 import { ToastContainer } from 'react-toastify';
 import { EmployeeLoginContextProvider } from './context/EmployeeLoginContextProvider';
+import GetAllEmployeeContextProvider from './context/GetAllEmployeeContextProvider';
+import GetAllRequisitionContextProvider from './context/GetAllRequisitionContextProvider';
 function App() {
   return (
     <div>
@@ -16,8 +18,12 @@ function App() {
         <NotificationProvider>
           <EmployeeLoginContextProvider>
           <UpdateRequisitionContextProvider>
-             <ToastContainer />
-            <Outlet />
+            <GetAllEmployeeContextProvider>
+              <GetAllRequisitionContextProvider>
+                <ToastContainer />
+                <Outlet />
+              </GetAllRequisitionContextProvider>
+            </GetAllEmployeeContextProvider>
           </UpdateRequisitionContextProvider>
           </EmployeeLoginContextProvider>
         </NotificationProvider>

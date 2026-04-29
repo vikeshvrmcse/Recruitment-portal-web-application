@@ -158,7 +158,7 @@ function EmployeeLoginContextProvider({ children }) {
         } catch (error) {
           console.log(error.message)
         }
-        setStoreRequisitionTrack(requisitionTrackResponse?.data)
+        setStoreRequisitionTrack(requisitionTrackResponse?.data || [])
         setRequisitionApproveStatus(res?.data);
         setLoginInformation(user);
       }
