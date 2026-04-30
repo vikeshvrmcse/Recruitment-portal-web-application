@@ -84,16 +84,11 @@ export default function EmployeeModal({ isOpen, onClose }) {
 
                 </div>
 
-
-
                 {/* Description */}
                 <div className="mt-4 px-6">
                     <p className="text-sm text-gray-600 font-medium">Description</p>
                     <p className="text-sm text-gray-800">{updateRequisitionData?.description}</p>
                 </div>
-
-
-
 
                 {/* Skills */}
                 <div className="mt-4 px-6">
