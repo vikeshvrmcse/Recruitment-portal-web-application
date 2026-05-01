@@ -33,7 +33,7 @@ namespace RecruitmentWebAPI.Models
         public int? AccessLevel { get; set; }
     }
 
-    public class EmployeeSigninModel    
+    public class EmployeeSigninModel
     {
         public required string EmpID { get; set; }
 

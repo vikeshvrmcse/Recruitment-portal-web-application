@@ -165,42 +165,7 @@ function SubAdminDashboard() {
     },
   ];
 
-  const requisition = [
-  {
-    stepType: "Requisition Created",
-    requisitionId: "REQ-001",
-    actionBy: "PMA0170",
-    status: "pending",
-    date: "2026-04-18T18:00:08.860Z"
-  },
-  {
-    stepType: "Approval Step",
-    requisitionId: "REQ-001",
-    actionBy: "Mohammad Haris",
-    nextApprover: "Munjal Girishchandra Shroff",
-    status: "review",
-    rawStatus: "pending",
-    date: "2026-04-20T10:15:00.000Z"
-  },
-  {
-    stepType: "Approval Step",
-    requisitionId: "REQ-001",
-    actionBy: "Munjal Girishchandra Shroff",
-    nextApprover: "Anuj Kumar Singh",
-    status: "confirmed",
-    rawStatus: "approved",
-    date: "2026-04-22T14:30:00.000Z"
-  },
-  {
-    stepType: "Approval Step",
-    requisitionId: "REQ-001",
-    actionBy: "Anuj Kumar Singh",
-    nextApprover: null,
-    status: "cancelled",
-    rawStatus: "rejected",
-    date: "2026-04-25T09:45:00.000Z"
-  }
-];
+  
 
 const data = [
   {
@@ -229,42 +194,7 @@ const data = [
     "date": "2026-04-25T10:47:32.9314097"
   }
 ]
-  const requisitionee = {
-    id: 1,
-    title: "PLC Designer requisition",
-    status: "pending", // overall status
-    createdBy: "Ashish Sharma",
-    steps: [
-      {
-        id: 1,
-        name: "Mr. Surya",
-        role: "Requester",
-        status: "confirmed",
-        date: "2026-04-10",
-      },
-      {
-        id: 2,
-        name: "Mhd. Harish",
-        role: "Reviewer",
-        status: "confirmed",
-        date: "2026-04-10",
-      },
-      {
-        id: 3,
-        name: "Arpana",
-        role: "Reviewer",
-        status: "confirmed",
-        date: "2026-07-10",
-      },
-      {
-        id: 4,
-        name: "Anuj",
-        role: "Approver",
-        status: "pending",
-        date: null,
-      },
-    ],
-  };
+
 
   const filters = ["All", "pending", "approved", "rejected"];
 

@@ -181,15 +181,15 @@ function TLDashboard() {
                             <Stepper data={stepperData} />
                             <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
                                 <h2 className="text-xl font-bold">
-                                    {requisition.title}
+                                    {"Dummy Title"}
                                 </h2>
                                 <p className="text-sm text-gray-500">
-                                    Created by: {requisition.createdBy}
+                                    Created by: {"Dummy Create By"}
                                 </p>
                                 <p className="text-sm mt-2">
                                     Status:{" "}
                                     <span className="font-semibold capitalize">
-                                        {requisition.status}
+                                        {"Dummy Status"}
                                     </span>
                                 </p>
                             </div>

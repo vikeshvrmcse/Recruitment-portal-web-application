@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RecruitmentWebAPI.Models
 {
@@ -10,7 +11,7 @@ namespace RecruitmentWebAPI.Models
         public string Department { get; set; }
         public string Description { get; set; }
         public string? EmpID { get; set; } //Foreign Key
-        [ForeignKey("EmployeeDetailsID")]
+        [ForeignKey(nameof(EmpID))]
         public EmployeeDetails? EmployeeDetailDatas { get; set; }
         public List<string> ExperienceLevel { get; set; }
         public string HighestQualification { get; set; }
@@ -28,7 +29,7 @@ namespace RecruitmentWebAPI.Models
     }
 
 
-   
+
 
     public class RequisitionApprovalModel
     {
@@ -36,6 +37,7 @@ namespace RecruitmentWebAPI.Models
 
         public DateTime CreatedAt { get; set; }
 
+        [Column(TypeName = "nvarchar(20)")]
         public string? EmpID { get; set; }
 
         [ForeignKey(nameof(EmpID))]
@@ -50,6 +52,35 @@ namespace RecruitmentWebAPI.Models
 
         public required string PreviousStatus { get; set; }
         public string? CurrentStatus { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class ImprovedRequisitionApprovalModel
+    {
+        [Key]
+        public string? Id { get; set; }
+
+        [Column(TypeName = "nvarchar(20)")]
+        public string? EmpID { get; set; }
+
+        [ForeignKey(nameof(EmpID))]
+        public EmployeeDetails? EmployeeDetail { get; set; }
+
+        public string? RequisitionID { get; set; }
+
+        [ForeignKey(nameof(RequisitionID))]
+        public RequisitionModels? Requisition { get; set; }
+
+        public int StepOrder { get; set; }   
+
+        public string Status { get; set; }   // Pending, Approved, Rejected
+
+        public DateTime? ActionDate { get; set; }
+
+        public string? Remarks { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
     }

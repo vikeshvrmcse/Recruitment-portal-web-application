@@ -63,7 +63,7 @@ namespace RecruitmentWebAPI.Controllers
                 return BadRequest("Invalid requisition data");
             }
 
-            
+
             var employeeExists = _context.EmployeeDetails
                 .Any(e => e.EmpID == model.EmpID);
 
@@ -117,7 +117,7 @@ namespace RecruitmentWebAPI.Controllers
         [HttpGet("with-employee-by-irb/{irb}")]
         public async Task<IActionResult> GetRequisitionByIRB(string irb)
         {
-            
+
             var data = await (from r in _context.Requisitions
                               join e in _context.EmployeeDetails
                               on r.EmpID equals e.EmpID
@@ -150,7 +150,7 @@ namespace RecruitmentWebAPI.Controllers
         [HttpGet("with-employee-by-id/{id}")]
         public async Task<IActionResult> GetApprovedRequisition(string id)
         {
-                
+
 
             var data = await (
                 from req in _context.Requisitions
@@ -173,34 +173,34 @@ namespace RecruitmentWebAPI.Controllers
                     JobTitle = req.JobTitle,
                     RequisitionReason = req.RequisitionReason,
                     Requirements = req.Requirements,
-                    RequisitionDepartment=req.Department,
-                    HighestQualification=req.HighestQualification,
-                    JobType=req.JobType,
+                    RequisitionDepartment = req.Department,
+                    HighestQualification = req.HighestQualification,
+                    JobType = req.JobType,
                     Department = req.Department,
                     Location = req.Location,
-                    Description=req.Description,
+                    Description = req.Description,
                     Skills = req.Skills,
                     year_of_experience = req.YearOfExperience,
                     EmpID = req.EmpID,
-                    Deadline=req.Deadline,
+                    Deadline = req.Deadline,
                     Vacancy = req.Vacancy,
-                    YearOfExperience=req.YearOfExperience,
-                    
+                    YearOfExperience = req.YearOfExperience,
+
                     Status = subApp != null ? subApp.PreviousStatus : "pending",
 
-                    
+
                     VerifiedBy = (verifier != null && verifier.Level == "L1")
                                     ? verifier.EmpName
                                     : null,
 
-            
+
                     VerifiedAt = subApp != null
                                     ? subApp.CreatedAt
                                     : (DateTime?)null
                 }
             ).ToListAsync();
 
-            
+
 
             return Ok(data);
         }
@@ -209,14 +209,14 @@ namespace RecruitmentWebAPI.Controllers
         [HttpGet("track/{empId}")]
         public async Task<IActionResult> GetFullTracking(string empId)
         {
-            
+
             var requisitions = await _context.Requisitions
                 .Where(r => r.EmpID == empId)
                 .ToListAsync();
 
             var requisitionIds = requisitions.Select(r => r.Id).ToList();
 
-            
+
             var approvals = await (
                 from ra in _context.RequisitionApprovalModels
                 join e1 in _context.EmployeeDetails
@@ -241,12 +241,12 @@ namespace RecruitmentWebAPI.Controllers
                 }
             ).ToListAsync();
 
-           
+
             var result = requisitions.Select(r =>
             {
                 var steps = new List<object>();
 
-              
+
                 steps.Add(new
                 {
                     Id = r.Id,
@@ -257,7 +257,7 @@ namespace RecruitmentWebAPI.Controllers
                     Type = "Requisition"
                 });
 
-                
+
                 var approvalSteps = approvals
                     .Where(a => a.RequisitionID == r.Id)
                     .OrderBy(a => a.Date)
@@ -295,14 +295,14 @@ namespace RecruitmentWebAPI.Controllers
         [HttpGet("RequisitionTracker")]
         public async Task<IActionResult> GetRequisitionStatusFlow(string empID)
         {
-           
+
             var employee = await _context.EmployeeDetails
                 .FirstOrDefaultAsync(x => x.EmpID == empID);
 
             if (employee == null)
                 return NotFound("Employee not found");
 
-  
+
             var requisitions = await _context.Requisitions
                 .Where(x => x.EmpID == empID)
                 .OrderByDescending(x => x.CreatedAt)
@@ -315,7 +315,7 @@ namespace RecruitmentWebAPI.Controllers
 
             foreach (var requisition in requisitions)
             {
-                
+
                 var approvals = await _context.RequisitionApprovalModels
                     .Where(x => x.RequisitionID == requisition.Id)
                     .OrderBy(x => x.CreatedAt)
@@ -323,7 +323,7 @@ namespace RecruitmentWebAPI.Controllers
 
                 var flow = new List<object>();
 
-                
+
                 flow.Add(new
                 {
                     stepType = "Requisition Created",
@@ -333,7 +333,7 @@ namespace RecruitmentWebAPI.Controllers
                     date = requisition.CreatedAt
                 });
 
-               
+
                 foreach (var item in approvals)
                 {
                     var actionBy = await _context.EmployeeDetails

@@ -30,11 +30,11 @@ function Home() {
           className="text-justify text-gray-600 font-light text-xl md:py-6 md:my-10"
         >
           To fulfill the free license requirements, please
-            read our Reuse guide. You can also request a file or request permission for a file already on the internet.
-            Small object detection is a particular case of object detection where various techniques are employed to
-             detect small objects in digital images and videos. "Small objects" are objects having a small pixel footprint
-              in the input image. In areas such as aerial imagery, state-of-the-art object detection techniques under performed
-               because of small objects. This video shows an example of object tracking.
+          read our Reuse guide. You can also request a file or request permission for a file already on the internet.
+          Small object detection is a particular case of object detection where various techniques are employed to
+          detect small objects in digital images and videos. "Small objects" are objects having a small pixel footprint
+          in the input image. In areas such as aerial imagery, state-of-the-art object detection techniques under performed
+          because of small objects. This video shows an example of object tracking.
         </motion.p>
 
         <motion.div

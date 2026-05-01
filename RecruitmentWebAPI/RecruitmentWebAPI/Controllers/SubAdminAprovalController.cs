@@ -141,7 +141,7 @@ namespace RecruitmentWebAPI.Controllers
             if (existing == null)
                 return NotFound("Requisition not found");
 
-            
+
             existing.CreatedAt = request.CreatedAt;
             existing.Deadline = request.Deadline;
             existing.Department = request.Department;
@@ -190,7 +190,7 @@ namespace RecruitmentWebAPI.Controllers
                 join irbEmp in _context.EmployeeDetails
                     on emp.IRB equals irbEmp.EmpID into irbGroup
                 from irbEmp in irbGroup.DefaultIfEmpty()
-                   
+
                 where approval.NextEmpID == empId
                       && approval.PreviousStatus == "approved"
 
@@ -245,9 +245,9 @@ namespace RecruitmentWebAPI.Controllers
                 join irbEmp in _context.EmployeeDetails
                     on emp.IRB equals irbEmp.EmpID into irbGroup
                 from irbEmp in irbGroup.DefaultIfEmpty()
-                   
+
                 where approval.NextEmpID == empId
-                      && approval.PreviousStatus == "approved" && approval.CurrentStatus!="approved"
+                      && approval.PreviousStatus == "approved" && approval.CurrentStatus != "approved"
 
                 select new
                 {
@@ -409,7 +409,7 @@ namespace RecruitmentWebAPI.Controllers
 
                 where approval.EmpID == empId
                       && approval.PreviousStatus == "approved"
-                      && (approval.CurrentStatus == "approved" || approval.CurrentStatus == "rejected") && approval.NextEmpID==empId
+                      && (approval.CurrentStatus == "approved" || approval.CurrentStatus == "rejected") && approval.NextEmpID == empId
 
                 orderby approval.CreatedAt descending
 
@@ -500,7 +500,7 @@ namespace RecruitmentWebAPI.Controllers
                 completed
             });
         }
-        
+
 
         [HttpGet("GetUniqueEmployeesWithStatus")]
         public async Task<IActionResult> GetUniqueEmployeesWithStatus(string id, string status)
@@ -508,7 +508,7 @@ namespace RecruitmentWebAPI.Controllers
             var selectData = await (
                 from data in _context.RequisitionApprovalModels
                 where data.EmpID == id
-                      && data.PreviousStatus == status   // 🔥 IMPORTANT FILTER
+                      && data.PreviousStatus == status
                 join req in _context.Requisitions
                     on data.RequisitionID equals req.Id
                 join emp in _context.EmployeeDetails
@@ -565,5 +565,264 @@ namespace RecruitmentWebAPI.Controllers
 
             return Ok(result);
         }
+
+
+        [HttpPost("create")]
+        public async Task<IActionResult> Create([FromBody] ImprovedRequisitionApprovalModel model)
+        {
+            if (model == null)
+                return BadRequest("Invalid data");
+
+            // Validate duplicate step
+            var exists = await _context.RequisitionVerifierModels
+                .AnyAsync(x =>
+                    x.RequisitionID == model.RequisitionID &&
+                    x.StepOrder == model.StepOrder);
+
+            if (exists)
+                return BadRequest("Step already exists");
+
+            model.Id = Guid.NewGuid().ToString();
+            model.CreatedAt = DateTime.UtcNow;
+            model.UpdatedAt = DateTime.UtcNow;
+
+            // First step = Pending, others = Waiting
+            var isFirst = !await _context.RequisitionVerifierModels
+                .AnyAsync(x => x.RequisitionID == model.RequisitionID);
+
+            model.Status = isFirst ? "Pending" : "Waiting";
+
+            _context.RequisitionVerifierModels.Add(model);
+            await _context.SaveChangesAsync();
+
+            return Ok(model);
+        }
+
+
+
+        [HttpGet("chain/{reqId}")]
+        public async Task<IActionResult> GetChain(string reqId)
+        {
+            var data = await _context.RequisitionVerifierModels
+                .Where(x => x.RequisitionID == reqId)
+                .OrderBy(x => x.StepOrder)
+                .ToListAsync();
+
+            return Ok(data);
+        }
+
+
+        [HttpPost("approve")]
+        public async Task<IActionResult> Approve(string reqId, string userId)
+        {
+            // Get current pending step
+            var current = await _context.RequisitionVerifierModels
+                .Where(x => x.RequisitionID == reqId && x.Status == "Pending")
+                .OrderBy(x => x.StepOrder)
+                .FirstOrDefaultAsync();
+
+            if (current == null)
+                return BadRequest("No pending step");
+
+            // Validate user
+            if (current.EmpID != userId)
+                return BadRequest("Unauthorized");
+
+            // Approve current
+            current.Status = "Approved";
+            current.ActionDate = DateTime.UtcNow;
+            current.UpdatedAt = DateTime.UtcNow;
+
+            // Get next step
+            var next = await _context.RequisitionVerifierModels
+                .FirstOrDefaultAsync(x =>
+                    x.RequisitionID == reqId &&
+                    x.StepOrder == current.StepOrder + 1);
+
+            if (next != null)
+            {
+                next.Status = "Pending";
+                next.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                var req = await _context.Requisitions
+                    .FirstOrDefaultAsync(r => r.Id == reqId);
+
+                if (req != null)
+                    req.Status = "Approved";
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Approved successfully",
+                nextApprover = next?.EmpID
+            });
+        }
+
+        [HttpPost("reject")]
+        public async Task<IActionResult> Reject(string reqId, string userId, string remarks)
+        {
+            var current = await _context.RequisitionVerifierModels
+                .Where(x => x.RequisitionID == reqId && x.Status == "Pending")
+                .OrderBy(x => x.StepOrder)
+                .FirstOrDefaultAsync();
+
+            if (current == null)
+                return BadRequest("No pending step");
+
+            if (current.EmpID != userId)
+                return BadRequest("Unauthorized");
+
+            current.Status = "Rejected";
+            current.Remarks = remarks;
+            current.ActionDate = DateTime.UtcNow;
+
+            var req = await _context.Requisitions
+                .FirstOrDefaultAsync(r => r.Id == reqId);
+
+            if (req != null)
+                req.Status = "Rejected";
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Rejected successfully");
+        }
+
+        [HttpGet("pending/{userId}")]
+        public async Task<IActionResult> GetPending(string userId)
+        {
+            var data = await _context.RequisitionVerifierModels
+                .Where(x => x.EmpID == userId && x.Status == "Pending")
+                .ToListAsync();
+
+            return Ok(data);
+        }
+
+        [HttpGet("approved/{userId}")]
+        public async Task<IActionResult> GetApproved(string userId)
+        {
+            var data = await _context.RequisitionVerifierModels
+                .Where(x => x.EmpID == userId && x.Status == "Approved")
+                .OrderByDescending(x => x.ActionDate)
+                .ToListAsync();
+
+            return Ok(data);
+        }
+
+        //[HttpGet("GetApprovedRequisitions")]
+        //public async Task<IActionResult> GetApprovedRequisitions(string empId)
+        //{
+        //    var data = await _context.RequisitionVerifierModels
+        //        .Include(r => r.Requisition)
+        //        .Where(r => r.EmpID == empId && r.Status == "approved")
+        //        .Select(r => new
+        //        {
+        //            r.RequisitionID,
+        //            r.StepOrder,
+        //            r.Status,
+        //            r.ActionDate,
+        //            RequisitionTitle = r.Requisition.JobTitle
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(data);
+        //}
+        //[HttpGet("GetRejectedRequisitions")]
+        //public async Task<IActionResult> GetRejectedRequisitions(string empId)
+        //{
+        //    var data = await _context.RequisitionVerifierModels
+        //        .Include(r => r.Requisition)
+        //        .Where(r => r.EmpID == empId && r.Status == "pending")
+        //        .Select(r => new
+        //        {
+        //            r.RequisitionID,
+        //            r.StepOrder,
+        //            r.Status,
+        //            r.ActionDate,
+        //            RequisitionTitle = r.Requisition.JobTitle
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(data);
+        //}
+
+        //[HttpPost("RequisitionApproveByIRB")]
+        //public IActionResult Approve(string previousId, string reqId, string userId, int stepOrder)
+        //{
+        //    var current = _context.RequisitionVerifierModels
+        //        .FirstOrDefault(x =>
+        //            x.RequisitionID == reqId &&
+        //            x.StepOrder == stepOrder &&
+        //            x.EmpID == previousId);
+
+        //    if (current == null)
+        //        return BadRequest("Invalid approval step");
+
+        //    //current.Status = "approved";
+        //    //current.ActionDate = DateTime.Now;
+
+        //    var next = _context.RequisitionVerifierModels
+        //        .FirstOrDefault(x =>
+        //            x.RequisitionID == reqId &&
+        //            x.StepOrder == stepOrder + 1);
+
+        //    if (next != null)
+        //    {
+        //        next.Status = "pending";
+        //        next.EmpID = userId;
+        //    }
+        //    else
+        //    {
+        //        var req = _context.Requisitions
+        //            .FirstOrDefault(r => r.Id == reqId);
+
+        //        req.Status = "approved";
+        //    }
+
+        //    _context.SaveChanges();
+
+        //    return Ok("Approved successfully");
+        //}
+
+        //[HttpPost("Approve")]
+        //public IActionResult Approve(string reqId, string userId)
+        //{
+        //    var current = _context.RequisitionVerifierModels
+        //        .FirstOrDefault(x => x.RequisitionID == reqId && x.EmpID == userId);
+
+        //    current.Status = "approved";
+        //    current.ActionDate = DateTime.Now;
+
+        //    var next = _context.RequisitionVerifierModels
+        //        .FirstOrDefault(x =>
+        //            x.RequisitionID == reqId &&
+        //            x.StepOrder == current.StepOrder + 1);
+
+        //    if (next != null)
+        //    {
+        //        next.Status = "pending";
+
+        //        //_notificationService.Notify(new NotificationDto
+        //        //{
+        //        //    UserId = next.EmpID,
+        //        //    Title = "Approval Required",
+        //        //    Message = $"Requisition {reqId} is waiting for your approval"
+        //        //});
+        //    }
+        //    else
+        //    {
+        //        var req = _context.Requisitions
+        //            .FirstOrDefault(r => r.Id == reqId);
+
+        //        req.Status = "approved";
+        //    }
+
+        //    _context.SaveChanges();
+
+        //    return Ok("Approved and next user notified");
+        //}
     }
 }

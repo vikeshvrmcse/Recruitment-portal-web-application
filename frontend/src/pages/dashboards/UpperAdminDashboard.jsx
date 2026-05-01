@@ -219,42 +219,7 @@ function UpperAdminDashboard() {
     },
   ];
 
-  const requisition = {
-    id: 1,
-    title: "PLC Designer requisition",
-    status: "pending", // overall status
-    createdBy: "Ashish Sharma",
-    steps: [
-      {
-        id: 1,
-        name: "Mr. Surya",
-        role: "Requester",
-        status: "confirmed",
-        date: "2026-04-10",
-      },
-      {
-        id: 2,
-        name: "Mhd. Harish",
-        role: "Reviewer",
-        status: "confirmed",
-        date: "2026-04-10",
-      },
-      {
-        id: 3,
-        name: "Arpana",
-        role: "Reviewer",
-        status: "confirmed",
-        date: "2026-07-10",
-      },
-      {
-        id: 4,
-        name: "Anuj",
-        role: "Approver",
-        status: "pending",
-        date: null,
-      },
-    ],
-  };
+
 
   const filters = ["All", "pending", "approved", "rejected"];
 
