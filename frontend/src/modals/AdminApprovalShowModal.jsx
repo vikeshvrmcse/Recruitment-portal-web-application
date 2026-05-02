@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
 import { UpdateRequisitionContext } from "../context/TestContext";
 import { motion } from 'framer-motion'
-export default function EmployeeModal({ isOpen, onClose }) {
-    const { updateRequisitionData } = useContext(UpdateRequisitionContext);
+export default function AdminApprovalShowModal({ isOpen, onClose, approvalData }) {
+
     if (!isOpen) return null;
 
-    console.log(updateRequisitionData)
+    console.log(approvalData)
     return (
         <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -24,15 +24,15 @@ export default function EmployeeModal({ isOpen, onClose }) {
                 <div className="flex shadow-md w-full px-4 pt-4  justify-between items-start mb-4">
                     <div>
                         <div className="text-gray-800">
-                            <span className="text-md font-light">Requisition Title </span> <br /> <b className="text-xl">{updateRequisitionData?.jobTitle}</b>
+                            <span className="text-md font-light">Requisition Title </span> <br /> <b className="text-xl">{approvalData?.jobTitle}</b>
                         </div>
                         <div className=" mt-3 text-gray-800">
                             <span className="text-md font-light mt-8">Requistion Status</span>
-                            <p className="text-2xl text-gray-600">{updateRequisitionData?.role}</p>
+                            <p className="text-2xl text-gray-600">{approvalData?.role}</p>
                         </div>
                         {/* Status Badge */}
                         <span className="inline-block px-2 py-2 text-md rounded-full bg-yellow-100 text-yellow-700 mb-4">
-                            Current Status: {updateRequisitionData?.status}
+                            Current Status: {approvalData?.status}
                         </span>
                     </div>
 
@@ -48,29 +48,29 @@ export default function EmployeeModal({ isOpen, onClose }) {
 
                 {/* Content Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 text-sm text-gray-700">
-                    <Info label="Requisition Creator Employee Name" value={updateRequisitionData?.name
+                    <Info label="Requisition Creator Employee Name" value={approvalData?.name
                     } />
-                    <Info label="Requisition Creator Employee ID" value={updateRequisitionData?.empID} />
-                    <Info label="Requisition Creator Designation" value={updateRequisitionData?.designation} />
-                    <Info label="Requisition Creator Department" value={updateRequisitionData?.department} />
+                    {/* <Info label="Requisition Creator Employee ID" value={approvalData?.empID} /> */}
+                    <Info label="Requisition Creator Designation" value={approvalData?.designation} />
+                    <Info label="Requisition Creator Department" value={approvalData?.department} />
 
-                    <Info label="Job Type" value={updateRequisitionData?.jobTitle} />
-                    <Info label="Requisition description" value={updateRequisitionData?.description} />
-                    <Info label="Requisition reason" value={updateRequisitionData?.requisitionReason} />
-                    <Info label="Requisition Requirements" value={updateRequisitionData?.requirements} />
-                    <Info label="Requisition Department" value={updateRequisitionData?.requisitionDepartment} />
-                    <Info label="Job Type" value={updateRequisitionData?.jobType} />
-                    <Info label="Location" value={updateRequisitionData?.location} />
-                    <Info label="Experience" value={`${updateRequisitionData?.yearOfExperience} Years`} />
-                    <Info label="Qualification" value={updateRequisitionData?.highestQualification} />
-                    <Info label="Vacancy" value={updateRequisitionData?.vacancy} />
+                    <Info label="Requisition Title" value={approvalData?.jobTitle} />
+                    <Info label="Requisition description" value={approvalData?.description} />
+                    <Info label="Requisition reason" value={approvalData?.requisitionReason} />
+                    <Info label="Requisition Requirements" value={approvalData?.requirements} />
+                    <Info label="Requisition Department" value={approvalData?.requisitionDepartment} />
+                    <Info label="Job Type" value={approvalData?.jobType} />
+                    <Info label="Location" value={approvalData?.location} />
+                    <Info label="Experience" value={`${approvalData?.yearOfExperience} Years`} />
+                    <Info label="Qualification" value={approvalData?.highestQualification} />
+                    <Info label="Vacancy" value={approvalData?.vacancy} />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 text-sm text-gray-700">
                     {/* Timing */}
                     <div className="mt-4">
                         <p className="text-sm text-gray-600 font-medium">RFQ Date</p>
-                        <p className="text-sm text-gray-800">{new Date(updateRequisitionData?.createdAt).toLocaleDateString('en-IN', {
+                        <p className="text-sm text-gray-800">{new Date(approvalData?.createdAt).toLocaleDateString('en-IN', {
                             day: 'numeric',
                             month: 'short',
                             year: 'numeric'
@@ -79,7 +79,7 @@ export default function EmployeeModal({ isOpen, onClose }) {
                     {/* Timing */}
                     <div className="mt-4">
                         <p className="text-sm text-gray-600 font-medium">Deadline</p>
-                        <p className="text-sm text-gray-800">{new Date(updateRequisitionData?.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        <p className="text-sm text-gray-800">{new Date(approvalData?.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                     </div>
 
                 </div>
@@ -87,14 +87,14 @@ export default function EmployeeModal({ isOpen, onClose }) {
                 {/* Description */}
                 <div className="mt-4 px-6">
                     <p className="text-sm text-gray-600 font-medium">Description</p>
-                    <p className="text-sm text-gray-800">{updateRequisitionData?.description}</p>
+                    <p className="text-sm text-gray-800">{approvalData?.description}</p>
                 </div>
 
                 {/* Skills */}
                 <div className="mt-4 px-6">
                     <p className="text-sm text-gray-600 font-medium">Skills</p>
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {updateRequisitionData?.skills?.map((skill, i) => (
+                        {approvalData?.skills?.map((skill, i) => (
                             <span
                                 key={i}
                                 className="px-2 py-1 text-xs bg-gray-100 rounded-full border border-gray-200"

@@ -15,6 +15,7 @@ import JobModel from "../../modals/JobModal";
 import { FidgetSpinner } from "react-loader-spinner";
 import Stepper from "../../utils/Stepper";
 import { motion } from 'framer-motion'
+import AdminApprovalShowModal from "../../modals/AdminApprovalShowModal";
 const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 function AdminDashboard() {
   const { loginInformation } = useContext(EmployeeLoginContext);
@@ -439,6 +440,8 @@ function RequiredApprovals() {
   const [requisitionNextStatusUpdateTableData, setRequisitionNextStatusUpdateTableData] = useState([])
   const [profileModelShow, setProfileModelShow] = useState(false)
 
+  const [showApprovalData, setShowApprovalData]=useState(null)
+
 
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
 
@@ -529,7 +532,7 @@ function RequiredApprovals() {
   useEffect(()=>{
     const fetch=async()=>{
       try {
-        const response=await axios.get(`${APP_BACKEND_URL}/SubAdminAproval/ForNextEmployeeByAdminForMunjal?empId=${loginInformation?.empID}`)
+        const response=await axios.get(`${APP_BACKEND_URL}/SubAdminAproval/GetRequisitionDetails/${loginInformation?.empID}`)
         setCurAndPrevData(response.data)
       } catch (error) {
         console.log(error.message)
@@ -739,11 +742,12 @@ function RequiredApprovals() {
                   </div>
                 </div>
               )}
-              {showModalOpen && (
+              {(showModalOpen && showApprovalData!==null) && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                   <div className="w-full max-w-5xl">
-                    <EmployeeModal
+                    <AdminApprovalShowModal
                       isOpen={showModalOpen}
+                      approvalData={showApprovalData}
                       onClose={() => setShowModelOpen(false)}
                     />
                   </div>
@@ -765,7 +769,7 @@ function RequiredApprovals() {
 
                 {/* TABLE */}
                 {/* ================= DESKTOP TABLE ================= */}
-                <div className="hidden md:block overflow-x-auto">
+                {/* <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-gray-600">
                       <tr>
@@ -877,7 +881,7 @@ function RequiredApprovals() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </div> */}
               </div>
               {/* TABLE */}
               <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
@@ -1135,7 +1139,7 @@ function RequiredApprovals() {
                         <th className="p-3 text-center">Profile(Job Title) </th>
                         <th className="p-3 text-center">Date of RFQ </th>
                         <th className="p-3 text-center">Date of Deadline</th>
-                        <th className="p-3 text-center">Previous Status</th>
+                        
                         <th className="p-3 text-center">Current Status</th>
                         <th className="p-3 text-center">Action</th>
                         <th className="p-3 text-center">Modification</th>
@@ -1148,12 +1152,12 @@ function RequiredApprovals() {
 
 
                         const status = r.currentStatus?.toLowerCase() && "approved";
-                        const isDisabled = status !== "approved";
+                        const isDisabled = status === "approved";
 
                         return (
                           <tr key={idx}>
 
-                            <td className="p-3 font-medium">{r?.createdByName}</td>
+                            <td className="p-3 font-medium">{r?.name}</td>
                             <td className="p-3 font-medium">{r?.designation}</td>
                             <td className="p-3 text-gray-600">{r?.department}</td>
                             <td className="p-3 text-gray-600">{r?.jobTitle}</td>
@@ -1161,7 +1165,7 @@ function RequiredApprovals() {
                             <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
 
                             {/* Previous Status */}
-                            <td className="p-3 text-center">
+                            {/* <td className="p-3 text-center">
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
                                 ? "bg-green-100 text-green-700"
                                 : r.previousStatus === "rejected"
@@ -1176,17 +1180,17 @@ function RequiredApprovals() {
                                   {r.currentApprover}
                                 </span>
                               </div>
-                            </td>
+                            </td> */}
 
                             {/* Current Status */}
                             <td className="p-3">
-                              <span className={`text-xs px-2 py-1 rounded font-medium ${status !== "approved"
+                              <span className={`text-xs px-2 py-1 rounded font-medium ${status === "approved"
                                 ? "bg-green-100 text-green-700"
                                 : status === "rejected"
                                   ? "bg-red-100 text-red-700"
                                   : "bg-yellow-100 text-yellow-700"
                                 }`}>
-                                {status !== "approved"
+                                {status === "approved"
                                   ? "Approved"
                                   : status === "rejected"
                                     ? "Rejected"
@@ -1245,7 +1249,7 @@ function RequiredApprovals() {
                               <button
                                 onClick={() => {
                                   setShowModelOpen(true);
-                                  setUpdateRequisitionData(r);
+                                  setShowApprovalData(r);
                                 }}
                                 className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                               >
@@ -1256,6 +1260,101 @@ function RequiredApprovals() {
                           </tr>
                         );
                       })}
+                    </tbody>
+
+                    <tbody>
+                      {filteredRequests.map((r, idx) => (
+                        <tr key={idx} className="border-b hover:bg-gray-50">
+
+                          <td className="p-3 font-medium">{r?.name}</td>
+                          <td className="p-3 font-medium">{r?.designation}</td>
+                          <td className="p-3 text-gray-600">{r?.department}</td>
+                          <td className="p-3 text-gray-600">{r?.jobTitle}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
+
+                          <td className="p-3">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
+                              ? "bg-green-100 text-green-700"
+                              : r.previousStatus === "rejected"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                              }`}>
+                              {r.previousStatus}
+                            </span>
+                          </td>
+
+
+                          <td className="p-3 flex gap-2 justify-center mt-5">
+                            <button
+                              onClick={() => updateStatus(r.id, "approved")}
+                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                            >
+                              Approve {loading ? <FidgetSpinner
+                                preset='rainbow'
+                                visible={true}
+                                height="20"
+                                width="20"
+                                radius="40"
+                                color="#4fa94d"
+                                ariaLabel="watch-loading"
+                                wrapperStyle={{}}
+                                wrapperClass=""
+                              /> : ""}
+                            </button>
+
+                            <button
+                              onClick={() => updateStatus(r.id, "rejected")}
+                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                            >
+                              Reject {loading ? <FidgetSpinner
+                                preset='rainbow'
+                                visible={true}
+                                height="20"
+                                width="20"
+                                radius="40"
+                                color="#4fa94d"
+                                ariaLabel="watch-loading"
+                                wrapperStyle={{}}
+                                wrapperClass=""
+                              /> : ""}
+                            </button>
+                          </td>
+
+                          <td className="p-3">
+                            <button
+                              onClick={() => { setOpen(true); handleEdit(filteredRequests[idx]) }}
+                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
+                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                            >
+                              Modify {loading ? <FidgetSpinner
+                                preset='rainbow'
+                                visible={true}
+                                height="20"
+                                width="20"
+                                radius="40"
+                                color="#4fa94d"
+                                ariaLabel="watch-loading"
+                                wrapperStyle={{}}
+                                wrapperClass=""
+                              /> : ""}
+                            </button>
+                          </td>
+
+                          <td className="p-3">
+                            <button
+
+                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                              className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
+                            >
+                              Show
+                            </button>
+                          </td>
+
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

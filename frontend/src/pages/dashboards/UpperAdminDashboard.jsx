@@ -98,7 +98,6 @@ function UpperAdminDashboard() {
   const updateStatus = async (id, status) => {
     try {
       setLoading(true);
-
       if (id !== '') {
         setUpdateRequisitionId(id)
         const response = await axios.post(
@@ -110,6 +109,26 @@ function UpperAdminDashboard() {
             previousStatus: status
           }
         );
+
+        try {
+          // debugger
+          const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
+
+          // Second API call directly here
+          await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
+            empID: loginInformation?.irb,
+            requisitionID: id,
+            stepOrder: 2,
+            status: "pending",
+            remarks: "Everything OK",
+          });
+
+          toast.success(responseNew?.data.message);
+
+        } catch (error) {
+          console.error(error);
+          toast.error("Something went wrong");
+        }
         const updatedStatus = response.data?.data?.previousStatus;
 
         setTableData((prev) =>
@@ -131,21 +150,7 @@ function UpperAdminDashboard() {
     }
   };
 
-  // const latestData = Object.values(
-  //   requisitionStatusUpdateInformation.reduce((acc, item) => {
 
-  //     const existing = acc[item.requisitionID];
-
-  //     if (
-  //       !existing ||
-  //       new Date(item.createdAt) > new Date(existing.createdAt)
-  //     ) {
-  //       acc[item.requisitionID] = item;
-  //     }
-
-  //     return acc;
-  //   }, {})
-  // );
 
 
   const updateStatusWithNext = async (id, previous, status) => {
@@ -162,6 +167,26 @@ function UpperAdminDashboard() {
           currentStatus: status
         }
       );
+
+      try {
+        // debugger
+        const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
+
+        // Second API call directly here
+        await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
+          empID: loginInformation?.irb,
+          requisitionID: id,
+          stepOrder: 3,
+          status: "pending",
+          remarks: "Everything OK",
+        });
+
+        toast.success(responseNew?.data.message);
+
+      } catch (error) {
+        console.error(error);
+        toast.error("Something went wrong");
+      }
 
 
       setRequisitionStatusUpdateInformation((prev) =>
@@ -349,21 +374,21 @@ function UpperAdminDashboard() {
               )}
 
               {/* TABLE */}
-              <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
+              {/* <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
 
                 {/* HEADER */}
-                <div className="p-4 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-                  <h2 className="font-light text-xl md:text-2xl">
-                    Head1 Type Requisition Approvals
-                  </h2>
-                  <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
-                    Generate Report
-                  </button>
-                </div>
+                  {/* <div className="p-4 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+                    <h2 className="font-light text-xl md:text-2xl">
+                      Head1 Type Requisition Approvals
+                    </h2>
+                    <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
+                      Generate Report
+                    </button>
+                  </div> */}
 
                 {/* TABLE */}
                 {/* ================= DESKTOP TABLE ================= */}
-                <div className="hidden md:block overflow-x-auto">
+                {/* <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-gray-600">
                       <tr>
@@ -380,103 +405,10 @@ function UpperAdminDashboard() {
                       </tr>
                     </thead>
 
-                    <tbody>
-                      {filteredRequests.map((r, idx) => (
-                        <tr key={idx} className="border-b hover:bg-gray-50">
-
-                          <td className="p-3 font-medium">{r?.name}</td>
-                          <td className="p-3 font-medium">{r?.designation}</td>
-                          <td className="p-3 text-gray-600">{r?.department}</td>
-                          <td className="p-3 text-gray-600">{r?.jobTitle}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
-
-                          <td className="p-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
-                              ? "bg-green-100 text-green-700"
-                              : r.previousStatus === "rejected"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                              }`}>
-                              {r.previousStatus}
-                            </span>
-                          </td>
-
-
-                          <td className="p-3 flex gap-2 justify-center mt-5">
-                            <button
-                              onClick={() => updateStatus(r.id, "approved")}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
-                            >
-                              Approve {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-
-                            <button
-                              onClick={() => updateStatus(r.id, "rejected")}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
-                            >
-                              Reject {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-                          </td>
-
-                          <td className="p-3">
-                            <button
-                              onClick={() => { setOpen(true); handleEdit(filteredRequests[idx]) }}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
-                            >
-                              Modify {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-                          </td>
-
-                          <td className="p-3">
-                            <button
-
-                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
-                              className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
-                            >
-                              Show
-                            </button>
-                          </td>
-
-                        </tr>
-                      ))}
-                    </tbody>
+                    
                   </table>
                 </div>
-              </div>
+              </div> */}
               {/* TABLE */}
               <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
 
@@ -522,7 +454,7 @@ function UpperAdminDashboard() {
 
                 {/* ================= DESKTOP TABLE ================= */}
                 <div className="hidden md:block overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm text-center">
                     <thead className="bg-gray-50 text-gray-600">
                       <tr>
                         <th className="p-3 text-center">RFQ Name</th>
@@ -532,7 +464,7 @@ function UpperAdminDashboard() {
                         <th className="p-3 text-center">Date of RFQ </th>
                         <th className="p-3 text-center">Date of Deadline</th>
                         <th className="p-3 text-center">Previous Status</th>
-                        <th className="p-3 text-center">Current Status</th>
+                        {/* <th className="p-3 text-center">Current Status</th> */}
                         <th className="p-3 text-center">Action</th>
                         <th className="p-3 text-center">Modification</th>
                         <th className="p-3 text-center">View</th>
@@ -557,7 +489,7 @@ function UpperAdminDashboard() {
                             <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
 
                             {/* Previous Status */}
-                            <td className="p-3 text-center">
+                            {/* <td className="p-3 text-center">
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
                                 ? "bg-green-100 text-green-700"
                                 : r.previousStatus === "rejected"
@@ -572,7 +504,7 @@ function UpperAdminDashboard() {
                                   {r.approverName}
                                 </span>
                               </div>
-                            </td>
+                            </td> */}
 
                             {/* Current Status */}
                             <td className="p-3">
@@ -653,6 +585,101 @@ function UpperAdminDashboard() {
                           </tr>
                         );
                       })}
+                    </tbody>
+
+                    <tbody>
+                      {filteredRequests.map((r, idx) => (
+                        <tr key={idx} className="border-b hover:bg-gray-50">
+
+                          <td className="p-3 font-medium">{r?.name}</td>
+                          <td className="p-3 font-medium">{r?.designation}</td>
+                          <td className="p-3 text-gray-600">{r?.department}</td>
+                          <td className="p-3 text-gray-600">{r?.jobTitle}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
+
+                          <td className="p-3">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
+                              ? "bg-green-100 text-green-700"
+                              : r.previousStatus === "rejected"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                              }`}>
+                              {r.previousStatus}
+                            </span>
+                          </td>
+
+
+                          <td className="p-3 flex gap-2 justify-center mt-5">
+                            <button
+                              onClick={() => updateStatus(r.id, "approved")}
+                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                            >
+                              Approve {loading ? <FidgetSpinner
+                                preset='rainbow'
+                                visible={true}
+                                height="20"
+                                width="20"
+                                radius="40"
+                                color="#4fa94d"
+                                ariaLabel="watch-loading"
+                                wrapperStyle={{}}
+                                wrapperClass=""
+                              /> : ""}
+                            </button>
+
+                            <button
+                              onClick={() => updateStatus(r.id, "rejected")}
+                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                            >
+                              Reject {loading ? <FidgetSpinner
+                                preset='rainbow'
+                                visible={true}
+                                height="20"
+                                width="20"
+                                radius="40"
+                                color="#4fa94d"
+                                ariaLabel="watch-loading"
+                                wrapperStyle={{}}
+                                wrapperClass=""
+                              /> : ""}
+                            </button>
+                          </td>
+
+                          <td className="p-3">
+                            <button
+                              onClick={() => { setOpen(true); handleEdit(filteredRequests[idx]) }}
+                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                            >
+                              Modify {loading ? <FidgetSpinner
+                                preset='rainbow'
+                                visible={true}
+                                height="20"
+                                width="20"
+                                radius="40"
+                                color="#4fa94d"
+                                ariaLabel="watch-loading"
+                                wrapperStyle={{}}
+                                wrapperClass=""
+                              /> : ""}
+                            </button>
+                          </td>
+
+                          <td className="p-3">
+                            <button
+
+                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                              className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
+                            >
+                              Show
+                            </button>
+                          </td>
+
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

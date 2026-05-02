@@ -590,7 +590,7 @@ namespace RecruitmentWebAPI.Controllers
             var isFirst = !await _context.RequisitionVerifierModels
                 .AnyAsync(x => x.RequisitionID == model.RequisitionID);
 
-            model.Status = isFirst ? "pending" : "waiting";
+            model.Status = isFirst ? "pending" : "pending";
 
             _context.RequisitionVerifierModels.Add(model);
             await _context.SaveChangesAsync();
@@ -823,5 +823,56 @@ namespace RecruitmentWebAPI.Controllers
 
         //    return Ok("Approved and next user notified");
         //}
+
+
+        [HttpGet("GetRequisitionDetails/{empId}")]
+        public IActionResult GetRequisitionDetails(string empId)
+        {
+            var result = (from ed in _context.EmployeeDetails
+                          join rvm in _context.RequisitionVerifierModels
+                              on ed.EmpID equals rvm.EmpID
+                          join r in _context.Requisitions
+                              on rvm.RequisitionID equals r.Id
+                          join em in _context.EmployeeDetails
+                              on r.EmpID equals em.EmpID
+                          join e in _context.EmployeeDetails
+                              on r.EmpID equals e.EmpID
+                          join es in _context.EmployeeDetails
+                              on e.IRB equals es.EmpID
+                          join er in _context.EmployeeDetails
+                              on es.IRB equals er.EmpID
+                          where ed.EmpID == empId
+                          select new
+                          {
+                              //CreatorDetails
+                              Name = em.EmpName,
+                              Designation=em.Designation,
+                              Department=em.Dept,
+
+                              //RequisitionDetails
+                              RequisitionID = r.Id,
+                              JobTitle = r.JobTitle,
+                              Description=r.Description,
+                              RequisitionReason = r.RequisitionReason,
+                              Requirements=r.Requirements,
+                              RequisitionDepartment=r.Department,
+                              JobType=r.JobType,
+                              Location=r.Location,
+                              YearOfExperience=r.YearOfExperience,
+                              HighestQualification = r.HighestQualification,
+                              Vacancy=r.Vacancy,
+                              Deadline=r.Deadline,
+                              CreatedAt=r.CreatedAt,
+                              Status = rvm.Status,
+                              Skills=r.Skills,
+
+                              //ApprovarDetails
+                              ApprovedByLevel1 = es.EmpName,
+                              ApprovedByLevel2 = er.EmpName,
+                              FinalApprovar = ed.EmpName
+                          }).ToList();
+
+            return Ok(result);
+        }
     }
 }

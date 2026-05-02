@@ -1,265 +1,284 @@
 [
   {
-    "data": {
-      "id": "111532ae-975c-47df-b293-c16a10958f90",
-      "createdAt": "2026-04-28T16:55:00.5478149",
-      "empID": "PMA0159",
-      "employeeDetail": null,
-      "requisitionID": "9f59053b-6965-40bb-8506-f6fbbea5075c",
-      "requisition": {
-        "id": "9f59053b-6965-40bb-8506-f6fbbea5075c",
-        "createdAt": "2026-04-28T11:12:09.1523408",
-        "deadline": "2026-06-20T00:00:00",
-        "department": "Pre Fab",
-        "description": "Hiring for a Pre-Fabrication Engineer to support design, planning, and execution of prefabricated structures.",
-        "empID": "PMA0244",
-        "employeeDetailDatas": null,
-        "experienceLevel": [
-          "Junior",
-          "Mid"
-        ],
-        "highestQualification": "B.Tech in Electrical Engineering",
-        "jobTitle": "Pre Fab Engineer",
-        "jobType": "Full Time",
-        "location": "Chennai",
-        "reqType": "New",
-        "requirements": "Knowledge of fabrication drawings, structural design, AutoCAD, and manufacturing processes.",
-        "requisitionReason": "Increase in prefabrication projects across infrastructure division.",
-        "skills": [
-          "AutoCAD",
-          "Structural Design",
-          "Fabrication",
-          "Engineering Drawings"
-        ],
-        "status": "pending",
-        "vacancy": 3,
-        "yearOfExperience": 0,
-        "updatedAt": "2026-04-28T11:12:09.152341"
+    "employee": {
+      "empID": "PMA0002",
+      "empName": "Anuj Kumar Singh",
+      "mailID": "aksingh@pmalgroup.com",
+      "designation": "MD",
+      "level": "L1",
+      "irb": "PMA0001",
+      "dept": "Admin",
+      "advanceAmount": 0,
+      "password": "PMA0002",
+      "status": "OK",
+      "companyLocation": "GHAZIABAD",
+      "accessLevel": 1
+    },
+    "verifier": {
+      "id": "6ecbdbef-1bfb-47ee-ace9-08dde3629530",
+      "empID": "PMA0002",
+      "employeeDetail": {
+        "empID": "PMA0002",
+        "empName": "Anuj Kumar Singh",
+        "mailID": "aksingh@pmalgroup.com",
+        "designation": "MD",
+        "level": "L1",
+        "irb": "PMA0001",
+        "dept": "Admin",
+        "advanceAmount": 0,
+        "password": "PMA0002",
+        "status": "OK",
+        "companyLocation": "GHAZIABAD",
+        "accessLevel": 1
       },
-      "nextEmpID": "PMA0002",
-      "previousStatus": "approved",
-      "currentStatus": "pending",
-      "updatedAt": "0001-01-01T00:00:00"
-    }
-  },
-  {
-    "data": {
-      "id": "350318b3-0587-4a77-ab1f-2e8f49bfc64b",
-      "createdAt": "2026-04-28T16:55:01.6845372",
-      "empID": "PMA0159",
-      "employeeDetail": null,
-      "requisitionID": "b74d163c-6e0c-4788-ba7b-04e765ed9e74",
+      "requisitionID": "049f3a8b-740d-4589-bf09-7d6df1a86ab7",
       "requisition": {
-        "id": "b74d163c-6e0c-4788-ba7b-04e765ed9e74",
-        "createdAt": "2026-04-28T11:11:37.9424475",
-        "deadline": "2026-06-15T00:00:00",
-        "department": "Sales and Marketing",
-        "description": "Hiring for a Sales and Marketing Executive to drive client acquisition and brand promotion strategies.",
-        "empID": "PMA0233",
-        "employeeDetailDatas": null,
-        "experienceLevel": [
-          "Junior",
-          "Mid"
-        ],
-        "highestQualification": "B.Tech in Electrical Engineering",
-        "jobTitle": "Sales & Marketing Executive",
-        "jobType": "Full Time",
-        "location": "Mumbai",
-        "reqType": "New",
-        "requirements": "Strong communication skills, lead generation, digital marketing, and client handling experience.",
-        "requisitionReason": "Business expansion and increased market outreach requirements.",
-        "skills": [
-          "Sales",
-          "Marketing",
-          "Lead Generation",
-          "Communication",
-          "Digital Marketing"
-        ],
-        "status": "pending",
-        "vacancy": 2,
-        "yearOfExperience": 0,
-        "updatedAt": "2026-04-28T11:11:37.9424479"
-      },
-      "nextEmpID": "PMA0002",
-      "previousStatus": "approved",
-      "currentStatus": "pending",
-      "updatedAt": "0001-01-01T00:00:00"
-    }
-  },
-  {
-    "data": {
-      "id": "740605bc-c7a3-4f96-89da-36bfbf6c1275",
-      "createdAt": "2026-04-29T13:13:27.9097497",
-      "empID": "PMA0159",
-      "employeeDetail": null,
-      "requisitionID": "bc0298b4-2132-44b0-b930-b0322ce5954a",
-      "requisition": {
-        "id": "bc0298b4-2132-44b0-b930-b0322ce5954a",
-        "createdAt": "2026-04-29T13:12:50.786225",
+        "id": "049f3a8b-740d-4589-bf09-7d6df1a86ab7",
+        "createdAt": "2026-04-28T10:54:29.1601315",
         "deadline": "2026-05-25T00:00:00",
         "department": "Application",
-        "description": "Hiring for an Application Developer to build and maintain enterprise-level web applications using modern frameworks and microservices architecture.",
-        "empID": "PMA0244",
-        "employeeDetailDatas": null,
+        "description": "Hiring for an Application Developer to build and maintain enterprise-level web applications.",
+        "empID": "PMA0170",
+        "employeeDetailDatas": {
+          "empID": "PMA0170",
+          "empName": "SURYA PRATAP SINGH",
+          "mailID": "surya@pmalgroup.com",
+          "designation": "MANAGER",
+          "level": "L2",
+          "irb": "PMA0171",
+          "dept": "Electrical & Control",
+          "advanceAmount": 0,
+          "password": "kkbc5650",
+          "status": "OK",
+          "companyLocation": "GHAZIABAD",
+          "accessLevel": 5
+        },
         "experienceLevel": [
           "Junior",
           "Mid"
         ],
-        "highestQualification": "B.Tech (Computer Science)",
+        "highestQualification": "B.Tech",
         "jobTitle": "Application Developer",
         "jobType": "Full Time",
-        "location": "Hybrid",
+        "location": "Both",
         "reqType": "New",
-        "requirements": "Strong experience in Java, Spring Boot, Angular, REST APIs, and microservices architecture with database knowledge (SQL Server).",
-        "requisitionReason": "Expansion of application development team for new enterprise-level digital transformation project.",
+        "requirements": "Experience in Java, Spring Boot, Angular, and API integration.",
+        "requisitionReason": "Expansion of application development team for new enterprise projects.",
         "skills": [
           "Java",
           "Spring Boot",
           "Angular",
-          "REST API",
-          "Microservices"
+          "REST API"
         ],
         "status": "pending",
         "vacancy": 3,
         "yearOfExperience": 2,
-        "updatedAt": "2026-04-29T13:12:50.7863971"
+        "updatedAt": "2026-04-28T10:54:29.1601322"
       },
-      "nextEmpID": "PMA0002",
-      "previousStatus": "approved",
-      "currentStatus": "pending",
-      "updatedAt": "0001-01-01T00:00:00"
+      "stepOrder": 3,
+      "status": "pending",
+      "actionDate": null,
+      "remarks": "Everything OK",
+      "createdAt": "2026-05-02T05:39:38.492993",
+      "updatedAt": "2026-05-02T05:39:38.4929933"
+    },
+    "requisition": {
+      "id": "049f3a8b-740d-4589-bf09-7d6df1a86ab7",
+      "createdAt": "2026-04-28T10:54:29.1601315",
+      "deadline": "2026-05-25T00:00:00",
+      "department": "Application",
+      "description": "Hiring for an Application Developer to build and maintain enterprise-level web applications.",
+      "empID": "PMA0170",
+      "employeeDetailDatas": {
+        "empID": "PMA0170",
+        "empName": "SURYA PRATAP SINGH",
+        "mailID": "surya@pmalgroup.com",
+        "designation": "MANAGER",
+        "level": "L2",
+        "irb": "PMA0171",
+        "dept": "Electrical & Control",
+        "advanceAmount": 0,
+        "password": "kkbc5650",
+        "status": "OK",
+        "companyLocation": "GHAZIABAD",
+        "accessLevel": 5
+      },
+      "experienceLevel": [
+        "Junior",
+        "Mid"
+      ],
+      "highestQualification": "B.Tech",
+      "jobTitle": "Application Developer",
+      "jobType": "Full Time",
+      "location": "Both",
+      "reqType": "New",
+      "requirements": "Experience in Java, Spring Boot, Angular, and API integration.",
+      "requisitionReason": "Expansion of application development team for new enterprise projects.",
+      "skills": [
+        "Java",
+        "Spring Boot",
+        "Angular",
+        "REST API"
+      ],
+      "status": "pending",
+      "vacancy": 3,
+      "yearOfExperience": 2,
+      "updatedAt": "2026-04-28T10:54:29.1601322"
+    },
+    "requisitionOwner": {
+      "empID": "PMA0170",
+      "empName": "SURYA PRATAP SINGH",
+      "mailID": "surya@pmalgroup.com",
+      "designation": "MANAGER",
+      "level": "L2",
+      "irb": "PMA0171",
+      "dept": "Electrical & Control",
+      "advanceAmount": 0,
+      "password": "kkbc5650",
+      "status": "OK",
+      "companyLocation": "GHAZIABAD",
+      "accessLevel": 5
     }
   },
   {
-    "data": {
-      "id": "cbf19fc1-e7ba-4767-9d12-0a56b43d4681",
-      "createdAt": "2026-04-28T16:54:59.1018232",
-      "empID": "PMA0159",
-      "employeeDetail": null,
-      "requisitionID": "5affc4a6-5a3c-495c-9dae-832a4cf82281",
+    "employee": {
+      "empID": "PMA0002",
+      "empName": "Anuj Kumar Singh",
+      "mailID": "aksingh@pmalgroup.com",
+      "designation": "MD",
+      "level": "L1",
+      "irb": "PMA0001",
+      "dept": "Admin",
+      "advanceAmount": 0,
+      "password": "PMA0002",
+      "status": "OK",
+      "companyLocation": "GHAZIABAD",
+      "accessLevel": 1
+    },
+    "verifier": {
+      "id": "7cbf66e9-2a7e-494a-9158-926248c3bdf6",
+      "empID": "PMA0002",
+      "employeeDetail": {
+        "empID": "PMA0002",
+        "empName": "Anuj Kumar Singh",
+        "mailID": "aksingh@pmalgroup.com",
+        "designation": "MD",
+        "level": "L1",
+        "irb": "PMA0001",
+        "dept": "Admin",
+        "advanceAmount": 0,
+        "password": "PMA0002",
+        "status": "OK",
+        "companyLocation": "GHAZIABAD",
+        "accessLevel": 1
+      },
+      "requisitionID": "4f8efbdd-d475-439c-87b5-a1944d6bb158",
       "requisition": {
-        "id": "5affc4a6-5a3c-495c-9dae-832a4cf82281",
-        "createdAt": "2026-04-28T11:11:05.2718814",
-        "deadline": "2026-06-10T00:00:00",
-        "department": "Accounts",
-        "description": "Hiring for an Accounts Executive to manage financial records, billing, and reconciliation processes.",
-        "empID": "PMA0203",
-        "employeeDetailDatas": null,
+        "id": "4f8efbdd-d475-439c-87b5-a1944d6bb158",
+        "createdAt": "2026-04-28T10:48:04.2416796",
+        "deadline": "2026-05-20T00:00:00",
+        "department": "Human Resources",
+        "description": "Hiring for an HR Executive to manage recruitment, onboarding, and employee engagement activities.",
+        "empID": "PMA0159",
+        "employeeDetailDatas": {
+          "empID": "PMA0159",
+          "empName": "ARPANA RAO",
+          "mailID": "arpana@pmalgroup.com",
+          "designation": "AGM",
+          "level": "L1",
+          "irb": "PMA0002",
+          "dept": "HR",
+          "advanceAmount": 0,
+          "password": "PMA0159",
+          "status": "OK",
+          "companyLocation": "GHAZIABAD",
+          "accessLevel": 2
+        },
         "experienceLevel": [
           "Junior",
           "Mid"
         ],
-        "highestQualification": "B.Tech in Electrical Engineering",
-        "jobTitle": "Accounts Executive",
-        "jobType": "Full Time",
+        "highestQualification": "MBA in Human Resources",
+        "jobTitle": "HR Executive",
+        "jobType": "Full-Time",
         "location": "Delhi",
-        "reqType": "New",
-        "requirements": "Knowledge of accounting principles, Tally ERP, GST filing, and financial reporting.",
-        "requisitionReason": "Expansion of finance team to handle increased transaction volume.",
+        "reqType": "Replacement",
+        "requirements": "Experience in recruitment lifecycle, onboarding processes, and HRMS tools.",
+        "requisitionReason": "Replacement of previous employee who resigned.",
         "skills": [
-          "Accounting",
-          "Tally",
-          "GST",
-          "Financial Reporting"
+          "Recruitment",
+          "Onboarding",
+          "Communication",
+          "HRMS"
         ],
         "status": "pending",
         "vacancy": 1,
-        "yearOfExperience": 1,
-        "updatedAt": "2026-04-28T11:11:05.2718817"
+        "yearOfExperience": 2,
+        "updatedAt": "2026-04-28T10:48:04.2416797"
       },
-      "nextEmpID": "PMA0002",
-      "previousStatus": "approved",
-      "currentStatus": "pending",
-      "updatedAt": "0001-01-01T00:00:00"
+      "stepOrder": 1,
+      "status": "pending",
+      "actionDate": "2026-05-02T04:16:50.766",
+      "remarks": "Everything OK",
+      "createdAt": "2026-05-02T04:22:23.3474141",
+      "updatedAt": "2026-05-02T04:22:23.3474143"
+    },
+    "requisition": {
+      "id": "4f8efbdd-d475-439c-87b5-a1944d6bb158",
+      "createdAt": "2026-04-28T10:48:04.2416796",
+      "deadline": "2026-05-20T00:00:00",
+      "department": "Human Resources",
+      "description": "Hiring for an HR Executive to manage recruitment, onboarding, and employee engagement activities.",
+      "empID": "PMA0159",
+      "employeeDetailDatas": {
+        "empID": "PMA0159",
+        "empName": "ARPANA RAO",
+        "mailID": "arpana@pmalgroup.com",
+        "designation": "AGM",
+        "level": "L1",
+        "irb": "PMA0002",
+        "dept": "HR",
+        "advanceAmount": 0,
+        "password": "PMA0159",
+        "status": "OK",
+        "companyLocation": "GHAZIABAD",
+        "accessLevel": 2
+      },
+      "experienceLevel": [
+        "Junior",
+        "Mid"
+      ],
+      "highestQualification": "MBA in Human Resources",
+      "jobTitle": "HR Executive",
+      "jobType": "Full-Time",
+      "location": "Delhi",
+      "reqType": "Replacement",
+      "requirements": "Experience in recruitment lifecycle, onboarding processes, and HRMS tools.",
+      "requisitionReason": "Replacement of previous employee who resigned.",
+      "skills": [
+        "Recruitment",
+        "Onboarding",
+        "Communication",
+        "HRMS"
+      ],
+      "status": "pending",
+      "vacancy": 1,
+      "yearOfExperience": 2,
+      "updatedAt": "2026-04-28T10:48:04.2416797"
+    },
+    "requisitionOwner": {
+      "empID": "PMA0159",
+      "empName": "ARPANA RAO",
+      "mailID": "arpana@pmalgroup.com",
+      "designation": "AGM",
+      "level": "L1",
+      "irb": "PMA0002",
+      "dept": "HR",
+      "advanceAmount": 0,
+      "password": "PMA0159",
+      "status": "OK",
+      "companyLocation": "GHAZIABAD",
+      "accessLevel": 2
     }
   }
 ]
-
-
-
-
-
-
-
-{
-  "approvedBy": {
-    "empID": "PMA0159",
-    "empName": "ARPANA RAO",
-    "designation": "AGM"
-  },
-  "creator": [
-    {
-      "creator_employee": {
-        "empID": "PMA0244",
-        "empName": "EHTESHAMUL HAQUE",
-        "designation": "Manager",
-        "dept": "Sales & Marketing",
-        "companyLocation": "GHAZIABAD"
-      },
-      "requisition": [
-        {
-          "id": "9f59053b-6965-40bb-8506-f6fbbea5075c",
-          "jobTitle": "Pre Fab Engineer",
-          "department": "Pre Fab",
-          "description": "Hiring for a Pre-Fabrication Engineer to support design, planning, and execution of prefabricated structures.",
-          "status": "pending",
-          "createdAt": "2026-04-28T11:12:09.1523408",
-          "vacancy": 3,
-          "location": "Chennai"
-        },
-        {
-          "id": "bc0298b4-2132-44b0-b930-b0322ce5954a",
-          "jobTitle": "Application Developer",
-          "department": "Application",
-          "description": "Hiring for an Application Developer to build and maintain enterprise-level web applications using modern frameworks and microservices architecture.",
-          "status": "pending",
-          "createdAt": "2026-04-29T13:12:50.786225",
-          "vacancy": 3,
-          "location": "Hybrid"
-        }
-      ]
-    },
-    {
-      "creator_employee": {
-        "empID": "PMA0233",
-        "empName": "Abhishek",
-        "designation": "Assistant Manager",
-        "dept": "Sales & Marketing",
-        "companyLocation": "GHAZIABAD"
-      },
-      "requisition": [
-        {
-          "id": "b74d163c-6e0c-4788-ba7b-04e765ed9e74",
-          "jobTitle": "Sales & Marketing Executive",
-          "department": "Sales and Marketing",
-          "description": "Hiring for a Sales and Marketing Executive to drive client acquisition and brand promotion strategies.",
-          "status": "pending",
-          "createdAt": "2026-04-28T11:11:37.9424475",
-          "vacancy": 2,
-          "location": "Mumbai"
-        }
-      ]
-    },
-    {
-      "creator_employee": {
-        "empID": "PMA0203",
-        "empName": "Radhey Shyam",
-        "designation": "Accountant",
-        "dept": "Accounts",
-        "companyLocation": "GHAZIABAD"
-      },
-      "requisition": [
-        {
-          "id": "5affc4a6-5a3c-495c-9dae-832a4cf82281",
-          "jobTitle": "Accounts Executive",
-          "department": "Accounts",
-          "description": "Hiring for an Accounts Executive to manage financial records, billing, and reconciliation processes.",
-          "status": "pending",
-          "createdAt": "2026-04-28T11:11:05.2718814",
-          "vacancy": 1,
-          "location": "Delhi"
-        }
-      ]
-    }
-  ]
-}
