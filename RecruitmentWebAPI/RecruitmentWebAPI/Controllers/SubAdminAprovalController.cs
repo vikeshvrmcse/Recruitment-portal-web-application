@@ -590,7 +590,7 @@ namespace RecruitmentWebAPI.Controllers
             var isFirst = !await _context.RequisitionVerifierModels
                 .AnyAsync(x => x.RequisitionID == model.RequisitionID);
 
-            model.Status = isFirst ? "Pending" : "Waiting";
+            model.Status = isFirst ? "pending" : "waiting";
 
             _context.RequisitionVerifierModels.Add(model);
             await _context.SaveChangesAsync();
@@ -617,7 +617,7 @@ namespace RecruitmentWebAPI.Controllers
         {
             // Get current pending step
             var current = await _context.RequisitionVerifierModels
-                .Where(x => x.RequisitionID == reqId && x.Status == "Pending")
+                .Where(x => x.RequisitionID == reqId && x.Status == "pending")
                 .OrderBy(x => x.StepOrder)
                 .FirstOrDefaultAsync();
 
@@ -629,7 +629,7 @@ namespace RecruitmentWebAPI.Controllers
                 return BadRequest("Unauthorized");
 
             // Approve current
-            current.Status = "Approved";
+            current.Status = "approved";
             current.ActionDate = DateTime.UtcNow;
             current.UpdatedAt = DateTime.UtcNow;
 
@@ -641,16 +641,15 @@ namespace RecruitmentWebAPI.Controllers
 
             if (next != null)
             {
-                next.Status = "Pending";
+                next.Status = "pending";
                 next.UpdatedAt = DateTime.UtcNow;
             }
             else
             {
-                var req = await _context.Requisitions
-                    .FirstOrDefaultAsync(r => r.Id == reqId);
-
+                var req = await (from data in _context.RequisitionVerifierModels where data.Id== reqId select new {data}).FirstOrDefaultAsync();
+                Console.WriteLine(req);
                 if (req != null)
-                    req.Status = "Approved";
+                    req.data.Status = "approved";
             }
 
             await _context.SaveChangesAsync();
@@ -658,7 +657,7 @@ namespace RecruitmentWebAPI.Controllers
             return Ok(new
             {
                 message = "Approved successfully",
-                nextApprover = next?.EmpID
+                stepOrder = next?.StepOrder
             });
         }
 
@@ -666,7 +665,7 @@ namespace RecruitmentWebAPI.Controllers
         public async Task<IActionResult> Reject(string reqId, string userId, string remarks)
         {
             var current = await _context.RequisitionVerifierModels
-                .Where(x => x.RequisitionID == reqId && x.Status == "Pending")
+                .Where(x => x.RequisitionID == reqId && x.Status == "pending")
                 .OrderBy(x => x.StepOrder)
                 .FirstOrDefaultAsync();
 
@@ -676,7 +675,7 @@ namespace RecruitmentWebAPI.Controllers
             if (current.EmpID != userId)
                 return BadRequest("Unauthorized");
 
-            current.Status = "Rejected";
+            current.Status = "rejected";
             current.Remarks = remarks;
             current.ActionDate = DateTime.UtcNow;
 
@@ -684,7 +683,7 @@ namespace RecruitmentWebAPI.Controllers
                 .FirstOrDefaultAsync(r => r.Id == reqId);
 
             if (req != null)
-                req.Status = "Rejected";
+                req.Status = "rejected";
 
             await _context.SaveChangesAsync();
 
@@ -695,7 +694,7 @@ namespace RecruitmentWebAPI.Controllers
         public async Task<IActionResult> GetPending(string userId)
         {
             var data = await _context.RequisitionVerifierModels
-                .Where(x => x.EmpID == userId && x.Status == "Pending")
+                .Where(x => x.EmpID == userId && x.Status == "pending")
                 .ToListAsync();
 
             return Ok(data);
@@ -705,7 +704,7 @@ namespace RecruitmentWebAPI.Controllers
         public async Task<IActionResult> GetApproved(string userId)
         {
             var data = await _context.RequisitionVerifierModels
-                .Where(x => x.EmpID == userId && x.Status == "Approved")
+                .Where(x => x.EmpID == userId && x.Status == "approved")
                 .OrderByDescending(x => x.ActionDate)
                 .ToListAsync();
 

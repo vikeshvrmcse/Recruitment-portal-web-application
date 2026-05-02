@@ -111,6 +111,27 @@ function SubAdminDashboard() {
           }
         );
 
+        try {
+          // debugger
+          const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
+
+          // Second API call directly here
+          await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
+            empID: loginInformation?.irb,
+            requisitionID: id,
+            stepOrder: 2,
+            status: "pending",
+            remarks: "Everything OK",
+          });
+
+          toast.success(responseNew?.data.message);
+
+        } catch (error) {
+          console.error(error);
+          toast.error("Something went wrong");
+        }
+
+
 
 
         const updatedStatus = response.data?.data?.previousStatus;
@@ -137,7 +158,7 @@ function SubAdminDashboard() {
 
 
   // FILTER + SEARCH LOGIC
-  const filteredRequests = updatedData?.map((data) => ({ ...data})).filter((r) => {
+  const filteredRequests = updatedData?.map((data) => ({ ...data })).filter((r) => {
     const matchStatus = filter === "All" || r.status === filter;
     const matchSearch =
       r.name?.toLowerCase().includes(search.toLowerCase());
@@ -165,35 +186,35 @@ function SubAdminDashboard() {
     },
   ];
 
-  
 
-const data = [
-  {
-    "stepType": "Requisition Created",
-    "requisitionId": "1b76491e-1b77-48aa-b1db-b16d1592d8cc",
-    "actionBy": "SURYA PRATAP SINGH",
-    "status": "pending",
-    "date": "2026-04-18T18:00:08.8602255"
-  },
-  {
-    "stepType": "Approval Step",
-    "requisitionId": "1b76491e-1b77-48aa-b1db-b16d1592d8cc",
-    "actionBy": "Mohammad  Haris",
-    "nextApprover": "Munjal Girishchandra Shroff",
-    "status": "approve",
-    "rawStatus": "pending",
-    "date": "2026-04-24T17:25:22.7265327"
-  },
-  {
-    "stepType": "Approval Step",
-    "requisitionId": "1b76491e-1b77-48aa-b1db-b16d1592d8cc",
-    "actionBy": "Munjal Girishchandra Shroff",
-    "nextApprover": "Anuj Kumar Singh",
-    "status": "cancelled",
-    "rawStatus": "rejected",
-    "date": "2026-04-25T10:47:32.9314097"
-  }
-]
+
+  const data = [
+    {
+      "stepType": "Requisition Created",
+      "requisitionId": "1b76491e-1b77-48aa-b1db-b16d1592d8cc",
+      "actionBy": "SURYA PRATAP SINGH",
+      "status": "pending",
+      "date": "2026-04-18T18:00:08.8602255"
+    },
+    {
+      "stepType": "Approval Step",
+      "requisitionId": "1b76491e-1b77-48aa-b1db-b16d1592d8cc",
+      "actionBy": "Mohammad  Haris",
+      "nextApprover": "Munjal Girishchandra Shroff",
+      "status": "approve",
+      "rawStatus": "pending",
+      "date": "2026-04-24T17:25:22.7265327"
+    },
+    {
+      "stepType": "Approval Step",
+      "requisitionId": "1b76491e-1b77-48aa-b1db-b16d1592d8cc",
+      "actionBy": "Munjal Girishchandra Shroff",
+      "nextApprover": "Anuj Kumar Singh",
+      "status": "cancelled",
+      "rawStatus": "rejected",
+      "date": "2026-04-25T10:47:32.9314097"
+    }
+  ]
 
 
   const filters = ["All", "pending", "approved", "rejected"];
@@ -266,7 +287,7 @@ const data = [
                 className={`${show ? 'h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
                   <Stepper data={data} />
-                  
+
                 </div> : ""}
               </motion.div>
             </div>

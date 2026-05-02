@@ -7,6 +7,9 @@ import { toast } from "react-toastify";
 import { EmployeeLoginContext, TestContext, UpdateRequisitionContext } from "../context/TestContext";
 import { departments, skills, qualifications } from "../data/ComboBoxData";
 import { useNotification } from "../context/NotificationContextProvider";
+
+const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
+
 function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode, requisitionId }) {
   const { requisitionData, setRequisitionData } = useContext(TestContext)
   const { loginInformation } = useContext(EmployeeLoginContext);
@@ -48,7 +51,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
   const selectedDepartment = watch("department");
   const selectedQualification = watch("highestQualification");
   const [valueData, setValue] = useState("")
-
+  const [creatingReqStatus, setCreatingReqStatus] = useState(null)
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -122,14 +125,31 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       }
 
       if (operationMode === 'create') {
-        await axios.post(differentOperationUrl, finalData);
-        setRequisitionData([...requisitionData, finalData])
-        alert(`${differentOperationUrl} and operation mode: ${operationMode}`)
+        try {
+          const requisitionResponse = await axios.post(differentOperationUrl, finalData);
 
+          setRequisitionData([...requisitionData, finalData]);
+          setCreatingReqStatus(requisitionResponse?.data);
+
+          // Second API call directly here
+          await axios.post(`${APP_BACKEND_URL}/SubAdminAproval/create`, {
+            empID: loginInformation?.irb,
+            requisitionID: requisitionResponse.data?.data?.id,
+            stepOrder: 1,
+            status: "pending",
+            remarks: "Everything OK",
+          });
+
+          toast.success(requisitionResponse?.data.message);
+
+        } catch (error) {
+          console.error(error);
+          toast.error("Something went wrong");
+        }
       }
 
-      reset()
-      toast.success("Requisition Created Successfully");
+      // reset()
+      // toast.success("Requisition Created Successfully");
       setUpdateRequisitionData(null);
 
 
@@ -600,7 +620,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
             {loading && (
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             )}
-            {loading ? operationMode: `${operationMode} ${"Requisition"}`}
+            {loading ? operationMode : `${operationMode} ${"Requisition"}`}
           </button>
 
           <button
