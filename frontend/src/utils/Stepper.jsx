@@ -2,17 +2,17 @@ import React from "react";
 
 const getStatusStyle = (status) => {
   switch (status) {
-    case "confirmed":
+    case "pending":
       return {
-        dot: "bg-green-500  animate-spin",
+        dot: "bg-orange-600  animate-spin",
         badge: "bg-green-500",
       };
-    case "approve":
+    case "approved":
       return {
         dot: "bg-green-500 animate-spin",
         badge: "bg-green-500",
       };
-    case "cancelled":
+    case "rejected":
       return {
         dot: "bg-red-500  animate-spin",
         badge: "bg-red-500",
@@ -56,7 +56,7 @@ const Stepper = ({ data = [] }) => {
                   {/* Header */}
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold text-gray-800">
-                      {step.stepType || "Unknown Step"}
+                      Step {step.stepOrder || "Unknown Step"}
                     </h3>
 
                     <span
@@ -69,8 +69,8 @@ const Stepper = ({ data = [] }) => {
                   {/* Body */}
                   <div className="mt-2 space-y-1">
                     <p className="text-sm text-gray-600">
-                      <strong>Action By:</strong>{" "}
-                      {step.actionBy || "N/A"}
+                      <strong>{step.status!=='approved'?"Now Pending":"Approved By:"}</strong>{" "}
+                      {step.status!=='approved'?"":step.empName  || "N/A"}
                     </p>
 
                     {step.nextApprover && (
@@ -83,8 +83,8 @@ const Stepper = ({ data = [] }) => {
 
                   {/* Date */}
                   <p className="text-xs text-gray-400 mt-3">
-                    {step.date
-                      ? new Date(step.date).toLocaleString()
+                    {step.updatedAt.split("T")[0]
+                      ? new Date(step.updatedAt.split("T")[0]).toLocaleString()
                       : "No date"}
                   </p>
 

@@ -5,7 +5,7 @@ import NotificationBell from "../../utils/NotificationBell";
 import { motion } from "framer-motion";
 import Stepper from "../../utils/Stepper";
 import JobModel from "../../modals/JobModal";
-import { UpdateRequisitionContext, EmployeeLoginContext } from "../../context/TestContext";
+import { UpdateRequisitionContext, EmployeeLoginContext, GetApprovalDataContext } from "../../context/TestContext";
 import { reverseTransform } from '../../utils/dataFormatter'
 
 import EmployeeModal from "../../modals/EmployeeModal";
@@ -41,6 +41,10 @@ function SubAdminDashboard() {
   const [profileModelShow, setProfileModelShow] = useState(false)
 
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
+
+  const {requisitionApprovalData} = useContext(GetApprovalDataContext)
+
+  console.log(requisitionApprovalData)
 
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -101,18 +105,18 @@ function SubAdminDashboard() {
           previousStatus: status
         })
         setUpdateRequisitionId(id)
-        const response = await axios.post(
-          `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdate`,
-          {
-            requisitionID: id,
-            nextEmpID: loginInformation?.irb,
-            empID: loginInformation?.empID,
-            previousStatus: status
-          }
-        );
+        // const response = await axios.post(
+        //   `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdate`,
+        //   {
+        //     requisitionID: id,
+        //     nextEmpID: loginInformation?.irb,
+        //     empID: loginInformation?.empID,
+        //     previousStatus: status
+        //   }
+        // );
 
         try {
-          // debugger
+          debugger
           const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
 
           // Second API call directly here
@@ -134,15 +138,15 @@ function SubAdminDashboard() {
 
 
 
-        const updatedStatus = response.data?.data?.previousStatus;
+        // const updatedStatus = response.data?.data?.previousStatus;
 
-        setTableData((prev) =>
-          prev.map((item) =>
-            item.id === id || item.requisitionID === id
-              ? { ...item, status: updatedStatus || status }
-              : item
-          )
-        );
+        // setTableData((prev) =>
+        //   prev.map((item) =>
+        //     item.id === id || item.requisitionID === id
+        //       ? { ...item, status: updatedStatus || status }
+        //       : item
+        //   )
+        // );
 
         toast.success("Update status successfully")
       }
@@ -185,6 +189,8 @@ function SubAdminDashboard() {
       value: updatedData.filter((r) => r.status === "rejected").length,
     },
   ];
+
+  const [stepperData, setStepperData]=useState();
 
 
 
@@ -286,7 +292,7 @@ function SubAdminDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 className={`${show ? 'h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
-                  <Stepper data={data} />
+                  <Stepper data={stepperData} />
 
                 </div> : ""}
               </motion.div>
@@ -387,19 +393,20 @@ function SubAdminDashboard() {
                         <th className="p-3 text-center">Action</th>
                         <th className="p-3 text-center">Modification</th>
                         <th className="p-3 text-center">View</th>
+                        <th className="p-3 text-center">Track Requisition</th>
                       </tr>
                     </thead>
 
                     <tbody>
-                      {filteredRequests.map((r, idx) => (
-                        <tr key={idx} className="border-b hover:bg-gray-50">
+                      {requisitionApprovalData.map((r, idx) => (
+                        <tr key={idx} className="border-b hover:bg-gray-50 text-center">
 
-                          <td className="p-3 font-medium">{r?.name}</td>
-                          <td className="p-3 font-medium">{r?.designation}</td>
-                          <td className="p-3 text-gray-600">{r?.department}</td>
-                          <td className="p-3 text-gray-600">{r?.jobTitle}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
+                          <td className="p-3 font-medium">{r?.creator?.empName}</td>
+                          <td className="p-3 font-medium">{r?.creator?.designation}</td>
+                          <td className="p-3 text-gray-600">{r?.creator?.dept}</td>
+                          <td className="p-3 text-gray-600">{r?.requisitionDetails?.jobTitle}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.createdAt?.split("T")[0])}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.deadline?.split("T")[0])}</td>
 
                           <td className="p-3">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "approved"
@@ -415,7 +422,7 @@ function SubAdminDashboard() {
 
                           <td className="p-3 flex gap-2 justify-center mt-5">
                             <button
-                              onClick={() => updateStatus(r.id, "approved")}
+                              onClick={() => updateStatus(r?.requisitionID, "approved")}
                               className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
                               disabled={r.status === 'rejected' || r.status === 'approved'}
                             >
@@ -433,7 +440,7 @@ function SubAdminDashboard() {
                             </button>
 
                             <button
-                              onClick={() => updateStatus(r.id, "rejected")}
+                              onClick={() => updateStatus(r?.requisitionID, "rejected")}
                               disabled={r.status === 'rejected' || r.status === 'approved'}
                               className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                             >
@@ -453,8 +460,8 @@ function SubAdminDashboard() {
 
                           <td className="p-3">
                             <button
-                              onClick={() => { setOpen(true); handleEdit(filteredRequests[idx]) }}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
+                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
+                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
                               disabled={r.status === 'rejected' || r.status === 'approved'}
                             >
                               Modify {loading ? <FidgetSpinner
@@ -474,10 +481,19 @@ function SubAdminDashboard() {
                           <td className="p-3">
                             <button
 
-                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
                               className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                             >
                               Show
+                            </button>
+                          </td>
+                          <td className="p-3">
+                            <button
+
+                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                              className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                            >
+                              Track
                             </button>
                           </td>
 

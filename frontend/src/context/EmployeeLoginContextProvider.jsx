@@ -149,6 +149,7 @@ function EmployeeLoginContextProvider({ children }) {
         let res, requisitionTrackResponse;
         try {
           res = await axios.get(`${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user?.empID}`);
+          console.log(res.data)
         } catch (error) {
           console.log(error.message)
         }

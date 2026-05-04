@@ -7,3 +7,6 @@ export const EmployeeLoginContext=createContext();
 
 export const GetAllEmployeeContext=createContext();
 export const GetAllRequisitionContext=createContext();
+
+
+export const GetApprovalDataContext=createContext();

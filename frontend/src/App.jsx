@@ -10,6 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import { EmployeeLoginContextProvider } from './context/EmployeeLoginContextProvider';
 import GetAllEmployeeContextProvider from './context/GetAllEmployeeContextProvider';
 import GetAllRequisitionContextProvider from './context/GetAllRequisitionContextProvider';
+import GetApprovalDataContextProvider from './context/GetApprovalDataContextProvider';
 function App() {
   return (
     <div>
@@ -20,8 +21,11 @@ function App() {
           <UpdateRequisitionContextProvider>
             <GetAllEmployeeContextProvider>
               <GetAllRequisitionContextProvider>
+                <GetApprovalDataContextProvider>
+
                 <ToastContainer />
                 <Outlet />
+                </GetApprovalDataContextProvider>
               </GetAllRequisitionContextProvider>
             </GetAllEmployeeContextProvider>
           </UpdateRequisitionContextProvider>
