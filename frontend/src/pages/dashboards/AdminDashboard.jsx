@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
-import { EmployeeLoginContext, GetAllEmployeeContext, GetAllRequisitionContext, UpdateRequisitionContext } from "../../context/TestContext";
+import { EmployeeLoginContext, GetAllEmployeeContext, GetAllRequisitionContext, GetApprovalDataContext, UpdateRequisitionContext } from "../../context/TestContext";
 import { CgMenuGridR, CgProfile } from "react-icons/cg";
 import { RiCloseCircleFill } from "react-icons/ri";
 import axios from "axios";
@@ -16,13 +16,19 @@ import { FidgetSpinner } from "react-loader-spinner";
 import Stepper from "../../utils/Stepper";
 import { motion } from 'framer-motion'
 import AdminApprovalShowModal from "../../modals/AdminApprovalShowModal";
+import { toast } from "react-toastify";
 const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
+const API_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL
+
+
 function AdminDashboard() {
   const { loginInformation } = useContext(EmployeeLoginContext);
   const dispatch = useDispatch();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("dashboard");
+
+
 
   const approvedMenuItems = [
     { key: "arpanaApproved", label: "Approved By Arpana" },
@@ -71,7 +77,7 @@ function AdminDashboard() {
 
       {/* SIDEBAR */}
       <aside
-        className={`fixed md:static z-5 top-0 left-0 h-full w-64 bg-rose-950 text-white transform transition-transform duration-300
+        className={`fixed md:static z-5 top-0 left-0 h-full w-64 bg-[#000] text-[#FFF0C4] transform transition-transform duration-300
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
         {/* HEADER */}
@@ -117,7 +123,7 @@ function AdminDashboard() {
               : "hover:bg-slate-700"
               }`}
           >
-            {"Required Your Approvals"}
+            {"All Employees"}
           </button>
           <button
             onClick={() => {
@@ -185,7 +191,7 @@ function AdminDashboard() {
       <div className="flex-1 flex flex-col w-full">
 
         {/* TOP BAR */}
-        <header className="flex items-center justify-between bg-white p-4 shadow">
+        <header className="flex items-center justify-between bg-[#000] text-[#FFF0C4] border-l-4 p-4 shadow">
 
           {/* Hamburger */}
           <button
@@ -199,7 +205,7 @@ function AdminDashboard() {
             {activeMenu}
           </h1>
 
-          <div className="text-sm text-gray-600 hidden sm:block">
+          <div className="text-sm text-gray-200 hidden sm:block">
             {loginInformation?.empName}
           </div>
         </header>
@@ -253,7 +259,6 @@ function AdminDashboard() {
 
 
 
-
 function Pagination({ currentPage, totalPages, onPageChange }) {
   return (
     <div className="flex justify-center gap-2 mt-6">
@@ -279,6 +284,8 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     </div>
   );
 }
+
+
 
 
 function ApprovalRejection({ id, type }) {
@@ -316,21 +323,21 @@ function ApprovalRejection({ id, type }) {
 
   useEffect(() => {
     fetchData();
-  }, [id, type]); // ✅ IMPORTANT: include id
+  }, [id, type]);
 
   if (loading) return <p>Loading...</p>;
   if (!data || !data.approvedBy) return null;
 
   return (
     <div className="mb-10">
-      {/* 🔥 Approver Header */}
+      {/*Approver Header */}
       <div className={`mb-6 p-4 rounded shadow ${styles[type].header}`}>
         <h2 className="font-bold text-lg">{styles[type].title}</h2>
         <p>{data.approvedBy?.empName}</p>
         <p className="text-sm">{data.approvedBy?.designation}</p>
       </div>
 
-      {/* 🔥 Creators */}
+      {/*Creators */}
       {data.creator?.map((creator) => (
         <div key={creator.creator_employee?.empID} className="mb-6">
 
@@ -359,65 +366,176 @@ function ApprovalRejection({ id, type }) {
   );
 }
 
+
+
+
+
+
 function AllEmployees() {
   const { allEmployeesData = [] } = useContext(GetAllEmployeeContext);
 
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const wrapperRef = useRef(null);
+
   const itemsPerPage = 6;
 
-  const totalPages = Math.ceil(allEmployeesData.length / itemsPerPage);
+  //Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
 
-  const currentData = allEmployeesData.slice(
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  //Filtered data
+  const filteredData = useMemo(() => {
+    if (!search) return allEmployeesData;
+
+    return allEmployeesData.filter((emp) =>
+      emp.empID.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search, allEmployeesData]);
+
+  //Pagination
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  const currentData = filteredData.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
 
+  //Suggestions
+  const suggestions = search ? filteredData.slice(0, 5) : [];
+
   return (
     <div>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {currentData.map((emp) => (
-          <div
-            key={emp.empID}
-            className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition border"
-          >
-            {/* HEADER */}
-            <div className="border-b pb-3 mb-3">
-              <h2 className="text-lg font-semibold text-slate-800">
-                {emp.empName}
-              </h2>
-              <p className="text-sm text-gray-500">{emp.mailID}</p>
-            </div>
+      {/* HEADER */}
+      <div className="flex flex-col w-full rounded-lg p-4">
+        <h1 className="text-xl font-semibold mb-3">
+          Change Employee IRB Flow
+        </h1>
 
-            {/* DETAILS */}
-            <div className="space-y-1 text-sm text-gray-700">
-              <p><span className="font-medium text-gray-500">ID:</span> {emp.empID}</p>
-              <p><span className="font-medium text-gray-500">Role:</span> {emp.designation}</p>
-              <p><span className="font-medium text-gray-500">Department:</span> {emp.dept}</p>
-              <p><span className="font-medium text-gray-500">Location:</span> {emp.companyLocation}</p>
-            </div>
+        {/* SEARCH */}
+        <div className="relative" ref={wrapperRef}>
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setShowDropdown(true);
+              setPage(1);
+            }}
+            onFocus={() => setShowDropdown(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setShowDropdown(false);
+              }
+            }}
+            placeholder="Search employee..."
+            className="border p-2 rounded w-full"
+          />
 
-            {/* STATUS */}
-            <div className="mt-4 flex justify-between items-center">
-              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
-                Level: {emp.level}
-              </span>
-
-              <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
-                {emp.status}
-              </span>
+          {/*SUGGESTIONS DROPDOWN */}
+          {showDropdown && search && (
+            <div className="absolute z-10 w-full bg-white border rounded mt-1 shadow">
+              {suggestions.length > 0 ? (
+                suggestions.map((item) => (
+                  <p
+                    key={item.empID}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      setSearch(item.empID);
+                      setShowDropdown(false); //FIX: close dropdown
+                      setPage(1);
+                    }}
+                  >
+                    {item.empName}
+                  </p>
+                ))
+              ) : (
+                <p className="p-2 text-gray-400">No results found</p>
+              )}
             </div>
-          </div>
-        ))}
+          )}
+        </div>
       </div>
 
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
+      {/* EMPLOYEE CARDS */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 p-4">
+        {currentData.length > 0 ? (
+          currentData.map((emp) => (
+            <div
+              key={emp.empID}
+              className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition border"
+            >
+              <div className="border-b pb-3 mb-3">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  {emp.empName}
+                </h2>
+                <p className="text-sm text-gray-500">{emp.mailID}</p>
+              </div>
+
+              <div className="space-y-1 text-sm text-gray-700">
+                <p>
+                  <span className="font-medium text-gray-500">ID:</span>{" "}
+                  {emp.empID}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-500">Role:</span>{" "}
+                  {emp.designation}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-500">Department:</span>{" "}
+                  {emp.dept}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-500">Location:</span>{" "}
+                  {emp.companyLocation}
+                </p>
+              </div>
+
+              <div className="mt-4 flex justify-between items-center">
+                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                  Level: {emp.level}
+                </span>
+
+                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
+                  {emp.status}
+                </span>
+              </div>
+              <div className="flex rounded-md w-full mt-2 items-center justify-center">
+                <button className="bg-gray-200 text-lg focus:bg-[#FFF0C4] border-r-2 border-black py-2 px-4 text-slate-800 hover:bg-[#FFF0C4] hover:scale-110 hover:text-[#000] transition-all duration-200">Edit IRB</button>
+                <button className="bg-gray-200 text-lg focus:bg-[#FFF0C4] border-l-2 border-black py-2 px-4 text-slate-800 hover:bg-[#FFF0C4] hover:scale-110 hover:text-[#000] transition-all duration-200">Block Employee</button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="col-span-full text-center text-gray-500">
+            No employees found
+          </p>
+        )}
+      </div>
+
+      {/* PAGINATION */}
+      {filteredData.length > itemsPerPage && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      )}
     </div>
   );
 }
+
 
 
 
@@ -440,7 +558,11 @@ function RequiredApprovals() {
   const [requisitionNextStatusUpdateTableData, setRequisitionNextStatusUpdateTableData] = useState([])
   const [profileModelShow, setProfileModelShow] = useState(false)
 
-  const [showApprovalData, setShowApprovalData]=useState(null)
+  const { requisitionApprovalData } = useContext(GetApprovalDataContext)
+
+  const [stepperData, setStepperData] = useState([])
+
+  const [showApprovalData, setShowApprovalData] = useState(null)
 
 
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
@@ -454,138 +576,36 @@ function RequiredApprovals() {
     });
   }
 
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const response = await axios.get(`${APP_BACKEND_URL}/Requisition/with-employee-by-irb/${loginInformation?.empID}`)
-
-        if (response.data && response.data.length > 0) {
-          setRequests(reverseTransform(response.data));
-        }
-      } catch (error) {
-        console.error("Error fetching requisitions:", error);
-
-      }
-    }
-
-    fetch()
-
-  }, [loginInformation, requisitionInformation]);
-
-  const handleEdit = (row) => {
-    setUpdateRequisitionData(row);
-  };
-
-  const mergeApprovedData = (approvalData, approvedStatusData) => {
-    const merged = [...approvalData, ...approvedStatusData];
-    const grouped = merged.reduce((acc, item) => {
-      if (!acc[item.requisitionID]) {
-        acc[item.requisitionID] = [];
-      }
-      acc[item.requisitionID].push(item);
-      return acc;
-    }, {});
-
-    const result = Object.values(grouped).flatMap(group => {
-      const approvedItem = group.find(
-        item => item.currentStatus?.toLowerCase() === "approved" || item.currentStatus?.toLowerCase() === "rejected"
-      );
-
-      if (approvedItem) {
-        return [approvedItem];
-      }
-      return group;
-    });
-
-    return result;
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
-      let approvalResponse, approvalResponseForNextEmployeeStatus;
-      try {
-        approvalResponse = await axios.get(`${APP_BACKEND_URL}/SubAdminAproval/ForNextEmployeeByAdmin?empId=${"PMA0002"}`)
-      } catch (error) {
-        console.log(error.message)
-      }
 
 
-      try {
-        approvalResponseForNextEmployeeStatus = await axios.get(`${APP_BACKEND_URL}/SubAdminAproval/ForNextEmployeeApprovedStatus?empId=${"PMA0002"}`)
-      } catch (error) {
-        console.log(error.message)
-      }
-
-
-
-      const approvalData = approvalResponse?.data || [];
-      const approvedStatusData = approvalResponseForNextEmployeeStatus?.data || [];
-      const mergedData = mergeApprovedData(approvalData, approvedStatusData);
-      setTableData(mergedData);
-    };
-
-    loadData();
-  }, [loading]);
-
-  const [curAndPrevData, setCurAndPrevData]=useState([])
-
-  useEffect(()=>{
-    const fetch=async()=>{
-      try {
-        const response=await axios.get(`${APP_BACKEND_URL}/SubAdminAproval/GetRequisitionDetails/${loginInformation?.empID}`)
-        setCurAndPrevData(response.data)
-      } catch (error) {
-        console.log(error.message)
-      }
-    }
-    fetch()
-  }, [loginInformation?.empID])
-
-
-
-  console.log("Get data",curAndPrevData)
-
-  const mergeStatus = (oldData, newData) => {
-    return oldData.map((item) => {
-      const match = newData.find(
-        (n) => n.requisitionID === item.id
-      );
-
-      return match
-        ? { ...item, previousStatus: match.status }
-        : item;
-    });
-  };
-
-
-
-  const updateStatus = async (id, status) => {
+ const updateStatus = async (id, status) => {
     try {
       setLoading(true);
 
       if (id !== '') {
+       
         setUpdateRequisitionId(id)
-        const response = await axios.post(
-          `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdate`,
-          {
+
+        try {
+          //debugger
+          const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
+
+          // Second API call directly here
+          await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
+            empID: loginInformation?.irb,
             requisitionID: id,
-            nextEmpID: loginInformation?.irb,
-            empID: loginInformation?.empID,
-            previousStatus: status
-          }
-        );
-        const updatedStatus = response.data?.data?.previousStatus;
+            stepOrder: 3,
+            status: "pending",
+            remarks: "Everything OK",
+          });
 
-        setTableData((prev) =>
-          prev.map((item) =>
-            item.id === id || item.requisitionID === id
-              ? { ...item, previousStatus: updatedStatus || status }
-              : item
-          )
-        );
+          toast.success(responseNew?.data.message);
 
+        } catch (error) {
+          console.error(error);
+          toast.error("Something went wrong");
+        }
         toast.success("Update status successfully")
-
       }
 
     } catch (error) {
@@ -595,84 +615,41 @@ function RequiredApprovals() {
     }
   };
 
-
-
-  const updateStatusWithNext = async (id, previous, status) => {
-    try {
-      setLoadingId(id);
-
-      const response = await axios.post(
-        `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdateWithNextUpdator`,
-        {
-          requisitionID: id,
-          nextEmpID: loginInformation?.irb,
-          empID: loginInformation?.empID,
-          previousStatus: previous,
-          currentStatus: status
-        }
-      );
-
-
-      setRequisitionStatusUpdateInformation((prev) =>
-        prev.map((item) =>
-          item.requisitionID === id
-            ? {
-              ...item,
-              currentStatus: status,
-              previousStatus: previous
-            }
-            : item
-        )
-      );
-
-      toast.success("Update status successfully");
-
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    } finally {
-      setLoadingId(null);
-    }
-  };
-
-  const updatedData = mergeStatus(requests, tableData);
-
-
-
-  // FILTER + SEARCH LOGIC
-  const filteredRequests = updatedData
-    ?.map(data => ({
-      ...data,
-      previousStatus: data.previousStatus === undefined ? data.status : data.previousStatus
-    }))
-    .filter((r) => {
-      const matchStatus = filter === "All" || r.previousStatus === filter;
-      const matchSearch = r.name?.toLowerCase().includes(search.toLowerCase());
-      return matchStatus && matchSearch;
-    });
-
   const tearClick = function () {
     setShow(!show);
   }
 
   const stats = [
-    { label: "Total", value: updatedData.length },
+    { label: "Total", value: requisitionApprovalData.length },
     {
       label: "Pending",
-      value: updatedData.filter((r) => r.previousStatus === "pending").length,
+      value: requisitionApprovalData.filter((r) => r.status === "pending").length,
     },
     {
       label: "Approved",
-      value: updatedData.filter((r) => r.previousStatus === "approved").length,
+      value: requisitionApprovalData.filter((r) => r.status === "approved").length,
     },
     {
       label: "Rejected",
-      value: updatedData.filter((r) => r.previousStatus === "rejected").length,
+      value: requisitionApprovalData.filter((r) => r.status === "rejected").length,
     },
   ];
 
 
 
   const filters = ["All", "pending", "approved", "rejected"];
+
+
+  const filterData = (data, activeFilter) => {
+    if (activeFilter === "All") return data;
+
+    return data.filter(item =>
+      item.status?.toLowerCase() === activeFilter.toLowerCase()
+    );
+  };
+
+
+  const result = filterData(requisitionApprovalData, filter);
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -697,9 +674,9 @@ function RequiredApprovals() {
                 {show ? <div className="p-2 md:p-6">
 
 
-                  <Stepper steps={requisition.steps} />
+                  <Stepper data={stepperData} />
                   <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
-                    <h2 className="text-xl font-bold">
+                    {/* <h2 className="text-xl font-bold">
                       {requisition.title}
                     </h2>
                     <p className="text-sm text-gray-500">
@@ -710,16 +687,16 @@ function RequiredApprovals() {
                       <span className="font-semibold capitalize">
                         {requisition.status}
                       </span>
-                    </p>
+                    </p> */}
                   </div>
                 </div> : ""}
               </motion.div>
             </div>
 
             <div className="p-6">
-              <div className="bg-white p-4 rounded-lg my-4">
+              <div className="text-[#000] bg-[#FFF0C4] border-x-8 border-[#000] p-4 rounded-lg my-4">
                 <h1 className="mb-4 font-light text-2xl ">
-                  Requisition Counts
+                  Requisition Statistics
                 </h1>
                 {/* STATS */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -742,12 +719,11 @@ function RequiredApprovals() {
                   </div>
                 </div>
               )}
-              {(showModalOpen && showApprovalData!==null) && (
+              {(showModalOpen) && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                   <div className="w-full max-w-5xl">
-                    <AdminApprovalShowModal
+                    <EmployeeModal
                       isOpen={showModalOpen}
-                      approvalData={showApprovalData}
                       onClose={() => setShowModelOpen(false)}
                     />
                   </div>
@@ -758,18 +734,36 @@ function RequiredApprovals() {
               <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
 
                 {/* HEADER */}
-                <div className="p-4 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+                <div className="p-4 bg-[#000] text-[#FFF0C4]  border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
                   <h2 className="font-light text-xl md:text-2xl">
-                    Head1 Type Requisition Approvals
+                    Final approval for you
                   </h2>
                   <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
                     Generate Report
                   </button>
                 </div>
 
-                {/* TABLE */}
+                {/* SEARCH + FILTER */}
+                <div className="p-4 bg-[#000] text-[#FFF0C4]  border-b flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                  {/* FILTERS */}
+                  <div className="flex flex-wrap gap-2 ">
+                    {filters.map((f, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setFilter(f)}
+                        className={`px-3 py-1 text-sm rounded-full border transition ${filter === f
+                          ? "bg-pink-900 text-white border-pink-600"
+                          : "bg-white text-gray-600 hover:bg-gray-100"
+                          }`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* ================= DESKTOP TABLE ================= */}
-                {/* <div className="hidden md:block overflow-x-auto">
+                <div className="hidden md:block overflow-x-auto my-4">
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-gray-600">
                       <tr>
@@ -779,7 +773,8 @@ function RequiredApprovals() {
                         <th className="p-3 text-center">Profile(Job Title) </th>
                         <th className="p-3 text-center">Date of RFQ </th>
                         <th className="p-3 text-center">Date of Deadline</th>
-                        <th className="p-3 text-center">Status</th>
+
+                        <th className="p-3 text-center">Current Status</th>
                         <th className="p-3 text-center">Action</th>
                         <th className="p-3 text-center">Modification</th>
                         <th className="p-3 text-center">View</th>
@@ -787,33 +782,33 @@ function RequiredApprovals() {
                     </thead>
 
                     <tbody>
-                      {filteredRequests.map((r, idx) => (
-                        <tr key={idx} className="border-b hover:bg-gray-50">
+                      {result.map((r, idx) => (
+                        <tr key={idx} className="border-b hover:bg-gray-50 text-center">
 
-                          <td className="p-3 font-medium">{r?.name}</td>
-                          <td className="p-3 font-medium">{r?.designation}</td>
-                          <td className="p-3 text-gray-600">{r?.department}</td>
-                          <td className="p-3 text-gray-600">{r?.jobTitle}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
+                          <td className="p-3 font-medium">{r?.creator?.empName}</td>
+                          <td className="p-3 font-medium">{r?.creator?.designation}</td>
+                          <td className="p-3 text-gray-600">{r?.creator?.dept}</td>
+                          <td className="p-3 text-gray-600">{r?.requisitionDetails?.jobTitle}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.createdAt?.split("T")[0])}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.deadline?.split("T")[0])}</td>
 
                           <td className="p-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "approved"
                               ? "bg-green-100 text-green-700"
-                              : r.previousStatus === "rejected"
+                              : r.status === "rejected"
                                 ? "bg-red-100 text-red-700"
                                 : "bg-yellow-100 text-yellow-700"
                               }`}>
-                              {r.previousStatus}
+                              {r.status}
                             </span>
                           </td>
 
 
                           <td className="p-3 flex gap-2 justify-center mt-5">
                             <button
-                              onClick={() => updateStatus(r.id, "approved")}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                              onClick={() => updateStatus(r?.requisitionID, "approved")}
+                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved'}
                             >
                               Approve {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -829,9 +824,9 @@ function RequiredApprovals() {
                             </button>
 
                             <button
-                              onClick={() => updateStatus(r.id, "rejected")}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                              onClick={() => updateStatus(r?.requisitionID, "rejected")}
+                              disabled={r.status === 'rejected' || r.status === 'approved'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                             >
                               Reject {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -849,9 +844,9 @@ function RequiredApprovals() {
 
                           <td className="p-3">
                             <button
-                              onClick={() => { setOpen(true); handleEdit(filteredRequests[idx]) }}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
+                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved'}
                             >
                               Modify {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -870,10 +865,19 @@ function RequiredApprovals() {
                           <td className="p-3">
                             <button
 
-                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
                               className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                             >
                               Show
+                            </button>
+                          </td>
+                          <td className="p-3">
+                            <button
+
+                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                              className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                            >
+                              Track
                             </button>
                           </td>
 
@@ -881,193 +885,15 @@ function RequiredApprovals() {
                       ))}
                     </tbody>
                   </table>
-                </div> */}
-              </div>
-              {/* TABLE */}
-              <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
 
-                {/* HEADER */}
-                <div className="p-4 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-                  <h2 className="font-light text-xl md:text-2xl">
-                    Head2 Type Requisition Approvals
-                  </h2>
-                  <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
-                    Generate Report
-                  </button>
+
+
                 </div>
-
-                {/* SEARCH + FILTER */}
-                <div className="p-4 border-b flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-
-                  {/* SEARCH */}
-                  <input
-                    type="text"
-                    placeholder="Search candidate name..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="border px-3 py-2 rounded w-full md:w-1/3"
-                  />
-
-                  {/* FILTERS */}
-                  <div className="flex flex-wrap gap-2">
-                    {filters.map((f) => (
-                      <button
-                        key={f}
-                        onClick={() => setFilter(f)}
-                        className={`px-3 py-1 text-sm rounded-full border transition ${filter === f
-                          ? "bg-pink-900 text-white border-pink-600"
-                          : "bg-white text-gray-600 hover:bg-gray-100"
-                          }`}
-                      >
-                        {f}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-
-                {/* ================= DESKTOP TABLE ================= */}
-                <div className="hidden md:block overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-gray-600">
-                      <tr>
-                        <th className="p-3 text-center">RFQ Name</th>
-                        <th className="p-3 text-center">Designation</th>
-                        <th className="p-3 text-center">Department</th>
-                        <th className="p-3 text-center">Profile(Job Title) </th>
-                        <th className="p-3 text-center">Date of RFQ </th>
-                        <th className="p-3 text-center">Date of Deadline</th>
-                        <th className="p-3 text-center">Previous Status</th>
-                        <th className="p-3 text-center">Current Status</th>
-                        <th className="p-3 text-center">Action</th>
-                        <th className="p-3 text-center">Modification</th>
-                        <th className="p-3 text-center">View</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {tableData.map((r, idx) => {
-
-
-                        const status = r.currentStatus?.toLowerCase() || "pending";
-                        const isDisabled = status !== "pending";
-
-                        return (
-                          <tr key={idx}>
-
-                            <td className="p-3 font-medium">{r?.createdByName}</td>
-                            <td className="p-3 font-medium">{r?.designation}</td>
-                            <td className="p-3 text-gray-600">{r?.department}</td>
-                            <td className="p-3 text-gray-600">{r?.jobTitle}</td>
-                            <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
-                            <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
-
-                            {/* Previous Status */}
-                            <td className="p-3 text-center">
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
-                                ? "bg-green-100 text-green-700"
-                                : r.previousStatus === "rejected"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                                }`}>
-                                {r.previousStatus}
-                              </span>
-
-                              <div>
-                                <span className="font-extralight mt-3 text-[8px] text-white bg-gray-800 rounded-lg p-1">
-                                  {r.approverName}
-                                </span>
-                              </div>
-                            </td>
-
-                            {/* Current Status */}
-                            <td className="p-3">
-                              <span className={`text-xs px-2 py-1 rounded font-medium ${status === "approved"
-                                ? "bg-green-100 text-green-700"
-                                : status === "rejected"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                                }`}>
-                                {status === "approved"
-                                  ? "Approved"
-                                  : status === "rejected"
-                                    ? "Rejected"
-                                    : "Pending"}
-                              </span>
-                            </td>
-
-                            {/* Actions */}
-                            <td className="p-3 flex flex-col gap-2 items-center">
-
-                              {/* Buttons */}
-                              <div className="flex gap-2">
-
-                                <button
-                                  onClick={() => updateStatusWithNext(r.requisitionID, r.previousStatus, "approved")}
-                                  disabled={isDisabled}
-                                  className={`text-xs px-2 py-1 rounded ${isDisabled
-                                    ? "bg-gray-200 text-slate-500 cursor-not-allowed"
-                                    : "bg-green-600 text-white"
-                                    }`}
-                                >
-                                  Approve
-                                  {loadingId === r.requisitionID && <FidgetSpinner height="20" width="20" />}
-                                </button>
-
-                                <button
-                                  onClick={() => updateStatusWithNext(r.requisitionID, r.previousStatus, "rejected")}
-                                  disabled={isDisabled}
-                                  className={`text-xs px-2 py-1 rounded ${isDisabled
-                                    ? "bg-gray-200 text-slate-500 cursor-not-allowed"
-                                    : "bg-red-600 text-white"
-                                    }`}
-                                >
-                                  Reject
-                                  {loadingId === r.requisitionID && <FidgetSpinner height="20" width="20" />}
-                                </button>
-
-                              </div>
-                            </td>
-
-                            {/* Modify */}
-                            <td className="p-3">
-                              <button
-                                onClick={() => { setOpen(true); handleEdit(r) }}
-                                className={`text-xs px-2 py-1 rounded ${status !== "pending"
-                                  ? "bg-gray-200 text-slate-500"
-                                  : "bg-orange-600 text-white"
-                                  }`}
-                                disabled={status !== "pending"}
-                              >
-                                Modify
-                              </button>
-                            </td>
-
-                            {/* Show */}
-                            <td className="p-3">
-                              <button
-                                onClick={() => {
-                                  setShowModelOpen(true);
-                                  setUpdateRequisitionData(r);
-                                }}
-                                className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
-                              >
-                                Show
-                              </button>
-                            </td>
-
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                
 
                 {/* ================= MOBILE CARD VIEW ================= */}
                 <div className="md:hidden p-4 space-y-4">
-                  {filteredRequests.map((r, idx) => (
-                    <div key={r.id} className="border rounded-lg p-4 shadow-sm bg-white">
+                  {requisitionApprovalData.map((r, idx) => (
+                    <div key={idx} className="border rounded-lg p-4 shadow-sm bg-white">
 
                       {/* NAME + ROLE */}
                       <div className="flex justify-between items-start">
@@ -1091,32 +917,73 @@ function RequiredApprovals() {
                       <div className="mt-5 grid grid-cols-2 gap-2">
 
                         <button
-                          disabled={loading}
-                          onClick={() => updateStatus(r.id, "approved")}
-                          className={`${loading ? "bg-green-600 text-white text-xs py-2 rounded" : "bg-gray-200 text-slate-500"}`}
+                          onClick={() => updateStatus(r?.requisitionID, "approved")}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
                         >
-                          Approve
+                          Approve {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
                         </button>
 
                         <button
-                          onClick={() => updateStatus(r.id, "rejected")}
-                          className="bg-red-600 text-white text-xs py-2 rounded"
+                          onClick={() => updateStatus(r?.requisitionID, "rejected")}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
-                          Reject
+                          Reject {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
                         </button>
 
                         <button
-                          onClick={() => { updateStatus(r.id, "modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
-                          className="bg-yellow-600 text-white text-xs py-2 rounded"
+                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
                         >
-                          Modify
+                          Modify {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
                         </button>
 
                         <button
-                          onClick={() => { updateStatus(r.id, "view"); setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
-                          className="bg-blue-600 text-white text-xs py-2 rounded"
+
+                          onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
+                          className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                         >
                           Show
+                        </button>
+
+                        <button
+
+                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                          className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                        >
+                          Track
                         </button>
 
                       </div>
@@ -1125,239 +992,7 @@ function RequiredApprovals() {
                   ))}
 
                 </div>
-
               </div>
-
-              {/* ================= DESKTOP TABLE ================= */}
-                <div className="hidden md:block overflow-x-auto my-4">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-gray-600">
-                      <tr>
-                        <th className="p-3 text-center">RFQ Name</th>
-                        <th className="p-3 text-center">Designation</th>
-                        <th className="p-3 text-center">Department</th>
-                        <th className="p-3 text-center">Profile(Job Title) </th>
-                        <th className="p-3 text-center">Date of RFQ </th>
-                        <th className="p-3 text-center">Date of Deadline</th>
-                        
-                        <th className="p-3 text-center">Current Status</th>
-                        <th className="p-3 text-center">Action</th>
-                        <th className="p-3 text-center">Modification</th>
-                        <th className="p-3 text-center">View</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {curAndPrevData?.map((r, idx) => {
-
-
-                        const status = r.currentStatus?.toLowerCase() && "approved";
-                        const isDisabled = status === "approved";
-
-                        return (
-                          <tr key={idx}>
-
-                            <td className="p-3 font-medium">{r?.name}</td>
-                            <td className="p-3 font-medium">{r?.designation}</td>
-                            <td className="p-3 text-gray-600">{r?.department}</td>
-                            <td className="p-3 text-gray-600">{r?.jobTitle}</td>
-                            <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
-                            <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
-
-                            {/* Previous Status */}
-                            {/* <td className="p-3 text-center">
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
-                                ? "bg-green-100 text-green-700"
-                                : r.previousStatus === "rejected"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                                }`}>
-                                {r.previousStatus}
-                              </span>
-
-                              <div>
-                                <span className="font-extralight mt-3 text-[8px] text-white bg-gray-800 rounded-lg p-1">
-                                  {r.currentApprover}
-                                </span>
-                              </div>
-                            </td> */}
-
-                            {/* Current Status */}
-                            <td className="p-3">
-                              <span className={`text-xs px-2 py-1 rounded font-medium ${status === "approved"
-                                ? "bg-green-100 text-green-700"
-                                : status === "rejected"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                                }`}>
-                                {status === "approved"
-                                  ? "Approved"
-                                  : status === "rejected"
-                                    ? "Rejected"
-                                    : "Pending"}
-                              </span>
-                            </td>
-
-                            {/* Actions */}
-                            <td className="p-3 flex flex-col gap-2 items-center">
-
-                              {/* Buttons */}
-                              <div className="flex gap-2">
-
-                                <button
-                                  onClick={() => updateStatusWithNext(r.requisitionID, r.previousStatus, "approved")}
-                                  disabled={isDisabled}
-                                  className={`text-xs px-2 py-1 rounded ${isDisabled
-                                    ? "bg-gray-200 text-slate-500 cursor-not-allowed"
-                                    : "bg-green-600 text-white"
-                                    }`}
-                                >
-                                  Approve
-                                  {loadingId === r.requisitionID && <FidgetSpinner height="20" width="20" />}
-                                </button>
-
-                                <button
-                                  onClick={() => updateStatusWithNext(r.requisitionID, r.previousStatus, "rejected")}
-                                  disabled={isDisabled}
-                                  className={`text-xs px-2 py-1 rounded ${isDisabled
-                                    ? "bg-gray-200 text-slate-500 cursor-not-allowed"
-                                    : "bg-red-600 text-white"
-                                    }`}
-                                >
-                                  Reject
-                                  {loadingId === r.requisitionID && <FidgetSpinner height="20" width="20" />}
-                                </button>
-                              </div>
-                            </td>
-
-                            {/* Modify */}
-                            <td className="p-3">
-                              <button
-                                onClick={() => { setOpen(true); handleEdit(r) }}
-                                className={`text-xs px-2 py-1 rounded ${status === "pending"
-                                  ? "bg-gray-200 text-slate-500"
-                                  : "bg-orange-600 text-white"
-                                  }`}
-                                disabled={status === "pending"}
-                              >
-                                Modify
-                              </button>
-                            </td>
-
-                            {/* Show */}
-                            <td className="p-3">
-                              <button
-                                onClick={() => {
-                                  setShowModelOpen(true);
-                                  setShowApprovalData(r);
-                                }}
-                                className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
-                              >
-                                Show
-                              </button>
-                            </td>
-
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-
-                    <tbody>
-                      {filteredRequests.map((r, idx) => (
-                        <tr key={idx} className="border-b hover:bg-gray-50">
-
-                          <td className="p-3 font-medium">{r?.name}</td>
-                          <td className="p-3 font-medium">{r?.designation}</td>
-                          <td className="p-3 text-gray-600">{r?.department}</td>
-                          <td className="p-3 text-gray-600">{r?.jobTitle}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
-
-                          <td className="p-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
-                              ? "bg-green-100 text-green-700"
-                              : r.previousStatus === "rejected"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                              }`}>
-                              {r.previousStatus}
-                            </span>
-                          </td>
-
-
-                          <td className="p-3 flex gap-2 justify-center mt-5">
-                            <button
-                              onClick={() => updateStatus(r.id, "approved")}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
-                            >
-                              Approve {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-
-                            <button
-                              onClick={() => updateStatus(r.id, "rejected")}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
-                            >
-                              Reject {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-                          </td>
-
-                          <td className="p-3">
-                            <button
-                              onClick={() => { setOpen(true); handleEdit(filteredRequests[idx]) }}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"} flex gap-3 justify-center items-center`}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
-                            >
-                              Modify {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-                          </td>
-
-                          <td className="p-3">
-                            <button
-
-                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
-                              className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
-                            >
-                              Show
-                            </button>
-                          </td>
-
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
             </div>
           </main>)}
       </div>
@@ -1437,5 +1072,7 @@ function Requisitions() {
     </>
   );
 }
+
+
 
 export default AdminDashboard;

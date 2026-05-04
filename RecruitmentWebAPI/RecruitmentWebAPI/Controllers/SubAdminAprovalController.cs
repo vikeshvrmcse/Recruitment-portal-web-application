@@ -506,9 +506,9 @@ namespace RecruitmentWebAPI.Controllers
         public async Task<IActionResult> GetUniqueEmployeesWithStatus(string id, string status)
         {
             var selectData = await (
-                from data in _context.RequisitionApprovalModels
+                from data in _context.RequisitionVerifierModels
                 where data.EmpID == id
-                      && data.PreviousStatus == status
+                      && data.Status == status
                 join req in _context.Requisitions
                     on data.RequisitionID equals req.Id
                 join emp in _context.EmployeeDetails

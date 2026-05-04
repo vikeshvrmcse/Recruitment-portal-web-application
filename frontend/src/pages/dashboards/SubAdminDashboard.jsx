@@ -19,10 +19,9 @@ import { FidgetSpinner } from "react-loader-spinner";
 import { toast } from "react-toastify";
 import { CgProfile } from "react-icons/cg";
 import ProfileModal from "../../modals/ProfileModal";
-// import { Hairball, HairballPreset } from 'react-loader-spinner/dist/beta';
+import { RiLogoutCircleLine, RiSettings5Fill } from "react-icons/ri";
+import { FaCheckDouble } from "react-icons/fa";
 const API_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL
-
-
 function SubAdminDashboard() {
 
 
@@ -39,12 +38,9 @@ function SubAdminDashboard() {
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
   const [profileModelShow, setProfileModelShow] = useState(false)
-
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
+  const { requisitionApprovalData } = useContext(GetApprovalDataContext)
 
-  const {requisitionApprovalData} = useContext(GetApprovalDataContext)
-
-  console.log(requisitionApprovalData)
 
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -54,44 +50,6 @@ function SubAdminDashboard() {
       year: "numeric"
     });
   }
-
-  useEffect(() => {
-    if (requisitionInformation && requisitionInformation.length > 0) {
-      setRequests(reverseTransform(requisitionInformation));
-    }
-  }, [requisitionInformation]);
-
-  const handleEdit = (row) => {
-    setUpdateRequisitionData(row);
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        if (!loginInformation?.empID) return;
-
-        const result = await fetchRequisitionsApprovalsByEmpID(loginInformation.empID);
-
-        setTableData(result || []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    loadData();
-  }, [loginInformation?.empID, loading]);
-
-  const mergeStatus = (oldData, newData) => {
-    return oldData.map((item) => {
-      const match = newData.find(
-        (n) => n.requisitionID === item.id
-      );
-
-      return match
-        ? { ...item, status: match.status }
-        : item;
-    });
-  };
 
   const updateStatus = async (id, status) => {
     try {
@@ -105,18 +63,9 @@ function SubAdminDashboard() {
           previousStatus: status
         })
         setUpdateRequisitionId(id)
-        // const response = await axios.post(
-        //   `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdate`,
-        //   {
-        //     requisitionID: id,
-        //     nextEmpID: loginInformation?.irb,
-        //     empID: loginInformation?.empID,
-        //     previousStatus: status
-        //   }
-        // );
 
         try {
-          debugger
+          //debugger
           const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
 
           // Second API call directly here
@@ -134,20 +83,6 @@ function SubAdminDashboard() {
           console.error(error);
           toast.error("Something went wrong");
         }
-
-
-
-
-        // const updatedStatus = response.data?.data?.previousStatus;
-
-        // setTableData((prev) =>
-        //   prev.map((item) =>
-        //     item.id === id || item.requisitionID === id
-        //       ? { ...item, status: updatedStatus || status }
-        //       : item
-        //   )
-        // );
-
         toast.success("Update status successfully")
       }
 
@@ -158,16 +93,18 @@ function SubAdminDashboard() {
     }
   };
 
-  const updatedData = mergeStatus(requests, tableData);
+
+  console.log(requisitionApprovalData)
 
 
   // FILTER + SEARCH LOGIC
-  const filteredRequests = updatedData?.map((data) => ({ ...data })).filter((r) => {
-    const matchStatus = filter === "All" || r.status === filter;
-    const matchSearch =
-      r.name?.toLowerCase().includes(search.toLowerCase());
-    return matchStatus && matchSearch;
-  });
+  // const filterData = (data, filter) => {
+  //   if (filter === "All") return data;
+
+  //   return data.filter(item =>
+  //     item.requisitions?.[0]?.status?.toLowerCase() === filter.toLowerCase()
+  //   );
+  // };
 
 
   const tearClick = function () {
@@ -175,73 +112,66 @@ function SubAdminDashboard() {
   }
 
   const stats = [
-    { label: "Total", value: updatedData.length },
+    { label: "Total", value: requisitionApprovalData.length },
     {
       label: "Pending",
-      value: updatedData.filter((r) => r.status === "pending").length,
+      value: requisitionApprovalData.filter((r) => r.status === "pending").length,
     },
     {
       label: "Approved",
-      value: updatedData.filter((r) => r.status === "approved").length,
+      value: requisitionApprovalData.filter((r) => r.status === "approved").length,
     },
     {
       label: "Rejected",
-      value: updatedData.filter((r) => r.status === "rejected").length,
+      value: requisitionApprovalData.filter((r) => r.status === "rejected").length,
     },
   ];
 
-  const [stepperData, setStepperData]=useState();
+  const [stepperData, setStepperData] = useState();
 
 
 
-  const data = [
-    {
-      "stepType": "Requisition Created",
-      "requisitionId": "1b76491e-1b77-48aa-b1db-b16d1592d8cc",
-      "actionBy": "SURYA PRATAP SINGH",
-      "status": "pending",
-      "date": "2026-04-18T18:00:08.8602255"
-    },
-    {
-      "stepType": "Approval Step",
-      "requisitionId": "1b76491e-1b77-48aa-b1db-b16d1592d8cc",
-      "actionBy": "Mohammad  Haris",
-      "nextApprover": "Munjal Girishchandra Shroff",
-      "status": "approve",
-      "rawStatus": "pending",
-      "date": "2026-04-24T17:25:22.7265327"
-    },
-    {
-      "stepType": "Approval Step",
-      "requisitionId": "1b76491e-1b77-48aa-b1db-b16d1592d8cc",
-      "actionBy": "Munjal Girishchandra Shroff",
-      "nextApprover": "Anuj Kumar Singh",
-      "status": "cancelled",
-      "rawStatus": "rejected",
-      "date": "2026-04-25T10:47:32.9314097"
-    }
-  ]
-
+  // const filters = ["All", "pending", "approved", "rejected"];
 
   const filters = ["All", "pending", "approved", "rejected"];
 
+  const filterData = (data, activeFilter) => {
+    if (activeFilter === "All") return data;
+
+    return data.filter(item =>
+      item.status?.toLowerCase() === activeFilter.toLowerCase()
+    );
+  };
+
+
+  const result = filterData(requisitionApprovalData, filter);
   return (
     <div className="min-h-screen bg-gray-100 flex">
 
       {/* SIDEBAR */}
-      <aside className="w-64 bg-[#0f172a] text-white hidden md:flex flex-col">
+      <aside className="w-64 bg-[#3E0703] text-[#FFF0C4] hidden md:flex flex-col">
         <div className="p-5 text-xl font-light border-b border-gray-700 uppercase">
           SubAdmin Dashboard
         </div>
 
-        <nav className="flex-1 p-4 space-y-3 text-sm">
-          <div onClick={() => setProfileModelShow(!profileModelShow)} className={`flex items-center gap-2 hover:text-white cursor-pointer`}>
+        <nav className="flex justify-start flex-col p-4 space-y-3 text-sm">
+          <div onClick={() => setProfileModelShow(!profileModelShow)} className={`flex  px-4 py-2 items-center gap-2 hover:text-white cursor-pointer`}>
             <CgProfile /> <span className={`${profileModelShow ? "scale-110 text-purple-300 font-bold" : ""}`}>{!profileModelShow ? "Profile" : "Close Profile"}</span>
           </div>
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Your IRB Approvals</p>
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Your IRB Rejects</p>
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Settings</p>
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => { dispatch(logout()) }}>Logout</p>
+          {/* <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Approvals</p>
+          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Rejects</p> */}
+          <div className="flex flex-col items-start gap-3">
+
+            {/* <p className="hover:bg-gray-700 rounded px-4 py-2 cursor-pointer flex  justify-center items-center gap-2"><FaCheckDouble /> Final Approvals</p> */}
+            <p className="hover:bg-gray-700 rounded  px-4 py-2 cursor-pointer flex  justify-center items-center gap-2"><RiSettings5Fill /> Settings</p>
+            <p
+              className="hover:bg-gray-700 rounded  px-4 py-2 cursor-pointer flex justify-center items-center gap-2"
+              onClick={() => dispatch(logout())}
+            >
+              <RiLogoutCircleLine /> Logout
+            </p>
+
+          </div>
         </nav>
       </aside>
 
@@ -255,11 +185,10 @@ function SubAdminDashboard() {
           <main className="flex-1 flex flex-col">
 
             {/* TOP BAR */}
-            <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
+            <header className="bg-[#3E0703] text-[#FFF0C4] border-l-4 shadow px-6 py-4 flex justify-between items-center">
               <div className="flex flex-col justify-center items-center gap-3">
                 <h1 className="font-light uppercase text-3xl">Welcome, {loginInformation?.empName}</h1>
                 <span className="font-light uppercase text-sm">Location, {loginInformation?.companyLocation}</span>
-                <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Requisition Status</button>
               </div>
               <div className="flex items-center gap-3">
 
@@ -292,16 +221,18 @@ function SubAdminDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 className={`${show ? 'h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
+                  <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
+
                   <Stepper data={stepperData} />
 
                 </div> : ""}
               </motion.div>
             </div>
 
-            <div className="p-6">
-              <div className="bg-white p-4 rounded-lg my-4">
+            <div className="p-6 ">
+              <div className="text-[#000] p-4 rounded-lg my-4 bg-[#FFF0C4] border-x-8 border-[#3E0703]">
                 <h1 className="mb-4 font-light text-2xl ">
-                  Requisition Counts
+                  Requisition statistics
                 </h1>
                 {/* STATS */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -335,37 +266,37 @@ function SubAdminDashboard() {
                 </div>
               )}
 
-              {/* TABLE */}
+
               {/* TABLE */}
               <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
 
                 {/* HEADER */}
-                <div className="p-4 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+                <div className="p-4 border-b flex bg-[#3E0703] text-[#FFF0C4] flex-col md:flex-row md:justify-between md:items-center gap-3">
                   <h2 className="font-light text-xl md:text-2xl">
-                    Requisition Approvals
+                    Below show requisition, to wait your approvals
                   </h2>
                   <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
-                    Generate Report
+                    Download Excel
                   </button>
                 </div>
 
                 {/* SEARCH + FILTER */}
-                <div className="p-4 border-b flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                <div className="p-4 bg-[#3E0703] border-b flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
 
                   {/* SEARCH */}
-                  <input
+                  {/* <input
                     type="text"
                     placeholder="Search candidate name..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="border px-3 py-2 rounded w-full md:w-1/3"
-                  />
+                  /> */}
 
                   {/* FILTERS */}
-                  <div className="flex flex-wrap gap-2">
-                    {filters.map((f) => (
+                  <div className="flex flex-wrap gap-2 ">
+                    {filters.map((f, i) => (
                       <button
-                        key={f}
+                        key={i}
                         onClick={() => setFilter(f)}
                         className={`px-3 py-1 text-sm rounded-full border transition ${filter === f
                           ? "bg-pink-900 text-white border-pink-600"
@@ -379,9 +310,9 @@ function SubAdminDashboard() {
                 </div>
 
                 {/* ================= DESKTOP TABLE ================= */}
-                <div className="hidden md:block overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-gray-600">
+                <div className="hidden  md:block overflow-x-auto">
+                  <table className="w-full text-sm ">
+                    <thead className="bg-[#3E0703] text-[#FFF0C4]">
                       <tr>
                         <th className="p-3 text-center">RFQ Name</th>
                         <th className="p-3 text-center">Designation</th>
@@ -398,7 +329,7 @@ function SubAdminDashboard() {
                     </thead>
 
                     <tbody>
-                      {requisitionApprovalData.map((r, idx) => (
+                      {result.map((r, idx) => (
                         <tr key={idx} className="border-b hover:bg-gray-50 text-center">
 
                           <td className="p-3 font-medium">{r?.creator?.empName}</td>
@@ -505,8 +436,8 @@ function SubAdminDashboard() {
 
                 {/* ================= MOBILE CARD VIEW ================= */}
                 <div className="md:hidden p-4 space-y-4">
-                  {filteredRequests.map((r, idx) => (
-                    <div key={r.id} className="border rounded-lg p-4 shadow-sm bg-white">
+                  {requisitionApprovalData.map((r, idx) => (
+                    <div key={idx} className="border rounded-lg p-4 shadow-sm bg-white">
 
                       {/* NAME + ROLE */}
                       <div className="flex justify-between items-start">
@@ -530,41 +461,78 @@ function SubAdminDashboard() {
                       <div className="mt-5 grid grid-cols-2 gap-2">
 
                         <button
-                          disabled={loading}
-                          onClick={() => updateStatus(r.id, "approved")}
-                          className={`${loading ? "bg-green-600 text-white text-xs py-2 rounded" : "bg-gray-200 text-slate-500"}`}
+                          onClick={() => updateStatus(r?.requisitionID, "approved")}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
                         >
-                          Approve
+                          Approve {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
                         </button>
 
                         <button
-                          onClick={() => updateStatus(r.id, "rejected")}
-                          className="bg-red-600 text-white text-xs py-2 rounded"
+                          onClick={() => updateStatus(r?.requisitionID, "rejected")}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
-                          Reject
+                          Reject {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
                         </button>
 
                         <button
-                          onClick={() => { updateStatus(r.id, "modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
-                          className="bg-yellow-600 text-white text-xs py-2 rounded"
+                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
                         >
-                          Modify
+                          Modify {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
                         </button>
 
                         <button
-                          onClick={() => { /*updateStatus(r.id, "view");*/ setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
-                          className="bg-blue-600 text-white text-xs py-2 rounded"
+
+                          onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
+                          className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                         >
                           Show
                         </button>
 
-                      </div>
+                        <button
 
+                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                          className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                        >
+                          Track
+                        </button>
+                      </div>
                     </div>
                   ))}
-
                 </div>
-
               </div>
             </div>
           </main>)}

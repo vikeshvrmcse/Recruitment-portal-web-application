@@ -52,7 +52,7 @@ function TLDashboard() {
     const [activeFilter, setActiveFilter] = useState("all");
 
     const filteredRequests = requisitionApproveStatus?.map((data) => ({ ...data, name: loginInformation?.empName, designation: loginInformation?.designation })).filter(
-        (item) => item?.requisitionDetails?.status === activeFilter
+        (item) => (item.requisitionDetails.status || item.status) === activeFilter
     );
 
     console.log("dfsafd", requisitionApproveStatus)
@@ -183,7 +183,7 @@ function TLDashboard() {
 
                                 <Stepper data={stepperData} />
                                 <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
-                                    <h2 className="text-xl font-bold">
+                                    {/* <h2 className="text-xl font-bold">
                                         {"Dummy Title"}
                                     </h2>
                                     <p className="text-sm text-gray-500">
@@ -194,7 +194,7 @@ function TLDashboard() {
                                         <span className="font-semibold capitalize">
                                             {"Dummy Status"}
                                         </span>
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div> : ""}
                         </motion.div>
@@ -332,10 +332,10 @@ function TLDashboard() {
                                             <span className="text-gray-500">Requisition Status</span>
                                             <span
                                                 className={`text-xs px-1 py-1 rounded-full flex items-center gap-1 capitalize ${statusStyles[item.status] || "bg-gray-100 text-gray-600"}`}>
-                                                {item.requisitionDetails?.status === "approved" && <FaCheckCircle />}
-                                                {item.requisitionDetails?.status === "pending" && <FaClock />}
-                                                {item.requisitionDetails?.status === "rejected" && <FaTimesCircle />}
-                                                {item.requisitionDetails?.status}
+                                                {(item.requisitionDetails.status || item.status) === "approved" && <FaCheckCircle />}
+                                                {(item.requisitionDetails.status || item.status) === "pending" && <FaClock />}
+                                                {(item.requisitionDetails.status || item.status) === "rejected" && <FaTimesCircle />}
+                                                {(item.requisitionDetails.status || item.status)}
                                             </span>
                                         </div>
 

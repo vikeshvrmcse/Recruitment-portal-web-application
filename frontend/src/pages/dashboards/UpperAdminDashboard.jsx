@@ -5,7 +5,7 @@ import NotificationBell from "../../utils/NotificationBell";
 import { motion } from "framer-motion";
 import Stepper from "../../utils/Stepper";
 import JobModel from "../../modals/JobModal";
-import { UpdateRequisitionContext, EmployeeLoginContext } from "../../context/TestContext";
+import { UpdateRequisitionContext, EmployeeLoginContext, GetApprovalDataContext } from "../../context/TestContext";
 import { reverseTransform } from '../../utils/dataFormatter'
 
 import EmployeeModal from "../../modals/EmployeeModal";
@@ -20,7 +20,9 @@ import { toast } from "react-toastify";
 import { current } from "@reduxjs/toolkit";
 import ProfileModal from "../../modals/ProfileModal";
 import { CgProfile } from "react-icons/cg";
-// import { Hairball, HairballPreset } from 'react-loader-spinner/dist/beta';
+import { FaCheckDouble } from "react-icons/fa";
+import { RiLogoutCircleLine, RiSettings5Fill } from "react-icons/ri";
+
 const API_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL
 
 
@@ -43,8 +45,11 @@ function UpperAdminDashboard() {
   const [requisitionNextStatusUpdateTableData, setRequisitionNextStatusUpdateTableData] = useState([])
   const [profileModelShow, setProfileModelShow] = useState(false)
 
-
+  const [stepperData, setStepperData] = useState([])
+  const { requisitionApprovalData } = useContext(GetApprovalDataContext)
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
+
+
 
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -55,44 +60,6 @@ function UpperAdminDashboard() {
     });
   }
 
-  useEffect(() => {
-    if (requisitionInformation && requisitionInformation.length > 0) {
-      setRequests(reverseTransform(requisitionInformation));
-    }
-  }, [loginInformation, requisitionInformation]);
-
-  const handleEdit = (row) => {
-    setUpdateRequisitionData(row);
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        if (!loginInformation?.empID) return;
-
-        const result = await fetchRequisitionsApprovalsByEmpID(loginInformation.empID);
-
-        setTableData(result || []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    loadData();
-  }, [loginInformation?.empID, loading]);
-
-  const mergeStatus = (oldData, newData) => {
-    return oldData.map((item) => {
-      const match = newData.find(
-        (n) => n.requisitionID === item.id
-      );
-
-      return match
-        ? { ...item, previousStatus: match.status }
-        : item;
-    });
-  };
-
 
 
   const updateStatus = async (id, status) => {
@@ -100,15 +67,7 @@ function UpperAdminDashboard() {
       setLoading(true);
       if (id !== '') {
         setUpdateRequisitionId(id)
-        const response = await axios.post(
-          `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdate`,
-          {
-            requisitionID: id,
-            nextEmpID: loginInformation?.irb,
-            empID: loginInformation?.empID,
-            previousStatus: status
-          }
-        );
+
 
         try {
           // debugger
@@ -129,17 +88,6 @@ function UpperAdminDashboard() {
           console.error(error);
           toast.error("Something went wrong");
         }
-        const updatedStatus = response.data?.data?.previousStatus;
-
-        setTableData((prev) =>
-          prev.map((item) =>
-            item.id === id || item.requisitionID === id
-              ? { ...item, previousStatus: updatedStatus || status }
-              : item
-          )
-        );
-
-        toast.success("Update status successfully")
 
       }
 
@@ -153,94 +101,93 @@ function UpperAdminDashboard() {
 
 
 
-  const updateStatusWithNext = async (id, previous, status) => {
-    try {
-      setLoadingId(id);
+  // const updateStatusWithNext = async (id, previous, status) => {
+  //   try {
+  //     setLoadingId(id);
 
-      const response = await axios.post(
-        `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdateWithNextUpdator`,
-        {
-          requisitionID: id,
-          nextEmpID: loginInformation?.irb,
-          empID: loginInformation?.empID,
-          previousStatus: previous,
-          currentStatus: status
-        }
-      );
+  //     const response = await axios.post(
+  //       `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdateWithNextUpdator`,
+  //       {
+  //         requisitionID: id,
+  //         nextEmpID: loginInformation?.irb,
+  //         empID: loginInformation?.empID,
+  //         previousStatus: previous,
+  //         currentStatus: status
+  //       }
+  //     );
 
-      try {
-        // debugger
-        const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
+  //     try {
+  //       // debugger
+  //       const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
 
-        // Second API call directly here
-        await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
-          empID: loginInformation?.irb,
-          requisitionID: id,
-          stepOrder: 3,
-          status: "pending",
-          remarks: "Everything OK",
-        });
+  //       // Second API call directly here
+  //       await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
+  //         empID: loginInformation?.irb,
+  //         requisitionID: id,
+  //         stepOrder: 3,
+  //         status: "pending",
+  //         remarks: "Everything OK",
+  //       });
 
-        toast.success(responseNew?.data.message);
+  //       toast.success(responseNew?.data.message);
 
-      } catch (error) {
-        console.error(error);
-        toast.error("Something went wrong");
-      }
+  //     } catch (error) {
+  //       console.error(error);
+  //       toast.error("Something went wrong");
+  //     }
 
 
-      setRequisitionStatusUpdateInformation((prev) =>
-        prev.map((item) =>
-          item.requisitionID === id
-            ? {
-              ...item,
-              currentStatus: status,
-              previousStatus: previous
-            }
-            : item
-        )
-      );
+  //     setRequisitionStatusUpdateInformation((prev) =>
+  //       prev.map((item) =>
+  //         item.requisitionID === id
+  //           ? {
+  //             ...item,
+  //             currentStatus: status,
+  //             previousStatus: previous
+  //           }
+  //           : item
+  //       )
+  //     );
 
-      toast.success("Update status successfully");
+  //     toast.success("Update status successfully");
 
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    } finally {
-      setLoadingId(null);
-    }
-  };
+  //   } catch (error) {
+  //     toast.error(error.message || "Something went wrong");
+  //   } finally {
+  //     setLoadingId(null);
+  //   }
+  // };
 
-  const updatedData = mergeStatus(requests, tableData);
 
   // FILTER + SEARCH LOGIC
-  const filteredRequests = updatedData
-    ?.map(data => ({
-      ...data,
-      previousStatus: data.previousStatus === undefined ? data.status : data.previousStatus
-    }))
-    .filter((r) => {
-      const matchStatus = filter === "All" || r.previousStatus === filter;
-      const matchSearch = r.name?.toLowerCase().includes(search.toLowerCase());
-      return matchStatus && matchSearch;
-    });
+  // const filteredRequests = updatedData
+  //   ?.map(data => ({
+  //     ...data,
+  //     previousStatus: data.previousStatus === undefined ? data.status : data.previousStatus
+  //   }))
+  //   .filter((r) => {
+  //     const matchStatus = filter === "All" || r.previousStatus === filter;
+  //     const matchSearch = r.name?.toLowerCase().includes(search.toLowerCase());
+  //     return matchStatus && matchSearch;
+  //   });
 
   const tearClick = function () {
     setShow(!show);
   }
 
   const stats = [
-    { label: "Total", value: updatedData.length },
+    { label: "Total", value: requisitionApprovalData.length },
     {
       label: "Pending",
-      value: updatedData.filter((r) => r.previousStatus === "pending").length,
+      value: requisitionApprovalData.filter((r) => r.status === "pending").length,
     },
     {
       label: "Approved",
-      value: updatedData.filter((r) => r.previousStatus === "approved").length,
+      value: requisitionApprovalData.filter((r) => r.status === "approved").length,
     },
     {
       label: "Rejected",
-      value: updatedData.filter((r) => r.previousStatus === "rejected").length,
+      value: requisitionApprovalData.filter((r) => r.status === "rejected").length,
     },
   ];
 
@@ -248,22 +195,49 @@ function UpperAdminDashboard() {
 
   const filters = ["All", "pending", "approved", "rejected"];
 
+  const filterData = (data, activeFilter) => {
+    if (activeFilter === "All") return data;
+
+    return data.filter(item =>
+      item.status?.toLowerCase() === activeFilter.toLowerCase()
+    );
+  };
+
+
+  const result = filterData(requisitionApprovalData, filter);
+
   return (
     <div className="min-h-screen bg-gray-100 flex">
 
       {/* SIDEBAR */}
-      <aside className="w-64 bg-[#0f172a] text-white hidden md:flex flex-col">
+      <aside className="w-64 bg-[#3E0703] text-[#FFF0C4]  hidden md:flex flex-col">
         <div className="p-5 text-xl font-light border-b border-gray-700 uppercase">
           Upper Admin Dashboard
         </div>
 
-        <nav className="flex-1 p-4 space-y-3 text-sm">
-          <div onClick={() => setProfileModelShow(!profileModelShow)} className={`flex items-center gap-2 hover:text-white cursor-pointer`}>
-            <CgProfile /> <span className={`${profileModelShow ? "scale-110 text-purple-300 font-bold" : ""}`}>{!profileModelShow ? "Profile" : "Close Profile"}</span>
+        <nav className="flex justify-start flex-col p-4 space-y-3 text-lg">
+          <div
+            onClick={() => setProfileModelShow(!profileModelShow)}
+            className="flex  px-4 py-2 items-center gap-2 hover:text-white cursor-pointer"
+          >
+            <CgProfile />
+            <span className={`${profileModelShow ? "scale-110 text-purple-300 font-bold" : ""}`}>
+              {!profileModelShow ? "Profile" : "Close Profile"}
+            </span>
           </div>
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Approvals</p>
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer">Settings</p>
-          <p className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => { dispatch(logout()) }}>Logout</p>
+
+          <div className="flex flex-col items-start gap-3">
+
+            <p className="hover:bg-gray-700 rounded px-4 py-2 cursor-pointer flex  justify-center items-center gap-2"><FaCheckDouble /> Final Approvals</p>
+            <p className="hover:bg-gray-700 rounded  px-4 py-2 cursor-pointer flex  justify-center items-center gap-2"><RiSettings5Fill /> Settings</p>
+            <p
+              className="hover:bg-gray-700 rounded  px-4 py-2 cursor-pointer flex justify-center items-center gap-2"
+              onClick={() => dispatch(logout())}
+            >
+              <RiLogoutCircleLine /> Logout
+            </p>
+
+          </div>
         </nav>
       </aside>
 
@@ -278,11 +252,10 @@ function UpperAdminDashboard() {
           <main className="flex-1 flex flex-col">
 
             {/* TOP BAR */}
-            <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
+            <header className="bg-[#3E0703] text-[#FFF0C4] border-l-4 shadow px-6 py-4 flex justify-between items-center">
               <div className="flex flex-col justify-center items-center gap-3">
                 <h1 className="font-light uppercase text-3xl">Welcome, {loginInformation?.empName}</h1>
                 <span className="font-light uppercase text-sm">Location, {loginInformation?.companyLocation}</span>
-                <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Requisition Status</button>
               </div>
               <div className="flex items-center gap-3">
 
@@ -316,30 +289,18 @@ function UpperAdminDashboard() {
                 className={`${show ? 'h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
 
+                <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
 
-                  <Stepper steps={requisition.steps} />
-                  <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
-                    <h2 className="text-xl font-bold">
-                      {requisition.title}
-                    </h2>
-                    <p className="text-sm text-gray-500">
-                      Created by: {requisition.createdBy}
-                    </p>
-                    <p className="text-sm mt-2">
-                      Status:{" "}
-                      <span className="font-semibold capitalize">
-                        {requisition.status}
-                      </span>
-                    </p>
-                  </div>
+                  <Stepper data={stepperData} />
+
                 </div> : ""}
               </motion.div>
             </div>
 
             <div className="p-6">
-              <div className="bg-white p-4 rounded-lg my-4">
+              <div className="text-[#3E0703] bg-[#FFF0C4] border-x-8 border-[#3E0703] p-4 rounded-lg my-4">
                 <h1 className="mb-4 font-light text-2xl ">
-                  Requisition Counts
+                  Requisition Statistics
                 </h1>
                 {/* STATS */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -373,49 +334,15 @@ function UpperAdminDashboard() {
                 </div>
               )}
 
-              {/* TABLE */}
-              {/* <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
 
-                {/* HEADER */}
-                  {/* <div className="p-4 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-                    <h2 className="font-light text-xl md:text-2xl">
-                      Head1 Type Requisition Approvals
-                    </h2>
-                    <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
-                      Generate Report
-                    </button>
-                  </div> */}
 
-                {/* TABLE */}
-                {/* ================= DESKTOP TABLE ================= */}
-                {/* <div className="hidden md:block overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-gray-600">
-                      <tr>
-                        <th className="p-3 text-center">RFQ Name</th>
-                        <th className="p-3 text-center">Designation</th>
-                        <th className="p-3 text-center">Department</th>
-                        <th className="p-3 text-center">Profile(Job Title) </th>
-                        <th className="p-3 text-center">Date of RFQ </th>
-                        <th className="p-3 text-center">Date of Deadline</th>
-                        <th className="p-3 text-center">Status</th>
-                        <th className="p-3 text-center">Action</th>
-                        <th className="p-3 text-center">Modification</th>
-                        <th className="p-3 text-center">View</th>
-                      </tr>
-                    </thead>
-
-                    
-                  </table>
-                </div>
-              </div> */}
               {/* TABLE */}
               <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
 
                 {/* HEADER */}
-                <div className="p-4 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+                <div className="p-4 bg-[#3E0703] text-[#FFF0C4] border-b flex flex-col md:flex-row md:justify-between md:items-center gap-3">
                   <h2 className="font-light text-xl md:text-2xl">
-                    Head2 Type Requisition Approvals
+                    All requisitions to approving for you
                   </h2>
                   <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
                     Generate Report
@@ -423,22 +350,22 @@ function UpperAdminDashboard() {
                 </div>
 
                 {/* SEARCH + FILTER */}
-                <div className="p-4 border-b flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                <div className="p-4 bg-[#3E0703] border-b flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
 
                   {/* SEARCH */}
-                  <input
+                  {/* <input
                     type="text"
                     placeholder="Search candidate name..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="border px-3 py-2 rounded w-full md:w-1/3"
-                  />
+                  /> */}
 
                   {/* FILTERS */}
                   <div className="flex flex-wrap gap-2">
-                    {filters.map((f) => (
+                    {filters.map((f, idx) => (
                       <button
-                        key={f}
+                        key={idx}
                         onClick={() => setFilter(f)}
                         className={`px-3 py-1 text-sm rounded-full border transition ${filter === f
                           ? "bg-pink-900 text-white border-pink-600"
@@ -455,7 +382,7 @@ function UpperAdminDashboard() {
                 {/* ================= DESKTOP TABLE ================= */}
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-sm text-center">
-                    <thead className="bg-gray-50 text-gray-600">
+                    <thead className="bg-[#3E0703] text-[#FFF0C4]">
                       <tr>
                         <th className="p-3 text-center">RFQ Name</th>
                         <th className="p-3 text-center">Designation</th>
@@ -464,157 +391,43 @@ function UpperAdminDashboard() {
                         <th className="p-3 text-center">Date of RFQ </th>
                         <th className="p-3 text-center">Date of Deadline</th>
                         <th className="p-3 text-center">Previous Status</th>
-                        {/* <th className="p-3 text-center">Current Status</th> */}
+
                         <th className="p-3 text-center">Action</th>
                         <th className="p-3 text-center">Modification</th>
                         <th className="p-3 text-center">View</th>
+                        <th className="p-3 text-center">Track Requisition</th>
                       </tr>
                     </thead>
 
-                    <tbody>
-                      {requisitionStatusUpdateInformation.map((r, idx) => {
-
-
-                        const status = r.currentStatus?.toLowerCase() || "pending";
-                        const isDisabled = status !== "pending";
-
-                        return (
-                          <tr key={idx}>
-
-                            <td className="p-3 font-medium">{r?.createdByName}</td>
-                            <td className="p-3 font-medium">{r?.designation}</td>
-                            <td className="p-3 text-gray-600">{r?.department}</td>
-                            <td className="p-3 text-gray-600">{r?.jobTitle}</td>
-                            <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
-                            <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
-
-                            {/* Previous Status */}
-                            {/* <td className="p-3 text-center">
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
-                                ? "bg-green-100 text-green-700"
-                                : r.previousStatus === "rejected"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                                }`}>
-                                {r.previousStatus}
-                              </span>
-
-                              <div>
-                                <span className="font-extralight mt-3 text-[8px] text-white bg-gray-800 rounded-lg p-1">
-                                  {r.approverName}
-                                </span>
-                              </div>
-                            </td> */}
-
-                            {/* Current Status */}
-                            <td className="p-3">
-                              <span className={`text-xs px-2 py-1 rounded font-medium ${status === "approved"
-                                ? "bg-green-100 text-green-700"
-                                : status === "rejected"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                                }`}>
-                                {status === "approved"
-                                  ? "Approved"
-                                  : status === "rejected"
-                                    ? "Rejected"
-                                    : "Pending"}
-                              </span>
-                            </td>
-
-                            {/* Actions */}
-                            <td className="p-3 flex flex-col gap-2 items-center">
-
-                              {/* Buttons */}
-                              <div className="flex gap-2">
-
-                                <button
-                                  onClick={() => updateStatusWithNext(r.requisitionID, r.previousStatus, "approved")}
-                                  disabled={isDisabled}
-                                  className={`text-xs px-2 py-1 rounded ${isDisabled
-                                    ? "bg-gray-200 text-slate-500 cursor-not-allowed"
-                                    : "bg-green-600 text-white"
-                                    }`}
-                                >
-                                  Approve
-                                  {loadingId === r.requisitionID && <FidgetSpinner height="20" width="20" />}
-                                </button>
-
-                                <button
-                                  onClick={() => updateStatusWithNext(r.requisitionID, r.previousStatus, "rejected")}
-                                  disabled={isDisabled}
-                                  className={`text-xs px-2 py-1 rounded ${isDisabled
-                                    ? "bg-gray-200 text-slate-500 cursor-not-allowed"
-                                    : "bg-red-600 text-white"
-                                    }`}
-                                >
-                                  Reject
-                                  {loadingId === r.requisitionID && <FidgetSpinner height="20" width="20" />}
-                                </button>
-
-                              </div>
-                            </td>
-
-                            {/* Modify */}
-                            <td className="p-3">
-                              <button
-                                onClick={() => { setOpen(true); handleEdit(r) }}
-                                className={`text-xs px-2 py-1 rounded ${status !== "pending"
-                                  ? "bg-gray-200 text-slate-500"
-                                  : "bg-orange-600 text-white"
-                                  }`}
-                                disabled={status !== "pending"}
-                              >
-                                Modify
-                              </button>
-                            </td>
-
-                            {/* Show */}
-                            <td className="p-3">
-                              <button
-                                onClick={() => {
-                                  setShowModelOpen(true);
-                                  setUpdateRequisitionData(r);
-                                }}
-                                className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
-                              >
-                                Show
-                              </button>
-                            </td>
-
-                          </tr>
-                        );
-                      })}
-                    </tbody>
 
                     <tbody>
-                      {filteredRequests.map((r, idx) => (
-                        <tr key={idx} className="border-b hover:bg-gray-50">
+                      {result.map((r, idx) => (
+                        <tr key={idx} className="border-b hover:bg-gray-50 text-center">
 
-                          <td className="p-3 font-medium">{r?.name}</td>
-                          <td className="p-3 font-medium">{r?.designation}</td>
-                          <td className="p-3 text-gray-600">{r?.department}</td>
-                          <td className="p-3 text-gray-600">{r?.jobTitle}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.createdAt)}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.deadline)}</td>
+                          <td className="p-3 font-medium">{r?.creator?.empName}</td>
+                          <td className="p-3 font-medium">{r?.creator?.designation}</td>
+                          <td className="p-3 text-gray-600">{r?.creator?.dept}</td>
+                          <td className="p-3 text-gray-600">{r?.requisitionDetails?.jobTitle}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.createdAt?.split("T")[0])}</td>
+                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.deadline?.split("T")[0])}</td>
 
                           <td className="p-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.previousStatus === "approved"
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "approved"
                               ? "bg-green-100 text-green-700"
-                              : r.previousStatus === "rejected"
+                              : r.status === "rejected"
                                 ? "bg-red-100 text-red-700"
                                 : "bg-yellow-100 text-yellow-700"
                               }`}>
-                              {r.previousStatus}
+                              {r.status}
                             </span>
                           </td>
 
 
                           <td className="p-3 flex gap-2 justify-center mt-5">
                             <button
-                              onClick={() => updateStatus(r.id, "approved")}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                              onClick={() => updateStatus(r?.requisitionID, "approved")}
+                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved'}
                             >
                               Approve {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -630,9 +443,9 @@ function UpperAdminDashboard() {
                             </button>
 
                             <button
-                              onClick={() => updateStatus(r.id, "rejected")}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                              onClick={() => updateStatus(r?.requisitionID, "rejected")}
+                              disabled={r.status === 'rejected' || r.status === 'approved'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                             >
                               Reject {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -650,9 +463,9 @@ function UpperAdminDashboard() {
 
                           <td className="p-3">
                             <button
-                              onClick={() => { setOpen(true); handleEdit(filteredRequests[idx]) }}
-                              className={`${r.previousStatus === 'rejected' || r.previousStatus === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.previousStatus === 'rejected' || r.previousStatus === 'approved'}
+                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
+                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved'}
                             >
                               Modify {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -671,10 +484,19 @@ function UpperAdminDashboard() {
                           <td className="p-3">
                             <button
 
-                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
+                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
                               className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                             >
                               Show
+                            </button>
+                          </td>
+                          <td className="p-3">
+                            <button
+
+                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                              className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                            >
+                              Track
                             </button>
                           </td>
 
@@ -686,8 +508,8 @@ function UpperAdminDashboard() {
 
                 {/* ================= MOBILE CARD VIEW ================= */}
                 <div className="md:hidden p-4 space-y-4">
-                  {filteredRequests.map((r, idx) => (
-                    <div key={r.id} className="border rounded-lg p-4 shadow-sm bg-white">
+                  {result.map((r, idx) => (
+                    <div key={idx} className="border rounded-lg p-4 shadow-sm bg-white">
 
                       {/* NAME + ROLE */}
                       <div className="flex justify-between items-start">
@@ -711,39 +533,77 @@ function UpperAdminDashboard() {
                       <div className="mt-5 grid grid-cols-2 gap-2">
 
                         <button
-                          disabled={loading}
-                          onClick={() => updateStatus(r.id, "approved")}
-                          className={`${loading ? "bg-green-600 text-white text-xs py-2 rounded" : "bg-gray-200 text-slate-500"}`}
+                          onClick={() => updateStatus(r?.requisitionID, "approved")}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
                         >
-                          Approve
+                          Approve {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
                         </button>
 
                         <button
-                          onClick={() => updateStatus(r.id, "rejected")}
-                          className="bg-red-600 text-white text-xs py-2 rounded"
+                          onClick={() => updateStatus(r?.requisitionID, "rejected")}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
-                          Reject
+                          Reject {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
                         </button>
 
                         <button
-                          onClick={() => { updateStatus(r.id, "modify"); setOpen(true); handleEdit(filteredRequests[idx]) }}
-                          className="bg-yellow-600 text-white text-xs py-2 rounded"
+                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
+                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved'}
                         >
-                          Modify
+                          Modify {loading ? <FidgetSpinner
+                            preset='rainbow'
+                            visible={true}
+                            height="20"
+                            width="20"
+                            radius="40"
+                            color="#4fa94d"
+                            ariaLabel="watch-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                          /> : ""}
                         </button>
 
                         <button
-                          onClick={() => { updateStatus(r.id, "view"); setShowModelOpen(true); setUpdateRequisitionData(filteredRequests[idx]) }}
-                          className="bg-blue-600 text-white text-xs py-2 rounded"
+
+                          onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
+                          className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
                         >
                           Show
                         </button>
 
-                      </div>
+                        <button
 
+                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                          className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                        >
+                          Track
+                        </button>
+                      </div>
                     </div>
                   ))}
-
                 </div>
 
               </div>
