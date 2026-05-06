@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import pioneer_logo from "../../../assets/pioneer-logo.png";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { EmployeeLoginContext } from "../../../context/TestContext";
+import { EmployeeLoginContext, GetApprovalDataContext } from "../../../context/TestContext";
 import axios from "axios";
 const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 import { useDispatch } from "react-redux";
@@ -17,6 +17,7 @@ import { fetchRequisitionsApprovalsByEmpID } from "../../../utils/FetchApprovedD
 
 function Login() {
   const { setLoginInformation, setRequisitionInformation } = useContext(EmployeeLoginContext)
+  const {refetch, setRequisitionApprovalData}=useContext(GetApprovalDataContext)
   const {
     register,
     handleSubmit,
@@ -54,12 +55,13 @@ function Login() {
 
       localStorage.clear();
       setLoginInformation([])
+      setRequisitionApprovalData([])
       localStorage.setItem("auth", JSON.stringify(user));
 
       // Redux
       dispatch(loginSuccess(user));
       toast.success(user?.message || "Login successful");
-      await fetchRequisitionsApprovalsByEmpID(user.empID);
+      await refetch();
       reset();
 
     } catch (error) {

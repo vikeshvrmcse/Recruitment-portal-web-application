@@ -27,7 +27,7 @@ function AdminDashboard() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("dashboard");
-
+  const [isCreateRequisition, setIsCreateRequisition] = useState(false);
 
 
   const approvedMenuItems = [
@@ -205,8 +205,12 @@ function AdminDashboard() {
             {activeMenu}
           </h1>
 
-          <div className="text-sm text-gray-200 hidden sm:block">
-            {loginInformation?.empName}
+
+
+          <div className="text-sm md:flex justify-center items-center gap-2 text-gray-200 hidden sm:block">
+            <div className="p-3 bg-black shadow-sm mt-3 shadow-white rounded-md cursor-default">{loginInformation?.empName}</div>
+            <button onClick={() => setIsCreateRequisition(true)} className="mt-3 text-xl font-light bg-green-900 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
+
           </div>
         </header>
 
@@ -230,6 +234,14 @@ function AdminDashboard() {
           </div>
 
         </main> */}
+
+        {isCreateRequisition && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+            <div className="w-full max-w-5xl">
+              <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
+            </div>
+          </div>
+        )}
 
         <main className="p-6 overflow-y-auto">
           {activeMenu === "Required Your Approvals" && <RequiredApprovals />}
@@ -550,7 +562,7 @@ function RequiredApprovals() {
   const [showModalOpen, setShowModelOpen] = useState(false)
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const { loginInformation, requisitionStatusUpdateInformation, setRequisitionStatusUpdateInformation, requisitionInformation } = useContext(EmployeeLoginContext)
+  const { loginInformation} = useContext(EmployeeLoginContext)
   const [tableData, setTableData] = useState([])
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
@@ -560,7 +572,7 @@ function RequiredApprovals() {
 
   const { requisitionApprovalData } = useContext(GetApprovalDataContext)
 
-  const [stepperData, setStepperData] = useState([])
+  const [stepperData, setStepperData] = useState('')
 
   const [showApprovalData, setShowApprovalData] = useState(null)
 
@@ -576,26 +588,36 @@ function RequiredApprovals() {
     });
   }
 
+ 
 
 
- const updateStatus = async (id, status) => {
+  const updateStatus = async (id, status) => {
     try {
       setLoading(true);
 
       if (id !== '') {
-       
+
         setUpdateRequisitionId(id)
 
         try {
           //debugger
           const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
 
+          console.log(responseNew.data)
+
+          console.log({
+            empID: loginInformation?.irb,
+            requisitionID: id,
+            stepOrder: responseNew.data?.stepOrder,
+            status: "pending",
+            remarks: "Everything OK",
+          })
           // Second API call directly here
           await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
             empID: loginInformation?.irb,
             requisitionID: id,
-            stepOrder: 3,
-            status: "pending",
+            stepOrder: responseNew.data?.stepOrder + 1,
+            status: "done",
             remarks: "Everything OK",
           });
 
@@ -605,7 +627,6 @@ function RequiredApprovals() {
           console.error(error);
           toast.error("Something went wrong");
         }
-        toast.success("Update status successfully")
       }
 
     } catch (error) {
@@ -648,7 +669,6 @@ function RequiredApprovals() {
     );
   };
 
-
   const result = filterData(requisitionApprovalData, filter);
 
   return (
@@ -670,9 +690,10 @@ function RequiredApprovals() {
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`${show ? 'h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
+                className={`${show ? 'h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
 
+                  <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
 
                   <Stepper data={stepperData} />
                   <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
@@ -712,6 +733,7 @@ function RequiredApprovals() {
                 </div>
               </div>
 
+              
               {open && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                   <div className="w-full max-w-5xl">
@@ -739,7 +761,7 @@ function RequiredApprovals() {
                     Final approval for you
                   </h2>
                   <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
-                    Generate Report
+                    Generate Excel
                   </button>
                 </div>
 
@@ -874,7 +896,7 @@ function RequiredApprovals() {
                           <td className="p-3">
                             <button
 
-                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
                               className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
                             >
                               Track
@@ -980,7 +1002,7 @@ function RequiredApprovals() {
 
                         <button
 
-                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData.requisitionID) }}
                           className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
                         >
                           Track

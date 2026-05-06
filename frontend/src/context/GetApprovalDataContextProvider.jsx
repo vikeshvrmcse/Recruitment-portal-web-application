@@ -9,6 +9,8 @@ function GetApprovalDataContextProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const storedUser = localStorage.getItem("auth");
+  const user = JSON.parse(storedUser);
+
   const fetchAllRequisitionApprovalData = async () => {
 
     const user = JSON.parse(storedUser);
@@ -17,7 +19,7 @@ function GetApprovalDataContextProvider({ children }) {
       setError(null);
 
       const res = await axios.get(
-        `${APP_BACKEND_URL}/Requisition/GetRequisitionByIRBFromImprove/${user?.empID}`
+        `${APP_BACKEND_URL}/SubAdminAproval/GetRequisitionByIRBFromImprove/${user?.empID}`
       );
 
       setRequisitionApprovalData(res.data);
@@ -29,9 +31,10 @@ function GetApprovalDataContextProvider({ children }) {
     }
   };
 
+
   useEffect(() => {
     fetchAllRequisitionApprovalData();
-  }, []);
+  }, [user?.empID, requisitionApprovalData.length]);
 
   return (
     <GetApprovalDataContext.Provider

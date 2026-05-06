@@ -37,6 +37,7 @@ function SubAdminDashboard() {
   const [tableData, setTableData] = useState([])
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
+  const [isCreateRequisition, setIsCreateRequisition] = useState(false);
   const [profileModelShow, setProfileModelShow] = useState(false)
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
   const { requisitionApprovalData } = useContext(GetApprovalDataContext)
@@ -72,7 +73,7 @@ function SubAdminDashboard() {
           await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
             empID: loginInformation?.irb,
             requisitionID: id,
-            stepOrder: 2,
+            stepOrder: responseNew.data?.stepOrder + 1,
             status: "pending",
             remarks: "Everything OK",
           });
@@ -83,7 +84,6 @@ function SubAdminDashboard() {
           console.error(error);
           toast.error("Something went wrong");
         }
-        toast.success("Update status successfully")
       }
 
     } catch (error) {
@@ -92,19 +92,6 @@ function SubAdminDashboard() {
       setLoading(false);
     }
   };
-
-
-  console.log(requisitionApprovalData)
-
-
-  // FILTER + SEARCH LOGIC
-  // const filterData = (data, filter) => {
-  //   if (filter === "All") return data;
-
-  //   return data.filter(item =>
-  //     item.requisitions?.[0]?.status?.toLowerCase() === filter.toLowerCase()
-  //   );
-  // };
 
 
   const tearClick = function () {
@@ -127,11 +114,9 @@ function SubAdminDashboard() {
     },
   ];
 
-  const [stepperData, setStepperData] = useState();
+  const [stepperData, setStepperData] = useState('');
 
 
-
-  // const filters = ["All", "pending", "approved", "rejected"];
 
   const filters = ["All", "pending", "approved", "rejected"];
 
@@ -209,6 +194,7 @@ function SubAdminDashboard() {
                     data={selected}
                     onClose={() => setSelected(null)}
                   />
+                  <button onClick={() => setIsCreateRequisition(true)} className="mt-3 text-xl font-light bg-green-900 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
 
                 </div>
               </div>
@@ -219,7 +205,7 @@ function SubAdminDashboard() {
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`${show ? 'h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
+                className={`${show ? 'h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
                   <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
 
@@ -247,6 +233,14 @@ function SubAdminDashboard() {
                   ))}
                 </div>
               </div>
+
+              {isCreateRequisition && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                  <div className="w-full max-w-5xl">
+                    <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
+                  </div>
+                </div>
+              )}
 
               {open && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
@@ -354,8 +348,8 @@ function SubAdminDashboard() {
                           <td className="p-3 flex gap-2 justify-center mt-5">
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "approved")}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
                             >
                               Approve {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -372,8 +366,8 @@ function SubAdminDashboard() {
 
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                             >
                               Reject {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -392,8 +386,8 @@ function SubAdminDashboard() {
                           <td className="p-3">
                             <button
                               onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
                             >
                               Modify {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -421,7 +415,7 @@ function SubAdminDashboard() {
                           <td className="p-3">
                             <button
 
-                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
                               className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
                             >
                               Track
@@ -462,8 +456,8 @@ function SubAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created' }
                         >
                           Approve {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -480,8 +474,8 @@ function SubAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created' }
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created'  ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
                           Reject {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -498,8 +492,8 @@ function SubAdminDashboard() {
 
                         <button
                           onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved'  || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created' }
                         >
                           Modify {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -524,7 +518,7 @@ function SubAdminDashboard() {
 
                         <button
 
-                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
                           className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
                         >
                           Track

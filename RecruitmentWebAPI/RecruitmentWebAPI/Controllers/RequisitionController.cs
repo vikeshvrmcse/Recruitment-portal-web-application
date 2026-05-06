@@ -228,56 +228,6 @@ namespace RecruitmentWebAPI.Controllers
         {
 
 
-            //var data = await (
-            //    from req in _context.Requisitions
-
-            //    join app in _context.RequisitionVerifierModels
-            //        on req.Id equals app.RequisitionID into gj
-            //    from subApp in gj.DefaultIfEmpty()
-
-            //    join emp in _context.EmployeeDetails
-            //        on subApp.EmpID equals emp.EmpID into empJoin
-            //    from verifier in empJoin.DefaultIfEmpty()
-
-            //    where req.EmpID == id
-
-            //    select new
-            //    {
-            //        //Requisition fields
-            //        Id = req.Id,
-            //        CreatedAt = req.CreatedAt,
-            //        JobTitle = req.JobTitle,
-            //        RequisitionReason = req.RequisitionReason,
-            //        Requirements = req.Requirements,
-            //        RequisitionDepartment = req.Department,
-            //        HighestQualification = req.HighestQualification,
-            //        JobType = req.JobType,
-            //        Department = req.Department,
-            //        Location = req.Location,
-            //        Description = req.Description,
-            //        Skills = req.Skills,
-            //        year_of_experience = req.YearOfExperience,
-            //        EmpID = req.EmpID,
-            //        Deadline = req.Deadline,
-            //        Vacancy = req.Vacancy,
-            //        YearOfExperience = req.YearOfExperience,
-
-            //        Status = subApp != null ? subApp.Status : "pending",
-
-
-            //        VerifiedBy = (verifier != null && verifier.Level == "L1" && verifier.AccessLevel==4)
-            //                        ? verifier.EmpName
-            //                        : null,
-
-
-            //        VerifiedAt = subApp != null
-            //                        ? subApp.CreatedAt
-            //                        : (DateTime?)null
-            //    }
-            //).ToListAsync();
-
-            //var fetchIRB = await (from dt in _context.EmployeeDetails where dt.EmpID == id select dt).FirstAsync();
-
             var datas = await (from req in _context.Requisitions
                                where req.EmpID == id
                                select new
@@ -306,12 +256,12 @@ namespace RecruitmentWebAPI.Controllers
                                        
                                        
                                    },
-                                       Status = (
+                                       Status = 
                                            (from rvm in _context.RequisitionVerifierModels join emp in _context.EmployeeDetails on rvm.EmpID equals emp.EmpID
                                             where req.Id == rvm.RequisitionID
                                             select rvm.Status)
                                            .FirstOrDefault()
-                                       ) == "pending" ? "pending" : "approved",
+                                       ,
 
                                    Verifier = (
                                            (from emp in _context.EmployeeDetails
@@ -330,22 +280,22 @@ namespace RecruitmentWebAPI.Controllers
                                             select emp)
                                            .FirstOrDefault()
                                        ),
-                                   Requisitions = (
-                                           (from x in _context.RequisitionVerifierModels
-                                            join n in _context.EmployeeDetails
-                                            on x.EmpID equals n.EmpID
-                                            where req.Id == x.RequisitionID
-                                            orderby x.StepOrder
-                                            select new
-                                            {
-                                                x.Status,
-                                                x.CreatedAt,
-                                                x.EmpID,
-                                                x.StepOrder,
-                                                x.UpdatedAt,
-                                                x.ActionDate,
-                                                n.EmpName
-                                            }).ToList())
+                                   //Requisitions = (
+                                   //        (from x in _context.RequisitionVerifierModels
+                                   //         join n in _context.EmployeeDetails
+                                   //         on x.EmpID equals n.EmpID
+                                   //         where req.Id == x.RequisitionID
+                                   //         orderby x.StepOrder
+                                   //         select new
+                                   //         {
+                                   //             x.Status,
+                                   //             x.CreatedAt,
+                                   //             x.EmpID,
+                                   //             x.StepOrder,
+                                   //             x.UpdatedAt,
+                                   //             x.ActionDate,
+                                   //             n.EmpName
+                                   //         }).ToList())
 
 
                                }).ToListAsync();

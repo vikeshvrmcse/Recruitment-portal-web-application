@@ -43,7 +43,11 @@ function SubAdminDashboard() {
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
   const [showSidebar, setShowSidebar] = useState(false);
   const { requisitionApprovalData } = useContext(GetApprovalDataContext)
-  const [stepperData, setStepperData] = useState();
+  const [stepperData, setStepperData] = useState('');
+  const [isCreateRequisition, setIsCreateRequisition] = useState(false);
+  const [showFinalDataComponent, setShowFinalDataComponent] = useState(false)
+  const [activeTab, setActiveTab] = useState('dashboard')
+  const [finalApprovalData, setFinalApprovalData] = useState([])
 
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -70,7 +74,7 @@ function SubAdminDashboard() {
           await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
             empID: loginInformation?.irb,
             requisitionID: id,
-            stepOrder: 2,
+            stepOrder: responseNew.data?.stepOrder + 1,
             status: "pending",
             remarks: "Everything OK",
           });
@@ -81,9 +85,6 @@ function SubAdminDashboard() {
           console.error(error);
           toast.error("Something went wrong");
         }
-
-
-        toast.success("Update status successfully")
       }
 
     } catch (error) {
@@ -93,10 +94,28 @@ function SubAdminDashboard() {
     }
   };
 
+
+  useEffect(() => {
+    const fetch = async () => {
+
+      try {
+        const response = await axios.get(`${API_BACKEND_URL}/FinalApproval`)
+        console.log(response?.data.data)
+        setFinalApprovalData(response.data?.data)
+      } catch (error) {
+        console.log(error.data.message)
+      }
+    }
+    fetch()
+  }, [loginInformation?.empID])
+
+
   const tearClick = function () {
     setShow(!show);
   }
 
+
+  console.log(finalApprovalData)
 
   const stats = [
     { label: "Total", value: requisitionApprovalData.length },
@@ -147,19 +166,30 @@ function SubAdminDashboard() {
         </div>
 
         <nav className="flex justify-start flex-col p-4 space-y-3 text-lg">
+
           <div
-            onClick={() => setProfileModelShow(!profileModelShow)}
+            onClick={() => setActiveTab("dashboard")}
             className="flex  px-4 py-2 items-center gap-2 hover:text-white cursor-pointer"
           >
             <CgProfile />
-            <span className={`${profileModelShow ? "scale-110 text-purple-300 font-bold" : ""}`}>
-              {!profileModelShow ? "Profile" : "Close Profile"}
+            <span className={`${activeTab === 'dashboard' ? "scale-110 text-purple-300 font-bold" : ""}`}>
+              {activeTab === 'dashboard' ? "Dashboard" : "Close Dashboard"}
+            </span>
+          </div>
+
+          <div
+            onClick={() => setActiveTab('profile')}
+            className="flex  px-4 py-2 items-center gap-2 hover:text-white cursor-pointer"
+          >
+            <CgProfile />
+            <span className={`${activeTab === 'profile' ? "scale-110 text-purple-300 font-bold" : ""}`}>
+              {activeTab === 'profile' ? "Profile" : "Close Profile"}
             </span>
           </div>
 
           <div className="flex flex-col items-start gap-3">
 
-            <p className="hover:bg-gray-700 rounded px-4 py-2 cursor-pointer flex  justify-center items-center gap-2"><FaCheckDouble /> Final Approvals</p>
+            <p className="hover:bg-gray-700 rounded px-4 py-2 cursor-pointer flex  justify-center items-center gap-2" onClick={() => setActiveTab('final')}><FaCheckDouble /> Final Approvals</p>
             <p className="hover:bg-gray-700 rounded  px-4 py-2 cursor-pointer flex  justify-center items-center gap-2"><RiSettings5Fill /> Settings</p>
             <p
               className="hover:bg-gray-700 rounded  px-4 py-2 cursor-pointer flex justify-center items-center gap-2"
@@ -172,12 +202,16 @@ function SubAdminDashboard() {
         </nav>
       </aside>
 
-      <div className={`${profileModelShow ? "w-full" : ""}`}>
-        {profileModelShow && (<ProfileModal employeeData={loginInformation} />)}
+      <div className={`${activeTab === 'profile' ? "w-full" : ""}`}>
+        {activeTab === 'profile' && (<ProfileModal employeeData={loginInformation} />)}
+
+        {activeTab === 'final' && (<FinalApprovalModal finalData={finalApprovalData} />)}
       </div>
+
+
       {/* MAIN */}
-      <div className={`${!profileModelShow ? "w-full" : ""}`}>
-        {!profileModelShow && (
+      <div className={`${activeTab === 'dashboard' ? "w-full" : ""}`}>
+        {activeTab === 'dashboard' && (
           <main className="flex-1 flex flex-col">
 
             {/* TOP BAR */}
@@ -205,6 +239,7 @@ function SubAdminDashboard() {
                     data={selected}
                     onClose={() => setSelected(null)}
                   />
+                  <button onClick={() => setIsCreateRequisition(true)} className="mt-3 text-xl font-light bg-green-900 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
 
                 </div>
               </div>
@@ -215,7 +250,7 @@ function SubAdminDashboard() {
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`${show ? 'h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
+                className={`${show ? 'h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
                   <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
                   <Stepper data={stepperData} />
@@ -244,6 +279,14 @@ function SubAdminDashboard() {
                   ))}
                 </div>
               </div>
+
+              {isCreateRequisition && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                  <div className="w-full max-w-5xl">
+                    <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
+                  </div>
+                </div>
+              )}
 
               {open && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
@@ -351,8 +394,8 @@ function SubAdminDashboard() {
                           <td className="p-3 flex gap-2 justify-center mt-5">
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "approved")}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                             >
                               Approve {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -369,8 +412,8 @@ function SubAdminDashboard() {
 
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                             >
                               Reject {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -389,8 +432,8 @@ function SubAdminDashboard() {
                           <td className="p-3">
                             <button
                               onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                             >
                               Modify {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -418,7 +461,7 @@ function SubAdminDashboard() {
                           <td className="p-3">
                             <button
 
-                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
                               className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
                             >
                               Track
@@ -459,8 +502,8 @@ function SubAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                         >
                           Approve {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -477,8 +520,8 @@ function SubAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
                           Reject {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -495,8 +538,8 @@ function SubAdminDashboard() {
 
                         <button
                           onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                         >
                           Modify {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -521,7 +564,7 @@ function SubAdminDashboard() {
 
                         <button
 
-                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
                           className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
                         >
                           Track
@@ -540,6 +583,94 @@ function SubAdminDashboard() {
       </div>
     </div>
   );
+}
+
+const FinalApprovalModal = ({ finalData = [] }) => {
+  const [selectedHR, setSelectedHR] = useState("HR1");
+  return  (<div className="p-6 bg-gray-100 min-h-screen">
+
+    {/* FILTER BUTTONS */}
+
+
+    {/* CARD GRID */}
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {finalData?.map((item, index) => {
+
+        const created = new Date(item.createdAt).toLocaleString("en-IN", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        });
+
+        const updated = new Date(item.updatedAt).toLocaleString("en-IN", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        });
+
+        return (
+          <div
+            key={index}
+            className="bg-white rounded-2xl shadow-lg p-5 border-l-4 border-purple-700  transition-all duration-300"
+          >
+            {/* HEADER */}
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-semibold text-gray-800">
+                {item.creatorName}
+              </h2>
+              <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-semibold">
+                {item.status && item.status[0].toUpperCase()+item.status.substring(1)}
+              </span>
+            </div>
+
+            {/* BODY */}
+            <div className="space-y-2 text-sm text-gray-600">
+
+              <p>
+                <span className="font-semibold text-gray-800">Approved By:</span>{" "}
+                {item.verifierName}
+              </p>
+
+              <p>
+                <span className="font-semibold text-gray-800">Created:</span>{" "}
+                {created}
+              </p>
+
+              <p>
+                <span className="font-semibold text-gray-800">Updated:</span>{" "}
+                {updated}
+              </p>
+
+            </div>
+
+            {/* FOOTER */}
+            <div className="mt-4 flex justify-between items-center">
+              <button className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                View
+              </button>
+
+              <button className="text-xs px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700">
+                Track
+              </button>
+            </div>
+            <div className="flex gap-4 mb-6 justify-center m-4">
+              {["HR1", "HR2", "HR3"].map((hr, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedHR(hr)}
+                  className={`px-5 py-2 rounded-full shadow-md transition-all duration-300 ${selectedHR === hr
+                      ? "bg-purple-700 text-white scale-105"
+                      : "bg-white text-gray-700 hover:bg-purple-100"}`}
+                >
+                  {hr}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+    </div>
+  </div>)
 }
 
 export default SubAdminDashboard;

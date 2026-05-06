@@ -1,34 +1,59 @@
-import React from "react";
+import axios from "axios";
+import { useScroll } from "framer-motion";
+import React, { useEffect, useState } from "react";
 
+const API_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL
 const getStatusStyle = (status) => {
   switch (status) {
+    case "created":
+      return {
+        dot: "bg-blue-600 border-4 border-dotted  animate-spin",
+        badge: "bg-blue-500",
+      };
     case "pending":
       return {
-        dot: "bg-orange-600  animate-spin",
-        badge: "bg-green-500",
+        dot: "bg-orange-600 border-4 border-dotted  animate-spin",
+        badge: "bg-orange-500",
       };
     case "approved":
       return {
-        dot: "bg-green-500 animate-spin",
+        dot: "bg-green-500 border-4 border-dotted animate-spin",
         badge: "bg-green-500",
       };
     case "rejected":
       return {
-        dot: "bg-red-500  animate-spin",
+        dot: "bg-red-500 border-4 border-dotted animate-spin",
         badge: "bg-red-500",
       };
     default:
       return {
-        dot: "bg-gray-400  animate-spin",
+        dot: "bg-gray-400 border-4 border-dotted animate-spin",
         badge: "bg-gray-400",
       };
   }
 };
 
-const Stepper = ({ data = [] }) => {
+const Stepper = ({ data }) => {
+
+
+  const [trdata, setData] = useState([]);
+  useEffect(() => {
+    const fetch = async () => {
+      const value = '61d2310e-44e2-43d7-8362-7ed08aea6fe8'
+      try {
+        const response = await axios.get(`${API_BACKEND_URL}/SubAdminAproval/employee-requisition-chain/${data}`)
+        setData(response.data)
+      } catch (error) {
+        console.log(error.message)
+      }
+    }
+
+    fetch()
+  }, [data])
+
   return (
     <div className="w-full max-w-3xl mx-auto p-4">
-      
+
       <h2 className="text-xl font-bold mb-6 text-gray-800">
         Requisition Tracking
       </h2>
@@ -36,61 +61,95 @@ const Stepper = ({ data = [] }) => {
       {/* Timeline line */}
       <div className="relative border-l-2 border-gray-300 ml-4">
 
-        {data.length === 0 ? (
+        {trdata.length === 0 ? (
           <p className="text-gray-500 ml-6">No steps available</p>
         ) : (
-          data.map((step, index) => {
-            const styles = getStatusStyle(step.status);
+          trdata.map((step, index) => {
+            const styles = getStatusStyle(step?.status);
 
             return (
-              <div key={step.id || index} className="mb-8 ml-6 relative">
+              <div key={index} className="">
+                <div key={index} className="mb-8 ml-6 relative">
 
-                {/* Dot */}
-                <span
-                  className={`absolute -left-[38px] flex items-center justify-center w-6 h-6 rounded-full ${styles.dot}`}
-                />
+                  {/* Dot */}
 
-                {/* Card */}
-                <div className="bg-white shadow-md rounded-lg p-4 border hover:shadow-lg transition">
+                  <span
+                    className={`absolute -left-[38px] flex items-center justify-center w-6 h-6 rounded-full ${styles.dot}`}
+                  />
 
-                  {/* Header */}
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-800">
-                      Step {step.stepOrder || "Unknown Step"}
-                    </h3>
+                  {/* Card */}
+                  <div className="bg-white shadow-md rounded-lg p-4 border hover:shadow-lg transition">
 
-                    <span
-                      className={`text-xs px-2 py-1 rounded text-white ${styles.badge}`}
-                    >
-                      {step.status || "unknown"}
-                    </span>
-                  </div>
+                    {/* Header */}
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-semibold text-gray-800">
+                        Step {step?.stepOrder || "Unknown Step"}
+                      </h3>
 
-                  {/* Body */}
-                  <div className="mt-2 space-y-1">
-                    <p className="text-sm text-gray-600">
-                      <strong>{step.status!=='approved'?"Now Pending":"Approved By:"}</strong>{" "}
-                      {step.status!=='approved'?"":step.empName  || "N/A"}
+                      <span
+                        className={`text-xs px-2 py-1 rounded text-white ${styles.badge}`}
+                      >
+                        {step.status && `${step.status[0].toUpperCase() + step.status.substring(1).toLowerCase()}` || "unknown"}
+                      </span>
+                    </div>
+
+                    {/* Body */}
+                    <div className="mt-2 space-y-1">
+                      <p className="text-sm text-gray-600">
+                        <strong className="text-md touch-pan-up">{step.status && (step.status !== 'approved' ? `Now ${step.status[0].toUpperCase() + step.status.substring(1).toLowerCase()}` : "Approved By:")}</strong>{" "}
+                        {step?.status !== 'approved' ? "" : step?.empName || "N/A"}
+                      </p>
+
+                      {step.nextApprover && (
+                        <p className="text-sm text-gray-600">
+                          <strong>Next Approver:</strong>{" "}
+                          {step?.nextApprover}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Date */}
+                    <p className="text-xs text-gray-400 mt-3">
+                      {step.updatedAt?.split("T")[0]
+                        ? new Date(step.updatedAt?.split("T")[0]).toLocaleString()
+                        : "No date"}
                     </p>
 
-                    {step.nextApprover && (
-                      <p className="text-sm text-gray-600">
-                        <strong>Next Approver:</strong>{" "}
-                        {step.nextApprover}
-                      </p>
-                    )}
                   </div>
-
-                  {/* Date */}
-                  <p className="text-xs text-gray-400 mt-3">
-                    {step.updatedAt.split("T")[0]
-                      ? new Date(step.updatedAt.split("T")[0]).toLocaleString()
-                      : "No date"}
-                  </p>
-
                 </div>
-              </div>
-            );
+
+                {(step.irb === 'PMA0001' && step.status === 'approved') && <div key={step.status} className="mb-8 ml-6 relative">
+
+                  {/* Dot */}
+
+                  <span
+                    className={`absolute -left-[38px] flex items-center justify-center w-6 h-6 rounded-full ${styles.dot}`}
+                  />
+
+                  {/* Card */}
+                  <div className="bg-white shadow-md rounded-lg p-4 border hover:shadow-lg transition">
+
+                    {/* Header */}
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-semibold text-gray-800">
+                        Step {step?.stepOrder + 1 || "Unknown Step"}
+                      </h3>
+
+                      {/* <span
+                        className={`text-xs px-2 py-1 rounded text-white ${styles.badge}`}
+                      >
+                        {step.status && `${step.status[0].toUpperCase() + step.status.substring(1).toLowerCase()}` || "unknown"}
+                      </span> */}
+                    </div>
+
+                    {/* Body */}
+                    <div className="mt-2 space-y-1">
+                      Done
+                    </div>
+
+                  </div>
+                </div>}
+              </div>);
           })
         )}
 

@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using RecruitmentWebAPI.Data;
 using RecruitmentWebAPI.Models;
+using System;
 
 namespace RecruitmentWebAPI.Controllers
 {
@@ -590,7 +592,7 @@ namespace RecruitmentWebAPI.Controllers
             var isFirst = !await _context.RequisitionVerifierModels
                 .AnyAsync(x => x.RequisitionID == model.RequisitionID);
 
-            model.Status = isFirst ? "pending" : "pending";
+            //model.Status = isFirst ? "created" : "pending";
 
             _context.RequisitionVerifierModels.Add(model);
             await _context.SaveChangesAsync();
@@ -657,7 +659,7 @@ namespace RecruitmentWebAPI.Controllers
             return Ok(new
             {
                 message = "Approved successfully",
-                stepOrder = next?.StepOrder
+                stepOrder = current?.StepOrder
             });
         }
 
@@ -874,5 +876,320 @@ namespace RecruitmentWebAPI.Controllers
 
             return Ok(result);
         }
+
+
+        [HttpGet("employee-chain/{empId}")]
+        public async Task<IActionResult> GetEmployeeChain(string empId)
+        {
+            var result = new List<object>();
+            var visited = new HashSet<string>(); // prevent infinite loop
+
+            var currentEmpId = empId;
+            int level = 1;
+            string chainPath = "";
+
+            while (!string.IsNullOrEmpty(currentEmpId) && !visited.Contains(currentEmpId))
+            {
+                var emp = await _context.EmployeeDetails
+                    .Where(e => e.EmpID == currentEmpId)
+                    .Select(e => new { e.EmpID, e.IRB })
+                    .FirstOrDefaultAsync();
+
+                if (emp == null)
+                    break;
+
+                visited.Add(emp.EmpID);
+
+                chainPath = string.IsNullOrEmpty(chainPath)
+                    ? emp.EmpID
+                    : chainPath + " -> " + emp.EmpID;
+
+                result.Add(new
+                {
+                    EmpID = emp.EmpID,
+                    IRB = emp.IRB,
+                    ChainPath = chainPath,
+                    LevelFDD = level
+                });
+
+                currentEmpId = emp.IRB; // move to next
+                level++;
+            }
+
+            return Ok(result);
+        }
+
+
+        [HttpGet("GetRequisitionByIRBFromImprove/{irb}")]
+        public async Task<IActionResult> GetRequisitionByIRBFromImprove(string irb)
+        {
+            // -------------------------------
+            // 1. BUILD IRB CHAIN
+            // -------------------------------
+            var chain = new List<string>();
+            var visited = new HashSet<string>();
+
+            var current = irb;
+
+            while (!string.IsNullOrEmpty(current) && visited.Add(current))
+            {
+                chain.Add(current);
+
+                current = await _context.EmployeeDetails
+                    .Where(x => x.EmpID == current)
+                    .Select(x => x.IRB)
+                    .FirstOrDefaultAsync();
+            }
+
+            // -------------------------------
+            // 2. LOAD EMPLOYEE CACHE
+            // -------------------------------
+            var employeeMap = await _context.EmployeeDetails
+                .ToDictionaryAsync(x => x.EmpID, x => new
+                {
+                    x.EmpName,
+                    x.Designation,
+                    x.Dept
+                });
+
+            // -------------------------------
+            // 3. GET BASE DATA (ONLY DB)
+            // -------------------------------
+            var baseData = await (
+     from a in _context.RequisitionVerifierModels
+     join e in _context.EmployeeDetails on a.EmpID equals e.EmpID
+     join r in _context.Requisitions on a.RequisitionID equals r.Id
+     where a.EmpID == irb
+
+     join c in _context.EmployeeDetails
+         on r.EmpID equals c.EmpID
+
+     select new
+     {
+         a.RequisitionID,
+         a.EmpID,
+         a.Status,
+         a.CreatedAt,
+
+         EmpName = e.EmpName,
+
+         Creator = new
+         {
+             c.EmpName,
+             c.Designation,
+             c.Dept
+         },
+
+         RequisitionDetails = new
+         {
+             r.CreatedAt,
+             r.Deadline,
+             r.JobTitle,
+             r.Skills,
+             r.ExperienceLevel,
+             r.Description,
+             r.Department,
+             r.ReqType,
+             r.JobType,
+             r.HighestQualification,
+             r.RequisitionReason,
+             r.Requirements,
+             r.Location,
+             r.YearOfExperience,
+             r.Vacancy
+         }
+     }).ToListAsync();
+
+            // -------------------------------
+            // 4. LOAD VERIFIER DATA
+            // -------------------------------
+            var reqIds = baseData.Select(x => x.RequisitionID).ToList();
+
+            var verifiers = await _context.RequisitionVerifierModels
+                .Where(x => reqIds.Contains(x.RequisitionID))
+                .ToListAsync();
+
+            var verifierMap = verifiers
+                .ToDictionary(x => (x.RequisitionID, x.EmpID), x => x);
+
+            // -------------------------------
+            // 5. FINAL RESPONSE (C# SIDE LOGIC)
+            // -------------------------------
+            var result = baseData.Select(a => new
+            {
+                a.RequisitionID,
+                a.EmpID,
+                a.Status,
+                a.CreatedAt,
+                a.EmpName,
+                a.RequisitionDetails,
+
+                Creator = a.Creator,
+
+                Requisitions = chain.Select((emp, index) =>
+                {
+                    verifierMap.TryGetValue((a.RequisitionID, emp), out var record);
+
+                    employeeMap.TryGetValue(emp, out var empInfo);
+
+                    return new
+                    {
+                        EmpID = emp,
+                        EmpName = empInfo?.EmpName,
+
+                        Status = record?.Status==null ? "Pending" : record.Status,
+                        CreatedAt = record?.CreatedAt,
+                        UpdatedAt = record?.UpdatedAt,
+                        ActionDate = record?.ActionDate,
+
+                        StepOrder = index
+                    };
+                }).ToList()
+            }).ToList();
+
+            return Ok(result);
+        }
+
+        [HttpGet("GetRequisitionChain/{empId}")]
+        public async Task<IActionResult> GetRequisitionChain(string empId)
+        {
+            // -------------------------------
+            // 1. Build IRB chain (workflow path)
+            // -------------------------------
+            var chain = new List<string>();
+            var visited = new HashSet<string>();
+            var current = empId;
+
+            while (!string.IsNullOrEmpty(current) && visited.Add(current))
+            {
+                chain.Add(current);
+
+                current = await _context.EmployeeDetails
+                    .Where(x => x.EmpID == current)
+                    .Select(x => x.IRB)
+                    .FirstOrDefaultAsync();
+            }
+
+            // -------------------------------
+            // 2. Load requisitions (minimal fields)
+            // -------------------------------
+            var requisitions = await _context.Requisitions
+                .Where(x => x.EmpID == empId)
+                .Select(r => new
+                {
+                    r.Id,
+                    r.JobTitle,
+                    r.Department
+                })
+                .ToListAsync();
+
+            var reqIds = requisitions.Select(r => r.Id).ToList();
+
+            // -------------------------------
+            // 3. Load verifier data only for these requisitions
+            // -------------------------------
+            var verifiers = await _context.RequisitionVerifierModels
+                .Where(v => reqIds.Contains(v.RequisitionID))
+                .ToListAsync();
+
+            // -------------------------------
+            // 4. Create fast lookup (RequisitionID + EmpID)
+            // -------------------------------
+            var verifierMap = verifiers.ToDictionary(
+                x => (x.RequisitionID, x.EmpID),
+                x => x
+            );
+
+            // -------------------------------
+            // 5. Build final workflow response
+            // -------------------------------
+            var result = new List<object>();
+
+            foreach (var req in requisitions)
+            {
+                var workflow = new List<object>();
+
+                for (int i = 0; i < chain.Count; i++)
+                {
+                    var emp = chain[i];
+
+                    verifierMap.TryGetValue((req.Id, emp), out var record);
+
+                    workflow.Add(new
+                    {
+                        EmpID = emp,
+                        Status = record?.Status ?? "Pending",
+                        CreatedAt = record?.CreatedAt,
+                        UpdatedAt = record?.UpdatedAt,
+                        ActionDate = record?.ActionDate,
+
+                        // AUTO STEP ORDER (0 → N)
+                        StepOrder = i
+                    });
+                }
+
+                result.Add(new
+                {
+                    RequisitionID = req.Id,
+                    req.JobTitle,
+                    req.Department,
+                    Workflow = workflow
+                });
+            }
+
+            return Ok(result);
+        }
+
+
+        [HttpGet("employee-requisition-chain/{reqId}")]
+        public async Task<IActionResult> GetEmployeerRequisitionChain(string reqId)
+        {
+            var reqData = await _context.Requisitions.Where(e=>e.Id==reqId).Select(x => new {x}).FirstOrDefaultAsync();
+            var result = new List<object>();
+            var visited = new HashSet<string>(); // prevent infinite loop
+
+
+            
+
+            var currentEmpId = reqData?.x?.EmpID;
+            int level = 1;
+            string chainPath = "";
+
+            while (!string.IsNullOrEmpty(currentEmpId) && !visited.Contains(currentEmpId))
+            {
+                var emp = await _context.EmployeeDetails
+                    .Where(e => e.EmpID == currentEmpId)
+                    .Select(e => new { e.EmpID, e.IRB, e.EmpName })
+                    .FirstOrDefaultAsync();
+
+                if (emp == null)
+                    break;
+
+                visited.Add(emp.EmpID);
+
+                chainPath = string.IsNullOrEmpty(chainPath)
+                    ? emp.EmpID
+                    : chainPath + " -> " + emp.EmpID;
+
+                var getApproveData = await _context.RequisitionVerifierModels.Where(x => x.EmpID == emp.EmpID && x.RequisitionID == reqId).Select(x => new { x }).FirstOrDefaultAsync();
+
+                result.Add(new
+                {
+                    EmpID = emp.EmpID,
+                    EmpName=emp.EmpName,
+                    IRB = emp.IRB,
+                    ChainPath = chainPath,
+                    StepOrder = level,
+                    Status = getApproveData?.x?.Status,
+                    UpdatedAt=getApproveData?.x?.UpdatedAt
+                });
+
+                currentEmpId = emp.IRB; // move to next
+                level++;
+            }
+
+            return Ok(result);
+        }
+
     }
 }

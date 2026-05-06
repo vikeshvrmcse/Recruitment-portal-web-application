@@ -8,7 +8,7 @@ import {
     FaCheckCircle,
     FaClock,
 } from "react-icons/fa";
-import { MdCancel } from "react-icons/md";
+import { MdCancel, MdCreateNewFolder } from "react-icons/md";
 import { MdPreview } from "react-icons/md";
 import JobModel from "../../modals/JobModal";
 import { CgProfile } from "react-icons/cg";
@@ -26,7 +26,7 @@ function TLDashboard() {
     const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
     const [showModalOpen, setShowModelOpen] = useState(false)
     const [profileModelShow, setProfileModelShow] = useState(false)
-    const [stepperData, setStepperData] = useState([])
+    const [stepperData, setStepperData] = useState('')
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
     const dispatch = useDispatch();
@@ -44,6 +44,7 @@ function TLDashboard() {
 
     const statusStyles = {
         all: "bg-green-100 text-green-600",
+        Created: "bg-blue-100 text-green-600",
         Approved: "bg-green-100 text-green-600",
         Pending: "bg-yellow-100 text-yellow-600",
         Cancel: "bg-red-100 text-red-600",
@@ -55,37 +56,7 @@ function TLDashboard() {
         (item) => (item.requisitionDetails.status || item.status) === activeFilter
     );
 
-    console.log("dfsafd", requisitionApproveStatus)
-    const requisition = {
-        id: 1,
-        title: "Purchase Laptop",
-        status: "review", // overall status
-        createdBy: "Rahul",
-        steps: [
-            {
-                id: 1,
-                name: "Rahul",
-                role: "Requester",
-                status: "confirmed",
-                date: "2026-04-10",
-            },
-            {
-                id: 2,
-                name: "Amit",
-                role: "Reviewer",
-                status: "review",
-                date: null,
-            },
-            {
-                id: 3,
-                name: "Sneha",
-                role: "Approver",
-                status: "pending",
-                date: null,
-            },
-        ],
-    };
-
+  
 
     const formatTimeAgo = (date) => {
         if (!date) return "-";
@@ -107,6 +78,8 @@ function TLDashboard() {
         return past.toLocaleDateString();
     };
 
+
+    console.log(requisitionApproveStatus)
 
 
     return (
@@ -157,7 +130,7 @@ function TLDashboard() {
                             <button onClick={() => setOpen(true)} className="text-xl font-light bg-green-100 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
                             {/* <button className="text-xl font-light bg-red-100 border-2 border-red-800 hover:border-red-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-red-700">- Resignation</button> */}
                             <button className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 hover:bg-white p-2  transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center"> Notification</button>
-                            <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center"> Requisition Status</button>
+                            {/* <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center"> Requisition Status</button> */}
                             {/* <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center"> Resignation Status</button> */}
                         </div>
                     </motion.div>
@@ -177,9 +150,10 @@ function TLDashboard() {
                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`${show ? 'w-full h-full  md:h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
+                            className={`${show ? 'w-full h-full  md:h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
                             {show ? <div className="p-6">
 
+                  <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
 
                                 <Stepper data={stepperData} />
                                 <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
@@ -332,6 +306,7 @@ function TLDashboard() {
                                             <span className="text-gray-500">Requisition Status</span>
                                             <span
                                                 className={`text-xs px-1 py-1 rounded-full flex items-center gap-1 capitalize ${statusStyles[item.status] || "bg-gray-100 text-gray-600"}`}>
+                                                {(item.requisitionDetails.status || item.status) === "created" && <MdCreateNewFolder  />}
                                                 {(item.requisitionDetails.status || item.status) === "approved" && <FaCheckCircle />}
                                                 {(item.requisitionDetails.status || item.status) === "pending" && <FaClock />}
                                                 {(item.requisitionDetails.status || item.status) === "rejected" && <FaTimesCircle />}
@@ -419,7 +394,7 @@ function TLDashboard() {
                                             Edit
                                         </button>
 
-                                        <button onClick={() => setStepperData(item.requisitions)} className="px-3 py-1 bg-black rounded-md hover:text-red-300 hover:shadow-red-500 transition-all">
+                                        <button onClick={() => {setShow(true);setStepperData(item?.requisitionDetails?.id)}} className="px-3 py-1 bg-black rounded-md hover:text-red-300 hover:shadow-red-500 transition-all">
                                             status
                                         </button>
 

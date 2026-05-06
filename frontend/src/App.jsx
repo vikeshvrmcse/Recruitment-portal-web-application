@@ -17,19 +17,19 @@ function App() {
       <Navbar />
       <TestContextProvider>
         <NotificationProvider>
-          <EmployeeLoginContextProvider>
-          <UpdateRequisitionContextProvider>
-            <GetAllEmployeeContextProvider>
-              <GetAllRequisitionContextProvider>
-                <GetApprovalDataContextProvider>
+          <GetApprovalDataContextProvider>
+            <EmployeeLoginContextProvider>
+              <UpdateRequisitionContextProvider>
+                <GetAllEmployeeContextProvider>
+                  <GetAllRequisitionContextProvider>
 
-                <ToastContainer />
-                <Outlet />
-                </GetApprovalDataContextProvider>
-              </GetAllRequisitionContextProvider>
-            </GetAllEmployeeContextProvider>
-          </UpdateRequisitionContextProvider>
-          </EmployeeLoginContextProvider>
+                    <ToastContainer />
+                    <Outlet />
+                  </GetAllRequisitionContextProvider>
+                </GetAllEmployeeContextProvider>
+              </UpdateRequisitionContextProvider>
+            </EmployeeLoginContextProvider>
+          </GetApprovalDataContextProvider>
         </NotificationProvider>
       </TestContextProvider>
       <Footer />

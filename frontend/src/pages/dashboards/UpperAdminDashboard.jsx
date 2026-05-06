@@ -37,15 +37,15 @@ function UpperAdminDashboard() {
   const [showModalOpen, setShowModelOpen] = useState(false)
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const { loginInformation, requisitionStatusUpdateInformation, setRequisitionStatusUpdateInformation, requisitionInformation } = useContext(EmployeeLoginContext)
+  const { loginInformation, requisitionInformation } = useContext(EmployeeLoginContext)
   const [tableData, setTableData] = useState([])
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
   const [loadingId, setLoadingId] = useState(null);
   const [requisitionNextStatusUpdateTableData, setRequisitionNextStatusUpdateTableData] = useState([])
   const [profileModelShow, setProfileModelShow] = useState(false)
-
-  const [stepperData, setStepperData] = useState([])
+const [isCreateRequisition, setIsCreateRequisition] = useState(false);
+  const [stepperData, setStepperData] = useState('')
   const { requisitionApprovalData } = useContext(GetApprovalDataContext)
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
 
@@ -77,7 +77,7 @@ function UpperAdminDashboard() {
           await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
             empID: loginInformation?.irb,
             requisitionID: id,
-            stepOrder: 2,
+            stepOrder: responseNew.data?.stepOrder+1,
             status: "pending",
             remarks: "Everything OK",
           });
@@ -88,7 +88,6 @@ function UpperAdminDashboard() {
           console.error(error);
           toast.error("Something went wrong");
         }
-
       }
 
     } catch (error) {
@@ -99,77 +98,8 @@ function UpperAdminDashboard() {
   };
 
 
+  console.log("adafdsa",requisitionApprovalData)
 
-
-  // const updateStatusWithNext = async (id, previous, status) => {
-  //   try {
-  //     setLoadingId(id);
-
-  //     const response = await axios.post(
-  //       `${API_BACKEND_URL}/SubAdminAproval/RequisitionStatusUpdateWithNextUpdator`,
-  //       {
-  //         requisitionID: id,
-  //         nextEmpID: loginInformation?.irb,
-  //         empID: loginInformation?.empID,
-  //         previousStatus: previous,
-  //         currentStatus: status
-  //       }
-  //     );
-
-  //     try {
-  //       // debugger
-  //       const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
-
-  //       // Second API call directly here
-  //       await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
-  //         empID: loginInformation?.irb,
-  //         requisitionID: id,
-  //         stepOrder: 3,
-  //         status: "pending",
-  //         remarks: "Everything OK",
-  //       });
-
-  //       toast.success(responseNew?.data.message);
-
-  //     } catch (error) {
-  //       console.error(error);
-  //       toast.error("Something went wrong");
-  //     }
-
-
-  //     setRequisitionStatusUpdateInformation((prev) =>
-  //       prev.map((item) =>
-  //         item.requisitionID === id
-  //           ? {
-  //             ...item,
-  //             currentStatus: status,
-  //             previousStatus: previous
-  //           }
-  //           : item
-  //       )
-  //     );
-
-  //     toast.success("Update status successfully");
-
-  //   } catch (error) {
-  //     toast.error(error.message || "Something went wrong");
-  //   } finally {
-  //     setLoadingId(null);
-  //   }
-  // };
-
-
-  // FILTER + SEARCH LOGIC
-  // const filteredRequests = updatedData
-  //   ?.map(data => ({
-  //     ...data,
-  //     previousStatus: data.previousStatus === undefined ? data.status : data.previousStatus
-  //   }))
-  //   .filter((r) => {
-  //     const matchStatus = filter === "All" || r.previousStatus === filter;
-  //     const matchSearch = r.name?.toLowerCase().includes(search.toLowerCase());
-  //     return matchStatus && matchSearch;
-  //   });
 
   const tearClick = function () {
     setShow(!show);
@@ -276,6 +206,7 @@ function UpperAdminDashboard() {
                     data={selected}
                     onClose={() => setSelected(null)}
                   />
+                  <button onClick={() => setIsCreateRequisition(true)} className="mt-3 text-xl font-light bg-green-900 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
 
                 </div>
               </div>
@@ -286,7 +217,7 @@ function UpperAdminDashboard() {
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`${show ? 'h-full mt-2 bg-green-100 rounded-lg border-2 border-green-900' : ''}`}>
+                className={`${show ? 'h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
 
                 <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
@@ -315,6 +246,14 @@ function UpperAdminDashboard() {
                   ))}
                 </div>
               </div>
+
+              {isCreateRequisition && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                  <div className="w-full max-w-5xl">
+                    <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
+                  </div>
+                </div>
+              )}
 
               {open && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
@@ -493,7 +432,7 @@ function UpperAdminDashboard() {
                           <td className="p-3">
                             <button
 
-                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
                               className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
                             >
                               Track
@@ -534,8 +473,8 @@ function UpperAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
                         >
                           Approve {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -552,8 +491,8 @@ function UpperAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
                           Reject {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -570,8 +509,8 @@ function UpperAdminDashboard() {
 
                         <button
                           onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
                         >
                           Modify {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -596,7 +535,7 @@ function UpperAdminDashboard() {
 
                         <button
 
-                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitions) }}
+                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
                           className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
                         >
                           Track

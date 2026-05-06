@@ -100,7 +100,15 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       updatedData.highestQualification = otherHighestQualification;
     }
 
-    const finalData = {
+    
+
+
+    // console.log(finalData)
+    try {
+      setLoading(true);
+
+      if (operationMode === "update") {
+        const finalData = {
       ...updatedData,
       empID:
         loginInformation?.level === "L1"
@@ -109,13 +117,6 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       status: "pending",
       createdAt: new Date(),
     };
-
-
-    console.log(finalData)
-    try {
-      setLoading(true);
-
-      if (operationMode === "update") {
         await axios.put(differentOperationUrl, {
           id: requisitionId,
           ...finalData
@@ -125,6 +126,12 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       }
 
       if (operationMode === 'create') {
+        const finalData = {
+      ...updatedData,
+      empID:loginInformation?.empID,
+      status: "pending",
+      createdAt: new Date(),
+    };
         try {
           const requisitionResponse = await axios.post(differentOperationUrl, finalData);
 
@@ -132,6 +139,13 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
           setCreatingReqStatus(requisitionResponse?.data);
 
           // Second API call directly here
+          await axios.post(`${APP_BACKEND_URL}/SubAdminAproval/create`, {
+            empID: loginInformation?.empID,
+            requisitionID: requisitionResponse.data?.data?.id,
+            stepOrder: 0,
+            status: "created",
+            remarks: "Everything OK",
+          });
           await axios.post(`${APP_BACKEND_URL}/SubAdminAproval/create`, {
             empID: loginInformation?.irb,
             requisitionID: requisitionResponse.data?.data?.id,
