@@ -22,7 +22,7 @@ import EmployeeModal from "../../modals/EmployeeModal";
 import ProfileModal from "../../modals/ProfileModal";
 function TLDashboard() {
     // const { requisitionData } = useContext(TestContext)
-    const { loginInformation, requisitionApproveStatus, storeRequistionTrack } = useContext(EmployeeLoginContext)
+    const { loginInformation, requisitionApproveStatus, reloadPage } = useContext(EmployeeLoginContext)
     const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
     const [showModalOpen, setShowModelOpen] = useState(false)
     const [profileModelShow, setProfileModelShow] = useState(false)
@@ -30,7 +30,7 @@ function TLDashboard() {
     const [show, setShow] = useState(false)
     const [open, setOpen] = useState(false);
     const dispatch = useDispatch();
-
+    const [editJobModal, setEditJobModal] = useState(false);
     const tearClick = () => {
         setShow(!show);
     }
@@ -56,7 +56,7 @@ function TLDashboard() {
         (item) => (item.requisitionDetails.status || item.status) === activeFilter
     );
 
-  
+
 
     const formatTimeAgo = (date) => {
         if (!date) return "-";
@@ -78,30 +78,32 @@ function TLDashboard() {
         return past.toLocaleDateString();
     };
 
-
-    console.log(requisitionApproveStatus)
+ const handleEdit=async(data)=>{
+    setUpdateRequisitionData(data)
+    // await reloadPage()
+  }
 
 
     return (
         <div className="w-full flex bg-gray-100">
 
             {/* Sidebar */}
-            <div className="w-64 min-h-screen bg-white shadow-md p-5 hidden md:block">
-                <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <div className="w-64 min-h-screen bg-green-950  shadow-md p-5 hidden md:block">
+                <h2 className="text-xl font-bold text-amber-100 mb-6 flex items-center gap-2">
                     <FaBuilding /> TL DASHBOARD
                 </h2>
 
-                <div className="space-y-4 text-gray-600">
-                    <div onClick={() => setProfileModelShow(!profileModelShow)} className={`flex items-center gap-2 hover:text-black cursor-pointer`}>
-                        <CgProfile /> <span className={`${profileModelShow ? "scale-110 text-purple-700 font-bold" : ""}`}>{!profileModelShow ? "Profile" : "Close Profile"}</span>
+                <div className="space-y-4 text-amber-100">
+                    <div onClick={() => setProfileModelShow(!profileModelShow)} className={`flex items-center gap-2 hover:text-white font-bold uppercase mx-2 cursor-pointer`}>
+                        <CgProfile /> <span className={`${profileModelShow ? "scale-110 text-green-100 font-bold uppercase mx-2" : ""}`}>{!profileModelShow ? "Profile" : "Close Profile"}</span>
                     </div>
-                    <div className="flex items-center gap-2 hover:text-black cursor-pointer">
+                    <div className="flex items-center gap-2 hover:text-white cursor-pointer font-bold uppercase mx-2">
                         <FaUsers /> Requisitions
                     </div>
-                    <div className="flex items-center gap-2 hover:text-black cursor-pointer">
+                    <div className="flex items-center gap-2 hover:text-white cursor-pointer font-bold uppercase mx-2">
                         <FaBriefcase /> Settings
                     </div>
-                    <div onClick={() => { dispatch(logout()) }} className="flex items-center gap-2 hover:text-black cursor-pointer">
+                    <div onClick={() => { dispatch(logout()) }} className="flex items-center gap-2 hover:text-white cursor-pointer font-bold uppercase mx-2">
                         <RiLogoutCircleLine /> Logout
                     </div>
                 </div>
@@ -113,18 +115,18 @@ function TLDashboard() {
             {/* Main Content */}
 
             <div className={`${!profileModelShow ? "w-full" : ""}`}>
-                {!profileModelShow && (<div className="flex-1 p-4 md:p-8 overflow-auto">
+                {!profileModelShow && (<div className="flex-1 md:p-2 overflow-auto">
 
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 my-6"
+                        className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 my-1 bg-green-950 border-l-2 p-6 "
                     >
-                        <div className="flex flex-col">
-                            <h1 className="text-3xl font-bold text-gray-800 uppercase">Welcome, <span className="text-slate-600">{loginInformation?.empName} </span></h1>
-                            <hr className="bg-black size-1 w-full" />
-                            <h5 className="text-md font-bold text-gray-800 mt-3 uppercase">Your Department, <span className="text-pink-600">{loginInformation?.dept} </span></h5>
-                            <h5 className="text-[18px] font-light text-gray-800 mb-6 uppercase">And Designation, <span className="text-purple-700">{loginInformation?.designation} </span></h5>
+                        <div className="flex flex-col gap-3">
+                            <h1 className="text-3xl font-bold text-amber-100 uppercase">Welcome, <span className="text-amber-100">{loginInformation?.empName} </span></h1>
+                            <hr className="bg-black size-1 w-full animate-pulse" />
+                            <h5 className="text-md font-bold text-amber-100 mt-3 uppercase">Your Department, <span className="text-pink-200">{loginInformation?.dept} </span></h5>
+                            <h5 className="text-[18px] font-light text-amber-100 mb-6 uppercase">And Designation, <span className="text-purple-300">{loginInformation?.designation} </span></h5>
                         </div>
                         <div className="flex flex-wrap gap-2">
                             <button onClick={() => setOpen(true)} className="text-xl font-light bg-green-100 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
@@ -142,6 +144,13 @@ function TLDashboard() {
                             </div>
                         </div>
                     )}
+                    {editJobModal && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                            <div className="w-full max-w-5xl">
+                                <JobModel requisitionId={stepperData} key={editJobModal ? "open" : "closed"} close={editJobModal} setClose={setEditJobModal} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} />
+                            </div>
+                        </div>
+                    )}
 
 
 
@@ -152,9 +161,13 @@ function TLDashboard() {
                             animate={{ opacity: 1, y: 0 }}
                             className={`${show ? 'w-full h-full  md:h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
                             {show ? <div className="p-6">
+                                <div className="flex justify-between items-center p-4 bg-green-950 text-amber-100">
 
-                  <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
-
+                                    <h2 className="text-xl font-bold mb-6 text-amber-100">
+                                        Requisition Tracking
+                                    </h2>
+                                    <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
+                                </div>
                                 <Stepper data={stepperData} />
                                 <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
                                     {/* <h2 className="text-xl font-bold">
@@ -187,13 +200,13 @@ function TLDashboard() {
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col justify-between items-start my-6"
+                        className="flex flex-col justify-between items-start my-6 p-6"
                     >
                         <h1 className="text-3xl text-gray-800 mb-6 uppercase font-light">
                             Requisition Filter
                         </h1>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 w-full">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 w-full p-4">
 
                             {/* Approved */}
                             <div
@@ -256,11 +269,11 @@ function TLDashboard() {
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col justify-between items-start my-6">
+                        className="flex flex-col justify-between items-start my-6 p-6">
                         <h1 className="text-3xl text-gray-800 mb-6 uppercase font-light">Employee Hiring Requests </h1>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-3 gap-6 px-6">
                         {(activeFilter !== "all" ? filteredRequests : requisitionApproveStatus).map((item, index) => {
 
                             const isItemNew = isNew(item.requisition?.createdAt);
@@ -306,7 +319,7 @@ function TLDashboard() {
                                             <span className="text-gray-500">Requisition Status</span>
                                             <span
                                                 className={`text-xs px-1 py-1 rounded-full flex items-center gap-1 capitalize ${statusStyles[item.status] || "bg-gray-100 text-gray-600"}`}>
-                                                {(item.requisitionDetails.status || item.status) === "created" && <MdCreateNewFolder  />}
+                                                {(item.requisitionDetails.status || item.status) === "created" && <MdCreateNewFolder />}
                                                 {(item.requisitionDetails.status || item.status) === "approved" && <FaCheckCircle />}
                                                 {(item.requisitionDetails.status || item.status) === "pending" && <FaClock />}
                                                 {(item.requisitionDetails.status || item.status) === "rejected" && <FaTimesCircle />}
@@ -388,14 +401,14 @@ function TLDashboard() {
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="mt-4 flex justify-end gap-2 text-white text-xs">
+                                    <div className="mt-4 flex justify-end gap-2 text-white text-xl">
 
-                                        <button className="px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all">
+                                        <button onClick={() => { setEditJobModal(true); setStepperData(item?.requisitionDetails?.id); handleEdit(item?.requisitionDetails); }} className={`px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all ${(item.requisitionDetails.status || item.status) === "approved" || (item.requisitionDetails.status || item.status) === "rejected"?'bg-slate-400 text-slate-300':""}`} disabled={(item.requisitionDetails.status || item.status) === "approved"}>
                                             Edit
                                         </button>
 
-                                        <button onClick={() => {setShow(true);setStepperData(item?.requisitionDetails?.id)}} className="px-3 py-1 bg-black rounded-md hover:text-red-300 hover:shadow-red-500 transition-all">
-                                            status
+                                        <button onClick={() => { setShow(true); setStepperData(item?.requisitionDetails?.id) }} className="px-3 py-1 bg-black rounded-md hover:text-red-300 hover:shadow-red-500 transition-all">
+                                            Status
                                         </button>
 
                                         <button onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(item) }} className="px-3 py-1 bg-black rounded-md hover:text-blue-300 hover:shadow-blue-500 transition-all">

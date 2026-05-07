@@ -52,11 +52,7 @@ const Stepper = ({ data }) => {
   }, [data])
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4">
-
-      <h2 className="text-xl font-bold mb-6 text-gray-800">
-        Requisition Tracking
-      </h2>
+    <div className="w-full mx-auto p-4 my-4">
 
       {/* Timeline line */}
       <div className="relative border-l-2 border-gray-300 ml-4">
@@ -72,10 +68,11 @@ const Stepper = ({ data }) => {
                 <div key={index} className="mb-8 ml-6 relative">
 
                   {/* Dot */}
-
-                  <span
-                    className={`absolute -left-[38px] flex items-center justify-center w-6 h-6 rounded-full ${styles.dot}`}
-                  />
+                  <div className={`absolute -left-[38px] flex items-center justify-center w-6 h-6 rounded-full `}>
+                    <div className={`absolute ${styles.dot} border-4 border-dotted animate-spin inset-0 rounded-full`}></div>
+                    <span
+                      className={`z-50 text-white font-bold`}
+                    > {step?.stepOrder || "Unknown Step"} </span> </div>
 
                   {/* Card */}
                   <div className="bg-white shadow-md rounded-lg p-4 border hover:shadow-lg transition">
@@ -85,6 +82,7 @@ const Stepper = ({ data }) => {
                       <h3 className="font-semibold text-gray-800">
                         Step {step?.stepOrder || "Unknown Step"}
                       </h3>
+
 
                       <span
                         className={`text-xs px-2 py-1 rounded text-white ${styles.badge}`}
@@ -96,7 +94,7 @@ const Stepper = ({ data }) => {
                     {/* Body */}
                     <div className="mt-2 space-y-1">
                       <p className="text-sm text-gray-600">
-                        <strong className="text-md touch-pan-up">{step.status && (step.status !== 'approved' ? `Now ${step.status[0].toUpperCase() + step.status.substring(1).toLowerCase()}` : "Approved By:")}</strong>{" "}
+                        <strong className="text-md touch-pan-up">{step.status && (step.status !== 'approved' ? `${step.status[0].toUpperCase() + step.status.substring(1)} By:  ${step.empName[0].toUpperCase() + step.empName.substring(1).toLowerCase()}` : "Approved By:")}</strong>{" "}
                         {step?.status !== 'approved' ? "" : step?.empName || "N/A"}
                       </p>
 
@@ -122,16 +120,20 @@ const Stepper = ({ data }) => {
 
                   {/* Dot */}
 
-                  <span
-                    className={`absolute -left-[38px] flex items-center justify-center w-6 h-6 rounded-full ${styles.dot}`}
-                  />
+                  <div className={`absolute -left-[38px] flex items-center justify-center w-6 h-6 rounded-full`}>
+                    <div className={`absolute ${styles.dot} inset-0 rounded-full`}></div>
+                    <span
+                      className={`z-50 animate-none text-white font-bold`}
+                    >{step?.stepOrder + 1 || "Unknown Step"}
 
+                    </span>
+                  </div>
                   {/* Card */}
                   <div className="bg-white shadow-md rounded-lg p-4 border hover:shadow-lg transition">
 
                     {/* Header */}
                     <div className="flex justify-between items-center">
-                      <h3 className="font-semibold text-gray-800">
+                      <h3 className="font-semibold text-gray-800 ">
                         Step {step?.stepOrder + 1 || "Unknown Step"}
                       </h3>
 
@@ -146,7 +148,12 @@ const Stepper = ({ data }) => {
                     <div className="mt-2 space-y-1">
                       Done
                     </div>
-
+                    <div className={`absolute -left-[38px] flex items-center justify-center w-6 h-6 rounded-full`}>
+                      <div className={`absolute border-4 border-dotted animate-spin inset-0 bg-black rounded-full`}></div>
+                      <span
+                        className={`z-50 animate-none text-white font-bold`}
+                      >{step?.stepOrder + 2 || "Unknown Step"} </span>
+                    </div>
                   </div>
                 </div>}
               </div>);

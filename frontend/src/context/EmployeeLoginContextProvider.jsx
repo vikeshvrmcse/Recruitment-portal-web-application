@@ -1,118 +1,111 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { EmployeeLoginContext, GetApprovalDataContext } from './TestContext'
-import axios from 'axios'
-import { useNotification } from './NotificationContextProvider';
-import { reverseTransform } from '../utils/dataFormatter';
-import { toast } from 'react-toastify';
+import React, { useContext, useEffect, useState } from "react";
+import axios from "axios";
 
-const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
+import {
+  EmployeeLoginContext,
+  GetApprovalDataContext,
+} from "./TestContext";
+
+import { useNotification } from "./NotificationContextProvider";
+
+const APP_BACKEND_URL =
+  import.meta.env.VITE_DOTNET_BACKEND_URL;
 
 function EmployeeLoginContextProvider({ children }) {
-  const [loginInformation, setLoginInformation] = useState([])
-  const [requisitionApproveStatus, setRequisitionApproveStatus] = useState([])
-  const storedUser = localStorage.getItem("auth");
+
+  const [loginInformation, setLoginInformation] = useState([]);
+  const [requisitionApproveStatus, setRequisitionApproveStatus] =
+    useState([]);
+
   const { addNotification } = useNotification();
-  const { refetch, setRequisitionApprovalData } = useContext(GetApprovalDataContext)
 
-  const user = localStorage.getItem("auth")
-  const data = JSON.parse(user)
+  const {
+    setRequisitionApprovalData,
+  } = useContext(GetApprovalDataContext);
 
-  useEffect(() => {
+  // SAFE localStorage parse
+  const storedUser = localStorage.getItem("auth");
 
-    const fetchData = async () => {
-      const storedUser = localStorage.getItem("auth");
+  const data = storedUser
+    ? JSON.parse(storedUser)
+    : null;
 
-      if (!storedUser) {
-        setLoginInformation([]);
+  // ================= FETCH DATA =================
+  const fetchData = async () => {
+
+    const storedUser = localStorage.getItem("auth");
+
+    // No user
+    if (!storedUser) {
+      setLoginInformation([]);
+      setRequisitionApprovalData([]);
+      return;
+    }
+
+    const user = JSON.parse(storedUser);
+
+    try {
+
+      // RESET STATES
+      setLoginInformation([]);
+      setRequisitionApprovalData([]);
+
+      // ================= L1 =================
+      if (
+        user?.level === "L1" &&
+        [1, 2, 3, 4].includes(user?.accessLevel)
+      ) {
+
+        setLoginInformation(user);
         return;
       }
 
-      const user = JSON.parse(storedUser);
+      // ================= L2 / L3 =================
+      if (
+        (user?.level === "L2" &&
+          user?.accessLevel === 5) ||
 
-      if (user?.level === "L1" && user.accessLevel === 1) {
-        setLoginInformation([]);
-        setRequisitionApprovalData([])
-        setLoginInformation(user);
-      }
+        (user?.level === "L3" &&
+          user?.accessLevel === 6)
+      ) {
 
-
-      if (user?.level === "L1" && user.accessLevel === 2) {
-        setLoginInformation([]);
-        setRequisitionApprovalData([])
-        setLoginInformation(user);
-      }
-
-
-      if (user?.level === "L1" && user.accessLevel === 3) {
-        setLoginInformation([]);
-        setRequisitionApprovalData([])
-        setLoginInformation(user);
-      }
-
-
-      if (user?.level === "L1" && user.accessLevel === 4) {
-        try {
-          setLoginInformation([]);
-          setRequisitionApprovalData([])
-          setLoginInformation(user);
-        } catch (error) {
-          console.log(error.message);
-          return
-        }
-      }
-
-
-
-      if (user?.level === "L2" && user.accessLevel === 5) {
-        setLoginInformation([]);
-        setRequisitionApprovalData([])
-        let res, requisitionTrackResponse;
-        try {
-          res = await axios.get(`${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user?.empID}`);
-
-        } catch (error) {
-          console.log(error.message)
-        }
-
+        const res = await axios.get(
+          `${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user?.empID}`
+        );
 
         setRequisitionApproveStatus(res?.data);
         setLoginInformation(user);
+
+        return;
       }
 
-      if (user?.level === "L3" && user.accessLevel === 6) {
-        setLoginInformation([]);
-        setRequisitionApprovalData([])
-        let res, requisitionTrackResponse;
-        try {
-          res = await axios.get(`${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user?.empID}`);
+    } catch (error) {
 
-        } catch (error) {
-          console.log(error.message)
-        }
+      console.log(error?.message);
 
-
-        setRequisitionApproveStatus(res?.data);
-        setLoginInformation(user);
-      }
     }
+  };
 
+  // ================= AUTO LOAD =================
+  useEffect(() => {
     fetchData();
-
   }, [data?.empID]);
 
-
-
   return (
-    <EmployeeLoginContext.Provider value={{
-      loginInformation, setLoginInformation,
-      requisitionApproveStatus, setRequisitionApproveStatus
-    }}>
+    <EmployeeLoginContext.Provider
+      value={{
+        loginInformation,
+        setLoginInformation,
+
+        requisitionApproveStatus,
+        setRequisitionApproveStatus,
+
+        reloadPage: fetchData,
+      }}
+    >
       {children}
     </EmployeeLoginContext.Provider>
-  )
+  );
 }
 
-
-
-
-export { EmployeeLoginContextProvider }
+export { EmployeeLoginContextProvider };

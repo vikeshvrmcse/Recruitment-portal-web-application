@@ -27,12 +27,12 @@ function SubAdminDashboard() {
 
   const [requests, setRequests] = useState([]);
   const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
-  const [filter, setFilter] = useState("All");
+  const [filter,setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [show, setShow] = useState(false)
   const [showModalOpen, setShowModelOpen] = useState(false)
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
+  const [loading,  setLoading] = useState(false);
   const { loginInformation, requisitionInformation } = useContext(EmployeeLoginContext)
   const [tableData, setTableData] = useState([])
   const [selected, setSelected] = useState(null);
@@ -40,7 +40,7 @@ function SubAdminDashboard() {
   const [isCreateRequisition, setIsCreateRequisition] = useState(false);
   const [profileModelShow, setProfileModelShow] = useState(false)
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
-  const { requisitionApprovalData } = useContext(GetApprovalDataContext)
+  const { requisitionApprovalData, refetch } = useContext(GetApprovalDataContext)
 
 
   function formatDate(dateString) {
@@ -79,7 +79,7 @@ function SubAdminDashboard() {
           });
 
           toast.success(responseNew?.data.message);
-
+          await refetch()
         } catch (error) {
           console.error(error);
           toast.error("Something went wrong");
@@ -92,6 +92,11 @@ function SubAdminDashboard() {
       setLoading(false);
     }
   };
+
+
+  const handleEdit=async(data)=>{
+    setUpdateRequisitionData(data)
+  }
 
 
   const tearClick = function () {
@@ -207,7 +212,14 @@ function SubAdminDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 className={`${show ? 'h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
+
+                  <div className="flex justify-between items-center p-4 bg-amber-950 text-amber-100">
+
+                  <h2 className="text-xl font-bold mb-6 text-amber-100">
+                    Requisition Tracking
+                  </h2>
                   <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
+                </div>
 
                   <Stepper data={stepperData} />
 
@@ -491,7 +503,7 @@ function SubAdminDashboard() {
                         </button>
 
                         <button
-                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
+                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
                           className={`${r.status === 'rejected' || r.status === 'approved'  || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
                           disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created' }
                         >

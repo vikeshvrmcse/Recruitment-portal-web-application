@@ -42,7 +42,7 @@ function SubAdminDashboard() {
   const [open, setOpen] = useState(false);
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
   const [showSidebar, setShowSidebar] = useState(false);
-  const { requisitionApprovalData } = useContext(GetApprovalDataContext)
+  const { requisitionApprovalData, refetch } = useContext(GetApprovalDataContext)
   const [stepperData, setStepperData] = useState('');
   const [isCreateRequisition, setIsCreateRequisition] = useState(false);
   const [showFinalDataComponent, setShowFinalDataComponent] = useState(false)
@@ -80,7 +80,7 @@ function SubAdminDashboard() {
           });
 
           toast.success(responseNew?.data.message);
-
+          await refetch()
         } catch (error) {
           console.error(error);
           toast.error("Something went wrong");
@@ -143,6 +143,11 @@ function SubAdminDashboard() {
     );
   };
 
+   const handleEdit=async(data)=>{
+    setUpdateRequisitionData(data)
+  }
+
+
   const result = filterData(requisitionApprovalData, filter);
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-100">
@@ -202,129 +207,137 @@ function SubAdminDashboard() {
         </nav>
       </aside>
 
-      <div className={`${activeTab === 'profile' ? "w-full" : ""}`}>
-        {activeTab === 'profile' && (<ProfileModal employeeData={loginInformation} />)}
-
-        {activeTab === 'final' && (<FinalApprovalModal finalData={finalApprovalData} />)}
-      </div>
+      {/* <div className={`w-full`}> */}
+      {activeTab === 'profile' && (<ProfileModal employeeData={loginInformation} />)}
+      {/* </div>
+      <div className={`w-full`}> */}
+      {activeTab === 'final' && (<FinalApprovalModal finalData={finalApprovalData} />)}
+      {/* </div> */}
 
 
       {/* MAIN */}
-      <div className={`${activeTab === 'dashboard' ? "w-full" : ""}`}>
-        {activeTab === 'dashboard' && (
-          <main className="flex-1 flex flex-col">
+      {/* <div className={`w-full`}> */}
+      {activeTab === 'dashboard' && (
+        <main className="flex-1 flex flex-col">
 
-            {/* TOP BAR */}
-            <header className=" bg-[#3E0703] border-l-4 text-[#FFF0C4] shadow px-6 py-4 flex justify-between items-center">
-              <div className="flex flex-col justify-center items-center gap-3">
-                <h1 className="font-light uppercase text-3xl">Welcome, {loginInformation?.empName}</h1>
-                <span className="font-light uppercase text-sm">Location, {loginInformation?.companyLocation}</span>
-              </div>
-              <div className="flex items-center gap-3">
+          {/* TOP BAR */}
+          <header className=" bg-[#3E0703] border-l-4 text-[#FFF0C4] shadow px-6 py-4 flex justify-between items-center">
+            <div className="flex flex-col justify-center items-center gap-3">
+              <h1 className="font-light uppercase text-3xl">Welcome, {loginInformation?.empName}</h1>
+              <span className="font-light uppercase text-sm">Location, {loginInformation?.companyLocation}</span>
+            </div>
+            <div className="flex items-center gap-3">
 
 
-                <div className="p-6 ">
+              <div className="p-6 ">
 
-                  {/* TOP BAR */}
-                  <div className="flex justify-between items-center gap-6">
-                    <div className="w-9 h-9 uppercase rounded-full bg-pink-900 text-white flex items-center justify-center">
-                      {loginInformation?.empName?.slice(0, 2)}
-                    </div>
-
-                    <NotificationBell />
+                {/* TOP BAR */}
+                <div className="flex justify-between items-center gap-6">
+                  <div className="w-9 h-9 uppercase rounded-full bg-pink-900 text-white flex items-center justify-center">
+                    {loginInformation?.empName?.slice(0, 2)}
                   </div>
 
-                  {/* MODAL */}
-                  <NotificationModal
-                    data={selected}
-                    onClose={() => setSelected(null)}
-                  />
-                  <button onClick={() => setIsCreateRequisition(true)} className="mt-3 text-xl font-light bg-green-900 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
+                  <NotificationBell />
+                </div>
+
+                {/* MODAL */}
+                <NotificationModal
+                  data={selected}
+                  onClose={() => setSelected(null)}
+                />
+                <button onClick={() => setIsCreateRequisition(true)} className="mt-3 text-xl font-light bg-green-900 border-2 border-green-800 hover:border-green-400 focus:border-dotted p-2 rounded-md hover:shadow-md hover:shadow-green-700">+ New Requisition</button>
+
+              </div>
+            </div>
+          </header>
+
+          <div className={`${show ? "p-4 my-4" : ""}`}>
+            {show ? <h1 className="text-3xl text-gray-800 mb-6 uppercase font-light">Track Requisition </h1> : ''}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`${show ? 'h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
+              {show ? <div className="p-2 md:p-6">
+                <div className="flex justify-between items-center p-4 bg-amber-950 text-amber-100">
+
+                  <h2 className="text-xl font-bold mb-6 text-amber-100">
+                    Requisition Tracking
+                  </h2>
+                  <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
+                </div>
+
+                <Stepper data={stepperData} />
+                <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
 
                 </div>
-              </div>
-            </header>
+              </div> : ""}
+            </motion.div>
+          </div>
 
-            <div className={`${show ? "p-4 my-4" : ""}`}>
-              {show ? <h1 className="text-3xl text-gray-800 mb-6 uppercase font-light">Track Requisition </h1> : ''}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`${show ? 'h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
-                {show ? <div className="p-2 md:p-6">
-                  <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
-                  <Stepper data={stepperData} />
-                  <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
-
+          <div className="p-6">
+            <div className="text-[#3E0703] bg-[#FFF0C4] border-x-8 border-[#3E0703] p-4 rounded-lg my-4">
+              <h1 className="mb-4 font-light text-2xl ">
+                Requisition Statistics
+              </h1>
+              {/* STATS */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {stats && stats?.map((s, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-xl shadow p-5 border-l-4 border-pink-900"
+                  >
+                    <p className="text-gray-500 text-sm">{s.label}</p>
+                    <p className="text-2xl font-bold">{s.value}</p>
                   </div>
-                </div> : ""}
-              </motion.div>
+                ))}
+              </div>
             </div>
 
-            <div className="p-6">
-              <div className="text-[#3E0703] bg-[#FFF0C4] border-x-8 border-[#3E0703] p-4 rounded-lg my-4">
-                <h1 className="mb-4 font-light text-2xl ">
-                  Requisition Statistics
-                </h1>
-                {/* STATS */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  {stats && stats?.map((s, i) => (
-                    <div
-                      key={i}
-                      className="bg-white rounded-xl shadow p-5 border-l-4 border-pink-900"
-                    >
-                      <p className="text-gray-500 text-sm">{s.label}</p>
-                      <p className="text-2xl font-bold">{s.value}</p>
-                    </div>
-                  ))}
+            {isCreateRequisition && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                <div className="w-full max-w-5xl">
+                  <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
                 </div>
               </div>
+            )}
 
-              {isCreateRequisition && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-                  <div className="w-full max-w-5xl">
-                    <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
-                  </div>
+            {open && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                <div className="w-full max-w-5xl">
+                  <JobModel requisitionId={requisitionUpdateId} close={open} setClose={setOpen} modelTitleModification={"Modify requisition via your superviser"} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} />
                 </div>
-              )}
-
-              {open && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-                  <div className="w-full max-w-5xl">
-                    <JobModel requisitionId={requisitionUpdateId} close={open} setClose={setOpen} modelTitleModification={"Modify requisition via your superviser"} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} />
-                  </div>
+              </div>
+            )}
+            {showModalOpen && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                <div className="w-full max-w-5xl">
+                  <EmployeeModal
+                    isOpen={showModalOpen}
+                    onClose={() => setShowModelOpen(false)}
+                  />
                 </div>
-              )}
-              {showModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-                  <div className="w-full max-w-5xl">
-                    <EmployeeModal
-                      isOpen={showModalOpen}
-                      onClose={() => setShowModelOpen(false)}
-                    />
-                  </div>
-                </div>
-              )}
+              </div>
+            )}
 
 
-              {/* TABLE */}
-              <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
+            {/* TABLE */}
+            <div className="bg-white shadow rounded-xl overflow-hidden mt-6">
 
-                {/* HEADER */}
-                <div className="p-4 border-b  bg-[#3E0703] text-[#FFF0C4]  flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-                  <h2 className="font-light text-xl md:text-2xl">
-                    Requisition Approvals
-                  </h2>
-                  <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
-                    Generate Report
-                  </button>
-                </div>
+              {/* HEADER */}
+              <div className="p-4 border-b  bg-[#3E0703] text-[#FFF0C4]  flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+                <h2 className="font-light text-xl md:text-2xl">
+                  Requisition Approvals
+                </h2>
+                <button className="w-full md:w-auto px-4 bg-slate-800 text-white py-2 rounded-lg hover:bg-white hover:text-slate-800 transition border border-slate-800">
+                  Generate Report
+                </button>
+              </div>
 
-                {/* SEARCH + FILTER */}
-                <div className="p-4 border-b bg-[#3E0703] flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+              {/* SEARCH + FILTER */}
+              <div className="p-4 border-b bg-[#3E0703] flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
 
-                  {/* SEARCH */}
-                  {/* <input
+                {/* SEARCH */}
+                {/* <input
                     type="text"
                     placeholder="Search candidate name..."
                     value={search}
@@ -332,268 +345,292 @@ function SubAdminDashboard() {
                     className="border px-3 py-2 rounded w-full md:w-1/3"
                   /> */}
 
-                  {/* FILTERS */}
-                  <div className="flex flex-wrap gap-2 ">
-                    {filters.map((f) => (
-                      <button
-                        key={f}
-                        onClick={() => setFilter(f)}
-                        className={`px-3 py-1 text-sm rounded-full border transition ${filter === f
-                          ? "bg-pink-900 text-white border-pink-600"
-                          : "bg-white text-gray-600 hover:bg-gray-100"
-                          }`}
-                      >
-                        {f}
-                      </button>
-                    ))}
-                  </div>
+                {/* FILTERS */}
+                <div className="flex flex-wrap gap-2 ">
+                  {filters.map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => setFilter(f)}
+                      className={`px-3 py-1 text-sm rounded-full border transition ${filter === f
+                        ? "bg-pink-900 text-white border-pink-600"
+                        : "bg-white text-gray-600 hover:bg-gray-100"
+                        }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
                 </div>
+              </div>
 
-                {/* ================= DESKTOP TABLE ================= */}
-                <div className="hidden md:block overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-[#3E0703] text-[#FFF0C4]">
-                      <tr>
-                        <th className="p-3 text-center">RFQ Name</th>
-                        <th className="p-3 text-center">Designation</th>
-                        <th className="p-3 text-center">Department</th>
-                        <th className="p-3 text-center">Profile(Job Title) </th>
-                        <th className="p-3 text-center">Date of RFQ </th>
-                        <th className="p-3 text-center">Date of Deadline</th>
-                        <th className="p-3 text-center">Status</th>
-                        <th className="p-3 text-center">Action</th>
-                        <th className="p-3 text-center">Modification</th>
-                        <th className="p-3 text-center">View</th>
-                        <th className="p-3 text-center">Track Requisition</th>
+              {/* ================= DESKTOP TABLE ================= */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-[#3E0703] text-[#FFF0C4]">
+                    <tr>
+                      <th className="p-3 text-center">RFQ Name</th>
+                      <th className="p-3 text-center">Designation</th>
+                      <th className="p-3 text-center">Department</th>
+                      <th className="p-3 text-center">Profile(Job Title) </th>
+                      <th className="p-3 text-center">Date of RFQ </th>
+                      <th className="p-3 text-center">Date of Deadline</th>
+                      <th className="p-3 text-center">Status</th>
+                      <th className="p-3 text-center">Action</th>
+                      <th className="p-3 text-center">Modification</th>
+                      <th className="p-3 text-center">View</th>
+                      <th className="p-3 text-center">Track Requisition</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {result.map((r, idx) => (
+                      <tr key={idx} className="border-b hover:bg-gray-50 text-center">
+
+                        <td className="p-3 font-medium">{r?.creator?.empName}</td>
+                        <td className="p-3 font-medium">{r?.creator?.designation}</td>
+                        <td className="p-3 text-gray-600">{r?.creator?.dept}</td>
+                        <td className="p-3 text-gray-600">{r?.requisitionDetails?.jobTitle}</td>
+                        <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.createdAt?.split("T")[0])}</td>
+                        <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.deadline?.split("T")[0])}</td>
+
+                        <td className="p-3">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "approved"
+                            ? "bg-green-100 text-green-700"
+                            : r.status === "rejected"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-yellow-100 text-yellow-700"
+                            }`}>
+                            {r.status}
+                          </span>
+                        </td>
+
+
+                        <td className="p-3 flex gap-2 justify-center mt-5">
+                          <button
+                            onClick={() => updateStatus(r?.requisitionID, "approved")}
+                            className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                            disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                          >
+                            Approve {loading ? <FidgetSpinner
+                              preset='rainbow'
+                              visible={true}
+                              height="20"
+                              width="20"
+                              radius="40"
+                              color="#4fa94d"
+                              ariaLabel="watch-loading"
+                              wrapperStyle={{}}
+                              wrapperClass=""
+                            /> : ""}
+                          </button>
+
+                          <button
+                            onClick={() => updateStatus(r?.requisitionID, "rejected")}
+                            disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                            className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          >
+                            Reject {loading ? <FidgetSpinner
+                              preset='rainbow'
+                              visible={true}
+                              height="20"
+                              width="20"
+                              radius="40"
+                              color="#4fa94d"
+                              ariaLabel="watch-loading"
+                              wrapperStyle={{}}
+                              wrapperClass=""
+                            /> : ""}
+                          </button>
+                        </td>
+
+                        <td className="p-3">
+                          <button
+                            onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
+                            className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                            disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                          >
+                            Modify {loading ? <FidgetSpinner
+                              preset='rainbow'
+                              visible={true}
+                              height="20"
+                              width="20"
+                              radius="40"
+                              color="#4fa94d"
+                              ariaLabel="watch-loading"
+                              wrapperStyle={{}}
+                              wrapperClass=""
+                            /> : ""}
+                          </button>
+                        </td>
+
+                        <td className="p-3">
+                          <button
+
+                            onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
+                            className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
+                          >
+                            Show
+                          </button>
+                        </td>
+                        <td className="p-3">
+                          <button
+
+                            onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
+                            className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                          >
+                            Track
+                          </button>
+                        </td>
+
                       </tr>
-                    </thead>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                    <tbody>
-                      {result.map((r, idx) => (
-                        <tr key={idx} className="border-b hover:bg-gray-50 text-center">
+              {/* ================= MOBILE CARD VIEW ================= */}
+              <div className="md:hidden p-4 space-y-4">
+                {requisitionApprovalData?.map((r, idx) => (
+                  <div key={idx} className="border rounded-lg p-4 shadow-sm bg-white">
 
-                          <td className="p-3 font-medium">{r?.creator?.empName}</td>
-                          <td className="p-3 font-medium">{r?.creator?.designation}</td>
-                          <td className="p-3 text-gray-600">{r?.creator?.dept}</td>
-                          <td className="p-3 text-gray-600">{r?.requisitionDetails?.jobTitle}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.createdAt?.split("T")[0])}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.deadline?.split("T")[0])}</td>
-
-                          <td className="p-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "approved"
-                              ? "bg-green-100 text-green-700"
-                              : r.status === "rejected"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                              }`}>
-                              {r.status}
-                            </span>
-                          </td>
-
-
-                          <td className="p-3 flex gap-2 justify-center mt-5">
-                            <button
-                              onClick={() => updateStatus(r?.requisitionID, "approved")}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                            >
-                              Approve {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-
-                            <button
-                              onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
-                            >
-                              Reject {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-                          </td>
-
-                          <td className="p-3">
-                            <button
-                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                            >
-                              Modify {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-                          </td>
-
-                          <td className="p-3">
-                            <button
-
-                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
-                              className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
-                            >
-                              Show
-                            </button>
-                          </td>
-                          <td className="p-3">
-                            <button
-
-                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
-                              className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
-                            >
-                              Track
-                            </button>
-                          </td>
-
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* ================= MOBILE CARD VIEW ================= */}
-                <div className="md:hidden p-4 space-y-4">
-                  {requisitionApprovalData?.map((r, idx) => (
-                    <div key={idx} className="border rounded-lg p-4 shadow-sm bg-white">
-
-                      {/* NAME + ROLE */}
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-semibold">{r.name}</p>
-                          <p className="text-sm text-gray-500">{r.jobTitle}</p>
-                        </div>
-
-                        {/* STATUS */}
-                        <span className={`text-xs px-2 py-1 rounded-full ${r.status === "approved"
-                          ? "bg-green-100 text-green-700"
-                          : r.status === "rejected"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-700"
-                          }`}>
-                          {r.status}
-                        </span>
+                    {/* NAME + ROLE */}
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold">{r.name}</p>
+                        <p className="text-sm text-gray-500">{r.jobTitle}</p>
                       </div>
 
-                      {/* ACTIONS */}
-                      <div className="mt-5 grid grid-cols-2 gap-2">
+                      {/* STATUS */}
+                      <span className={`text-xs px-2 py-1 rounded-full ${r.status === "approved"
+                        ? "bg-green-100 text-green-700"
+                        : r.status === "rejected"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-yellow-100 text-yellow-700"
+                        }`}>
+                        {r.status}
+                      </span>
+                    </div>
 
-                        <button
-                          onClick={() => updateStatus(r?.requisitionID, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                        >
-                          Approve {loading ? <FidgetSpinner
-                            preset='rainbow'
-                            visible={true}
-                            height="20"
-                            width="20"
-                            radius="40"
-                            color="#4fa94d"
-                            ariaLabel="watch-loading"
-                            wrapperStyle={{}}
-                            wrapperClass=""
-                          /> : ""}
-                        </button>
+                    {/* ACTIONS */}
+                    <div className="mt-5 grid grid-cols-2 gap-2">
 
-                        <button
-                          onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
-                        >
-                          Reject {loading ? <FidgetSpinner
-                            preset='rainbow'
-                            visible={true}
-                            height="20"
-                            width="20"
-                            radius="40"
-                            color="#4fa94d"
-                            ariaLabel="watch-loading"
-                            wrapperStyle={{}}
-                            wrapperClass=""
-                          /> : ""}
-                        </button>
+                      <button
+                        onClick={() => updateStatus(r?.requisitionID, "approved")}
+                        className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                        disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                      >
+                        Approve {loading ? <FidgetSpinner
+                          preset='rainbow'
+                          visible={true}
+                          height="20"
+                          width="20"
+                          radius="40"
+                          color="#4fa94d"
+                          ariaLabel="watch-loading"
+                          wrapperStyle={{}}
+                          wrapperClass=""
+                        /> : ""}
+                      </button>
 
-                        <button
-                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                        >
-                          Modify {loading ? <FidgetSpinner
-                            preset='rainbow'
-                            visible={true}
-                            height="20"
-                            width="20"
-                            radius="40"
-                            color="#4fa94d"
-                            ariaLabel="watch-loading"
-                            wrapperStyle={{}}
-                            wrapperClass=""
-                          /> : ""}
-                        </button>
+                      <button
+                        onClick={() => updateStatus(r?.requisitionID, "rejected")}
+                        disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                        className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                      >
+                        Reject {loading ? <FidgetSpinner
+                          preset='rainbow'
+                          visible={true}
+                          height="20"
+                          width="20"
+                          radius="40"
+                          color="#4fa94d"
+                          ariaLabel="watch-loading"
+                          wrapperStyle={{}}
+                          wrapperClass=""
+                        /> : ""}
+                      </button>
 
-                        <button
+                      <button
+                        onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
+                        className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                        disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                      >
+                        Modify {loading ? <FidgetSpinner
+                          preset='rainbow'
+                          visible={true}
+                          height="20"
+                          width="20"
+                          radius="40"
+                          color="#4fa94d"
+                          ariaLabel="watch-loading"
+                          wrapperStyle={{}}
+                          wrapperClass=""
+                        /> : ""}
+                      </button>
 
-                          onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
-                          className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
-                        >
-                          Show
-                        </button>
+                      <button
 
-                        <button
+                        onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
+                        className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
+                      >
+                        Show
+                      </button>
 
-                          onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
-                          className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
-                        >
-                          Track
-                        </button>
+                      <button
 
-                      </div>
+                        onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
+                        className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                      >
+                        Track
+                      </button>
 
                     </div>
-                  ))}
 
-                </div>
+                  </div>
+                ))}
 
               </div>
+
             </div>
-          </main>)}
-      </div>
+          </div>
+        </main>)}
     </div>
+    // </div>
   );
 }
 
 const FinalApprovalModal = ({ finalData = [] }) => {
   const [selectedHR, setSelectedHR] = useState("HR1");
-  return  (<div className="p-6 bg-gray-100 min-h-screen">
+  return (<div className="p-6 w-full bg-gray-100 min-h-screen">
 
+
+    <div className="flex justify-between">
+      <h2 className="w-full bg-amber-950 text-amber-100 p-3 text-3xl text-left font-light my-3">
+        FINAL APPROVALS
+      </h2>
+
+      <div className="flex">
+        <button className="cursor-pointer bg-sky-950 text-amber-100 p-3 text-3xl font-light my-3 focus:text-amber-950 focus:bg-amber-100">
+          FILTERS
+        </button>
+
+        <button className="cursor-pointer bg-amber-950 text-amber-100 p-3 text-3xl font-light my-3 focus:text-amber-950 focus:bg-amber-100">
+          HR1
+        </button>
+
+        <button className="cursor-pointer bg-amber-950 text-amber-100 p-3 text-3xl font-light my-3 focus:text-amber-950 focus:bg-amber-100">
+          HR2
+        </button>
+
+        <button className="cursor-pointer bg-amber-950 text-amber-100 p-3 text-3xl font-light my-3 focus:text-amber-950 focus:bg-amber-100">
+          HR3
+        </button>
+      </div>
+    </div>
     {/* FILTER BUTTONS */}
 
 
     {/* CARD GRID */}
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid md:grid-cols-1 lg:grid-cols-4 gap-6">
 
       {finalData?.map((item, index) => {
 
@@ -610,7 +647,7 @@ const FinalApprovalModal = ({ finalData = [] }) => {
         return (
           <div
             key={index}
-            className="bg-white rounded-2xl shadow-lg p-5 border-l-4 border-purple-700  transition-all duration-300"
+            className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700  transition-all duration-300"
           >
             {/* HEADER */}
             <div className="flex justify-between items-center mb-3">
@@ -618,7 +655,7 @@ const FinalApprovalModal = ({ finalData = [] }) => {
                 {item.creatorName}
               </h2>
               <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-semibold">
-                {item.status && item.status[0].toUpperCase()+item.status.substring(1)}
+                {item.status && item.status[0].toUpperCase() + item.status.substring(1)}
               </span>
             </div>
 
@@ -631,39 +668,38 @@ const FinalApprovalModal = ({ finalData = [] }) => {
               </p>
 
               <p>
-                <span className="font-semibold text-gray-800">Created:</span>{" "}
+                <span className="font-semibold text-gray-800">RFQ Date:</span>{" "}
                 {created}
               </p>
 
               <p>
-                <span className="font-semibold text-gray-800">Updated:</span>{" "}
+                <span className="font-semibold text-gray-800">Approved Date:</span>{" "}
                 {updated}
               </p>
 
             </div>
 
             {/* FOOTER */}
-            <div className="mt-4 flex justify-between items-center">
-              <button className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-                View
-              </button>
+            <div className="flex flex-col items-center gap-4 mb-2 bg-amber-100  rounded-lg justify-center mt-4">
+              <div className="w-full text-center rounded-md  bg-amber-950">
+                <span className="font-light uppercase text-amber-100 text-2xl text-center cursor-default">send to</span>
+              </div>
 
-              <button className="text-xs px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700">
-                Track
-              </button>
-            </div>
-            <div className="flex gap-4 mb-6 justify-center m-4">
-              {["HR1", "HR2", "HR3"].map((hr, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedHR(hr)}
-                  className={`px-5 py-2 rounded-full shadow-md transition-all duration-300 ${selectedHR === hr
-                      ? "bg-purple-700 text-white scale-105"
-                      : "bg-white text-gray-700 hover:bg-purple-100"}`}
-                >
-                  {hr}
-                </button>
-              ))}
+              <div className="flex flex-col w-full p-4 items-center gap-4 justify-center">
+
+
+                {["HR1", "HR2", "HR3"].map((hr, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedHR(hr)}
+                    className={`px-5 py-2 mx-3 rounded-md shadow-md transition-all duration-300 w-full ${selectedHR === hr
+                      ? "bg-amber-700 text-white scale-105"
+                      : "bg-white text-gray-700 hover:bg-amber-100"}`}
+                  >
+                    {hr}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         );

@@ -44,9 +44,9 @@ function UpperAdminDashboard() {
   const [loadingId, setLoadingId] = useState(null);
   const [requisitionNextStatusUpdateTableData, setRequisitionNextStatusUpdateTableData] = useState([])
   const [profileModelShow, setProfileModelShow] = useState(false)
-const [isCreateRequisition, setIsCreateRequisition] = useState(false);
+  const [isCreateRequisition, setIsCreateRequisition] = useState(false);
   const [stepperData, setStepperData] = useState('')
-  const { requisitionApprovalData } = useContext(GetApprovalDataContext)
+  const { requisitionApprovalData, refetch } = useContext(GetApprovalDataContext)
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
 
 
@@ -77,13 +77,13 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
           await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
             empID: loginInformation?.irb,
             requisitionID: id,
-            stepOrder: responseNew.data?.stepOrder+1,
+            stepOrder: responseNew.data?.stepOrder + 1,
             status: "pending",
             remarks: "Everything OK",
           });
 
           toast.success(responseNew?.data.message);
-
+          await refetch()
         } catch (error) {
           console.error(error);
           toast.error("Something went wrong");
@@ -95,10 +95,12 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
     } finally {
       setLoading(false);
     }
+
+
   };
 
 
-  console.log("adafdsa",requisitionApprovalData)
+
 
 
   const tearClick = function () {
@@ -134,7 +136,14 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
   };
 
 
+   const handleEdit=async(data)=>{
+    setUpdateRequisitionData(data)
+  }
+
+
   const result = filterData(requisitionApprovalData, filter);
+
+    console.log("adafdsa", requisitionUpdateId)
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -220,8 +229,13 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
                 className={`${show ? 'h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
 
-                <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
+                  <div className="flex justify-between items-center p-4 bg-amber-950 text-amber-100">
 
+                    <h2 className="text-xl font-bold mb-6 text-amber-100">
+                      Requisition Tracking
+                    </h2>
+                    <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
+                  </div>
                   <Stepper data={stepperData} />
 
                 </div> : ""}
@@ -365,8 +379,8 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
                           <td className="p-3 flex gap-2 justify-center mt-5">
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "approved")}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                             >
                               Approve {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -383,8 +397,8 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
 
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                             >
                               Reject {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -402,9 +416,9 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
 
                           <td className="p-3">
                             <button
-                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
+                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                             >
                               Modify {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -473,8 +487,8 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                         >
                           Approve {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -491,8 +505,8 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
                           Reject {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -508,9 +522,9 @@ const [isCreateRequisition, setIsCreateRequisition] = useState(false);
                         </button>
 
                         <button
-                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
+                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                         >
                           Modify {loading ? <FidgetSpinner
                             preset='rainbow'

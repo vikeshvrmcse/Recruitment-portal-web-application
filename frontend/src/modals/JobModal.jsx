@@ -4,15 +4,16 @@ import { FaChevronDown, FaTimes } from "react-icons/fa";
 import { Controller, useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { EmployeeLoginContext, TestContext, UpdateRequisitionContext } from "../context/TestContext";
+import { EmployeeLoginContext, GetApprovalDataContext, TestContext, UpdateRequisitionContext } from "../context/TestContext";
 import { departments, skills, qualifications } from "../data/ComboBoxData";
 import { useNotification } from "../context/NotificationContextProvider";
 
 const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 
 function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode, requisitionId }) {
+  console.log(requisitionId)
   const { requisitionData, setRequisitionData } = useContext(TestContext)
-  const { loginInformation } = useContext(EmployeeLoginContext);
+  const { loginInformation, reloadPage } = useContext(EmployeeLoginContext);
   // const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(false);
   const { addNotification } = useNotification();
@@ -52,7 +53,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
   const selectedQualification = watch("highestQualification");
   const [valueData, setValue] = useState("")
   const [creatingReqStatus, setCreatingReqStatus] = useState(null)
-
+  const [msg, setMsg] = useState('')
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -62,14 +63,15 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
   );
 
   const { updateRequisitionData, setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
+  const {refetch}=useContext(GetApprovalDataContext)
 
   useEffect(() => {
     if (updateRequisitionData) {
       reset(updateRequisitionData);  //BEST WAY
+       
     }
   }, [updateRequisitionData, reset]);
 
-  // SUBMIT
   const onSubmit = async (data) => {
 
     const {
@@ -93,87 +95,121 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       updatedData.department = otherDepartment;
     }
 
-    console.log(otherDepartment)
-
     // Qualification
-    if (data.highestQualification === "Others" && otherHighestQualification) {
+    if (
+      data.highestQualification === "Others" &&
+      otherHighestQualification
+    ) {
       updatedData.highestQualification = otherHighestQualification;
     }
 
-    
-
-
-    // console.log(finalData)
     try {
       setLoading(true);
 
-      if (operationMode === "update") {
-        const finalData = {
-      ...updatedData,
-      empID:
-        loginInformation?.level === "L1"
-          ? updatedData?.empID
-          : loginInformation?.empID,
-      status: "pending",
-      createdAt: new Date(),
-    };
-        await axios.put(differentOperationUrl, {
-          id: requisitionId,
-          ...finalData
-        });
-        alert(`${differentOperationUrl} and operation mode: ${operationMode}`)
+      setTimeout(async () => {
 
-      }
-
-      if (operationMode === 'create') {
-        const finalData = {
-      ...updatedData,
-      empID:loginInformation?.empID,
-      status: "pending",
-      createdAt: new Date(),
-    };
         try {
-          const requisitionResponse = await axios.post(differentOperationUrl, finalData);
 
-          setRequisitionData([...requisitionData, finalData]);
-          setCreatingReqStatus(requisitionResponse?.data);
+          if (operationMode === "update") {
 
-          // Second API call directly here
-          await axios.post(`${APP_BACKEND_URL}/SubAdminAproval/create`, {
-            empID: loginInformation?.empID,
-            requisitionID: requisitionResponse.data?.data?.id,
-            stepOrder: 0,
-            status: "created",
-            remarks: "Everything OK",
-          });
-          await axios.post(`${APP_BACKEND_URL}/SubAdminAproval/create`, {
-            empID: loginInformation?.irb,
-            requisitionID: requisitionResponse.data?.data?.id,
-            stepOrder: 1,
-            status: "pending",
-            remarks: "Everything OK",
-          });
+            const finalData = {
+              ...updatedData,
+              empID:loginInformation?.empID,
+                // loginInformation?.level === "L1"
+                //   ? updatedData?.empID
+                //   : loginInformation?.empID,
+              status: "pending",
+              createdAt: new Date(),
+            };
 
-          toast.success(requisitionResponse?.data.message);
+            const response = await axios.put(
+              differentOperationUrl,
+              {
+                id: requisitionId,
+                ...finalData
+              }
+            );
 
+            toast.success(response.data.message);
+            await reloadPage()
+          }
+
+          if (operationMode === "create") {
+
+            const finalData = {
+              ...updatedData,
+              empID: loginInformation?.empID,
+              status: "pending",
+              createdAt: new Date(),
+            };
+
+            const requisitionResponse = await axios.post(
+              differentOperationUrl,
+              finalData
+            );
+
+            setRequisitionData([
+              ...requisitionData,
+              finalData
+            ]);
+
+            setCreatingReqStatus(requisitionResponse?.data);
+
+            await axios.post(
+              `${APP_BACKEND_URL}/SubAdminAproval/create`,
+              {
+                empID: loginInformation?.empID,
+                requisitionID:
+                  requisitionResponse.data?.data?.id,
+                stepOrder: 0,
+                status: "created",
+                remarks: "Everything OK",
+              }
+            );
+
+            await axios.post(
+              `${APP_BACKEND_URL}/SubAdminAproval/create`,
+              {
+                empID: loginInformation?.irb,
+                requisitionID:
+                  requisitionResponse.data?.data?.id,
+                stepOrder: 1,
+                status: "pending",
+                remarks: "Everything OK",
+              }
+            );
+
+            toast.success(requisitionResponse?.data?.message);
+            await reloadPage()
+          }
+
+          reset();
+          setUpdateRequisitionData(null);
+          setClose(false);
+          
         } catch (error) {
-          console.error(error);
-          toast.error("Something went wrong");
+          toast.error(
+            error?.response?.data?.message ||
+            "Something went wrong"
+          );
+        } finally {
+          setLoading(false);
+         
         }
-      }
 
-      // reset()
-      // toast.success("Requisition Created Successfully");
-      setUpdateRequisitionData(null);
-
+      }, 3000);
 
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed");
-    } finally {
       setLoading(false);
     }
+    // debugger
+    // await reloadPage();
+
+     
   };
 
+ 
   return (
     <div className="fixed inset-0 backdrop-blur-md bg-black/40 flex items-center justify-center z-50 p-4">
 

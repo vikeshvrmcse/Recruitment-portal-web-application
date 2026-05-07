@@ -103,10 +103,10 @@ function AdminDashboard() {
         <nav className="flex-1 p-3 space-y-2">
           <button
             onClick={() => {
-              setActiveMenu("Required Your Approvals");
+              setActiveMenu("dashboard");
               setSidebarOpen(false); // auto close on mobile
             }}
-            className={`w-full text-left px-4 py-2 rounded-lg transition ${activeMenu === "Required Your Approvals"
+            className={`w-full text-left px-4 py-2 rounded-lg transition ${activeMenu === "dashboard"
               ? "bg-white text-slate-900"
               : "hover:bg-slate-700"
               }`}
@@ -244,7 +244,7 @@ function AdminDashboard() {
         )}
 
         <main className="p-6 overflow-y-auto">
-          {activeMenu === "Required Your Approvals" && <RequiredApprovals />}
+          {activeMenu === "dashboard" && <RequiredApprovals />}
           {activeMenu === "All Employees" && <AllEmployees />}
           {activeMenu === "All Requisition" && <Requisitions />}
 
@@ -562,7 +562,8 @@ function RequiredApprovals() {
   const [showModalOpen, setShowModelOpen] = useState(false)
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const { loginInformation} = useContext(EmployeeLoginContext)
+  const { loginInformation } = useContext(EmployeeLoginContext)
+  // const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
   const [tableData, setTableData] = useState([])
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
@@ -570,7 +571,7 @@ function RequiredApprovals() {
   const [requisitionNextStatusUpdateTableData, setRequisitionNextStatusUpdateTableData] = useState([])
   const [profileModelShow, setProfileModelShow] = useState(false)
 
-  const { requisitionApprovalData } = useContext(GetApprovalDataContext)
+  const { requisitionApprovalData, refetch } = useContext(GetApprovalDataContext)
 
   const [stepperData, setStepperData] = useState('')
 
@@ -588,7 +589,7 @@ function RequiredApprovals() {
     });
   }
 
- 
+
 
 
   const updateStatus = async (id, status) => {
@@ -622,7 +623,7 @@ function RequiredApprovals() {
           });
 
           toast.success(responseNew?.data.message);
-
+          await refetch()
         } catch (error) {
           console.error(error);
           toast.error("Something went wrong");
@@ -658,6 +659,7 @@ function RequiredApprovals() {
 
 
 
+
   const filters = ["All", "pending", "approved", "rejected"];
 
 
@@ -670,6 +672,13 @@ function RequiredApprovals() {
   };
 
   const result = filterData(requisitionApprovalData, filter);
+
+   const handleEdit=async(data)=>{
+    setUpdateRequisitionData(data)
+  }
+
+  console.log(requisitionUpdateId)
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -693,7 +702,13 @@ function RequiredApprovals() {
                 className={`${show ? 'h-full mt-2 bg-[#FFF0C4] rounded-lg border-4 border-dotted border-green-900' : ''}`}>
                 {show ? <div className="p-2 md:p-6">
 
-                  <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
+                  <div className="flex justify-between items-center p-4 bg-amber-950 text-amber-100">
+
+                    <h2 className="text-xl font-bold mb-6 text-amber-100">
+                      Requisition Tracking
+                    </h2>
+                    <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
+                  </div>
 
                   <Stepper data={stepperData} />
                   <div className="bg-white shadow rounded-lg mt-2 p-4 mb-2">
@@ -733,7 +748,7 @@ function RequiredApprovals() {
                 </div>
               </div>
 
-              
+
               {open && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                   <div className="w-full max-w-5xl">
@@ -847,8 +862,8 @@ function RequiredApprovals() {
 
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                              className={`${r.status === 'rejected' || r.status === 'approved'|| r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                             >
                               Reject {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -866,9 +881,9 @@ function RequiredApprovals() {
 
                           <td className="p-3">
                             <button
-                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                              className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved'}
+                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                             >
                               Modify {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -940,8 +955,8 @@ function RequiredApprovals() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                         >
                           Approve {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -958,8 +973,8 @@ function RequiredApprovals() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
                           Reject {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -975,9 +990,9 @@ function RequiredApprovals() {
                         </button>
 
                         <button
-                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved'}
+                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
                         >
                           Modify {loading ? <FidgetSpinner
                             preset='rainbow'
