@@ -12,8 +12,8 @@ using RecruitmentWebAPI.Data;
 namespace RecruitmentWebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20260501094104_AddRequisitionVerifier")]
-    partial class AddRequisitionVerifier
+    [Migration("20260508070427_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,40 @@ namespace RecruitmentWebAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("RecruitmentWebAPI.Models.HRActionModels", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApprovalID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AssignedByEmpID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AssignedToEmpID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RequisitionID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("Seen")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HRActionModels");
+                });
 
             modelBuilder.Entity("RecruitmentWebAPI.Models.ImprovedRequisitionApprovalModel", b =>
                 {
@@ -46,7 +80,6 @@ namespace RecruitmentWebAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StepOrder")

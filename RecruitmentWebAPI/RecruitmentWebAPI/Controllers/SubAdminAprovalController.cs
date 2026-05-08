@@ -648,7 +648,7 @@ namespace RecruitmentWebAPI.Controllers
             }
             else
             {
-                var req = await (from data in _context.RequisitionVerifierModels where data.Id== reqId select new {data}).FirstOrDefaultAsync();
+                var req = await (from data in _context.RequisitionVerifierModels where data.Id == reqId select new { data }).FirstOrDefaultAsync();
                 Console.WriteLine(req);
                 if (req != null)
                     req.data.Status = "approved";
@@ -848,25 +848,25 @@ namespace RecruitmentWebAPI.Controllers
                           {
                               //CreatorDetails
                               Name = em.EmpName,
-                              Designation=em.Designation,
-                              Department=em.Dept,
+                              Designation = em.Designation,
+                              Department = em.Dept,
 
                               //RequisitionDetails
                               RequisitionID = r.Id,
                               JobTitle = r.JobTitle,
-                              Description=r.Description,
+                              Description = r.Description,
                               RequisitionReason = r.RequisitionReason,
-                              Requirements=r.Requirements,
-                              RequisitionDepartment=r.Department,
-                              JobType=r.JobType,
-                              Location=r.Location,
-                              YearOfExperience=r.YearOfExperience,
+                              Requirements = r.Requirements,
+                              RequisitionDepartment = r.Department,
+                              JobType = r.JobType,
+                              Location = r.Location,
+                              YearOfExperience = r.YearOfExperience,
                               HighestQualification = r.HighestQualification,
-                              Vacancy=r.Vacancy,
-                              Deadline=r.Deadline,
-                              CreatedAt=r.CreatedAt,
+                              Vacancy = r.Vacancy,
+                              Deadline = r.Deadline,
+                              CreatedAt = r.CreatedAt,
                               Status = rvm.Status,
-                              Skills=r.Skills,
+                              Skills = r.Skills,
 
                               //ApprovarDetails
                               ApprovedByLevel1 = es.EmpName,
@@ -956,49 +956,56 @@ namespace RecruitmentWebAPI.Controllers
             // 3. GET BASE DATA (ONLY DB)
             // -------------------------------
             var baseData = await (
-     from a in _context.RequisitionVerifierModels
-     join e in _context.EmployeeDetails on a.EmpID equals e.EmpID
-     join r in _context.Requisitions on a.RequisitionID equals r.Id
-     where a.EmpID == irb
+             from a in _context.RequisitionVerifierModels
+             join e in _context.EmployeeDetails on a.EmpID equals e.EmpID
+             join r in _context.Requisitions on a.RequisitionID equals r.Id
+             where a.EmpID == irb orderby r.CreatedAt descending
 
-     join c in _context.EmployeeDetails
-         on r.EmpID equals c.EmpID
+             join c in _context.EmployeeDetails
+                 on r.EmpID equals c.EmpID
 
-     select new
-     {
-         a.RequisitionID,
-         a.EmpID,
-         a.Status,
-         a.CreatedAt,
+             select new
+             {
+                 a.RequisitionID,
+                 a.EmpID,
+                 //Status = _context.RequisitionVerifierModels
+                 //                           .Where(rvm => r.Id == rvm.RequisitionID)
+                                            
+                 //                           .Select(rvm =>
+                 //                                rvm.Status
+                 //                           )
+                 //                           .FirstOrDefault(),
+                 a.Status,
+                 a.CreatedAt,
 
-         EmpName = e.EmpName,
+                 EmpName = e.EmpName,
 
-         Creator = new
-         {
-             c.EmpName,
-             c.Designation,
-             c.Dept
-         },
+                 Creator = new
+                 {
+                     c.EmpName,
+                     c.Designation,
+                     c.Dept
+                 },
 
-         RequisitionDetails = new
-         {
-             r.CreatedAt,
-             r.Deadline,
-             r.JobTitle,
-             r.Skills,
-             r.ExperienceLevel,
-             r.Description,
-             r.Department,
-             r.ReqType,
-             r.JobType,
-             r.HighestQualification,
-             r.RequisitionReason,
-             r.Requirements,
-             r.Location,
-             r.YearOfExperience,
-             r.Vacancy
-         }
-     }).ToListAsync();
+                 RequisitionDetails = new
+                 {
+                     r.CreatedAt,
+                     r.Deadline,
+                     r.JobTitle,
+                     r.Skills,
+                     r.ExperienceLevel,
+                     r.Description,
+                     r.Department,
+                     r.ReqType,
+                     r.JobType,
+                     r.HighestQualification,
+                     r.RequisitionReason,
+                     r.Requirements,
+                     r.Location,
+                     r.YearOfExperience,
+                     r.Vacancy
+                 }
+             }).ToListAsync();
 
             // -------------------------------
             // 4. LOAD VERIFIER DATA
@@ -1037,7 +1044,7 @@ namespace RecruitmentWebAPI.Controllers
                         EmpID = emp,
                         EmpName = empInfo?.EmpName,
 
-                        Status = record?.Status==null ? "Pending" : record.Status,
+                        Status = record?.Status == null ? "Pending" : record.Status,
                         CreatedAt = record?.CreatedAt,
                         UpdatedAt = record?.UpdatedAt,
                         ActionDate = record?.ActionDate,
@@ -1144,12 +1151,12 @@ namespace RecruitmentWebAPI.Controllers
         [HttpGet("employee-requisition-chain/{reqId}")]
         public async Task<IActionResult> GetEmployeerRequisitionChain(string reqId)
         {
-            var reqData = await _context.Requisitions.Where(e=>e.Id==reqId).Select(x => new {x}).FirstOrDefaultAsync();
+            var reqData = await _context.Requisitions.Where(e => e.Id == reqId).Select(x => new { x }).FirstOrDefaultAsync();
             var result = new List<object>();
             var visited = new HashSet<string>(); // prevent infinite loop
 
 
-            
+
 
             var currentEmpId = reqData?.x?.EmpID;
             int level = 1;
@@ -1176,12 +1183,12 @@ namespace RecruitmentWebAPI.Controllers
                 result.Add(new
                 {
                     EmpID = emp.EmpID,
-                    EmpName=emp.EmpName,
+                    EmpName = emp.EmpName,
                     IRB = emp.IRB,
                     ChainPath = chainPath,
                     StepOrder = level,
                     Status = getApproveData?.x?.Status,
-                    UpdatedAt=getApproveData?.x?.UpdatedAt
+                    UpdatedAt = getApproveData?.x?.UpdatedAt
                 });
 
                 currentEmpId = emp.IRB; // move to next

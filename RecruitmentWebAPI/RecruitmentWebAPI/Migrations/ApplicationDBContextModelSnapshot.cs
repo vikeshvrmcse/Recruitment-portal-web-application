@@ -22,6 +22,40 @@ namespace RecruitmentWebAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("RecruitmentWebAPI.Models.HRActionModels", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApprovalID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AssignedByEmpID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AssignedToEmpID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RequisitionID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("Seen")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HRActionModels");
+                });
+
             modelBuilder.Entity("RecruitmentWebAPI.Models.ImprovedRequisitionApprovalModel", b =>
                 {
                     b.Property<string>("Id")
@@ -43,7 +77,6 @@ namespace RecruitmentWebAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StepOrder")

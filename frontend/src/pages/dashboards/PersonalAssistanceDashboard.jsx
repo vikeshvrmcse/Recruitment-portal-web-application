@@ -36,7 +36,7 @@ function SubAdminDashboard() {
   const [showModalOpen, setShowModelOpen] = useState(false)
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const { loginInformation, requisitionInformation } = useContext(EmployeeLoginContext)
+  const { loginInformation, requisitionInformation, reloadPage } = useContext(EmployeeLoginContext)
   const [tableData, setTableData] = useState([])
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
@@ -102,6 +102,7 @@ function SubAdminDashboard() {
         const response = await axios.get(`${API_BACKEND_URL}/FinalApproval`)
         console.log(response?.data.data)
         setFinalApprovalData(response.data?.data)
+        await refetch()
       } catch (error) {
         console.log(error.data.message)
       }
@@ -143,12 +144,41 @@ function SubAdminDashboard() {
     );
   };
 
-   const handleEdit=async(data)=>{
+  const handleEdit = async (data) => {
     setUpdateRequisitionData(data)
   }
 
+  const handleDelete = async (id) => {
+
+    try {
+
+      const confirmed = window.confirm(
+        "Confirm to delete this data?"
+      );
+
+      if (confirmed) {
+
+        const deleteResponse = await axios.delete(
+          `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+        );
+
+        toast.success(deleteResponse.data?.message);
+
+        await reloadPage();
+      }
+
+    } catch (error) {
+
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
+
 
   const result = filterData(requisitionApprovalData, filter);
+
+   const hasCreated = result.some(
+    (r) => r.status === "created"
+  );
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-100">
 
@@ -378,6 +408,7 @@ function SubAdminDashboard() {
                       <th className="p-3 text-center">Modification</th>
                       <th className="p-3 text-center">View</th>
                       <th className="p-3 text-center">Track Requisition</th>
+                      {hasCreated && <th className="p-3 text-center">Deleted</th>}
                     </tr>
                   </thead>
 
@@ -481,6 +512,16 @@ function SubAdminDashboard() {
                           </button>
                         </td>
 
+                        {r.status === 'created' && <td className="p-3">
+                          <button
+
+                            onClick={() => { handleDelete(requisitionApprovalData[idx].requisitionID) }}
+                            className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                        }
                       </tr>
                     ))}
                   </tbody>
@@ -583,6 +624,17 @@ function SubAdminDashboard() {
                         Track
                       </button>
 
+                      {r.status === 'created' &&
+                        <button
+
+                          onClick={() => { handleDelete(requisitionApprovalData[idx].requisitionID) }}
+                          className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                        >
+                          Delete
+                        </button>
+
+                      }
+
                     </div>
 
                   </div>
@@ -599,7 +651,43 @@ function SubAdminDashboard() {
 }
 
 const FinalApprovalModal = ({ finalData = [] }) => {
+  const [seenData, setSeenData] = useState([])
   const [selectedHR, setSelectedHR] = useState("HR1");
+  const storedUser = localStorage.getItem("auth");
+  const user = JSON.parse(storedUser);
+  const sendToBelowHrClick = async (apprId, reqId, assgnToId) => {
+    try {
+      // console.log(apprId, reqId, assgnToId)
+      const seenResponse = await axios.post(`${API_BACKEND_URL}/FinalApproval/FinalHRAction`,
+        {
+          approvalID: apprId,
+          requisitionID: reqId,
+          assignedByEmpID: user?.empID,
+          assignedToEmpID: assgnToId,
+        })
+      toast.success(seenResponse.data?.message)
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+  const [data, setData] = useState([])
+  useEffect(() => {
+    const fetch = async () => {
+
+      try {
+        const response = await axios.get(`${API_BACKEND_URL}/FinalApproval`)
+        console.log(response?.data.data)
+        setData(response.data?.data)
+        // await refetch()
+        toast.success("All")
+      } catch (error) {
+        console.log(error.data.message)
+      }
+    }
+    fetch()
+  }, [user?.empID])
+
   return (<div className="p-6 w-full bg-gray-100 min-h-screen">
 
 
@@ -632,7 +720,7 @@ const FinalApprovalModal = ({ finalData = [] }) => {
     {/* CARD GRID */}
     <div className="grid md:grid-cols-1 lg:grid-cols-4 gap-6">
 
-      {finalData?.map((item, index) => {
+      {data?.map((item, index) => {
 
         const created = new Date(item.createdAt).toLocaleString("en-IN", {
           dateStyle: "medium",
@@ -647,7 +735,7 @@ const FinalApprovalModal = ({ finalData = [] }) => {
         return (
           <div
             key={index}
-            className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700  transition-all duration-300"
+            className={`${item?.seen == false ? 'bg-white' : 'bg-green-700'} rounded-2xl shadow-lg p-6 border-l-4 border-purple-700  transition-all duration-300`}
           >
             {/* HEADER */}
             <div className="flex justify-between items-center mb-3">
@@ -686,25 +774,33 @@ const FinalApprovalModal = ({ finalData = [] }) => {
               </div>
 
               <div className="flex flex-col w-full p-4 items-center gap-4 justify-center">
+                <button
+                  disabled={item?.mainId === "" ? false : true}
+                  onClick={() => { sendToBelowHrClick(item.approvalID, item?.requisitionID, "PMA0376") }}
+                  className={`px-5 py-2 mx-3 rounded-md shadow-md ${item?.mainId === "" ? "" : "bg-slate-400 text-slate-600"} transition-all duration-300 w-full bg-amber-700 text-white scale-105`}
+                >
+                  {"MR. KULDEEP"}
+                </button>
+                <button
+                  disabled={item?.mainId === "" ? false : true}
+                  onClick={() => { sendToBelowHrClick(item.approvalID, item?.requisitionID, "PMA0608") }}
+                  className={`px-5 py-2 mx-3 rounded-md ${item?.mainId === "" ? "" : "bg-slate-400 text-slate-600"} shadow-md transition-all duration-300 w-full bg-amber-700 text-white scale-105`}
+                >
+                  {"MR. CHANDAN"}
+                </button>
+                <button
+                  disabled={item?.mainId === "" ? false : true}
+                  onClick={() => { sendToBelowHrClick(item.approvalID, item?.requisitionID, "PMA0608") }}
+                  className={`px-5 py-2 mx-3 rounded-md ${item?.mainId === "" ? "" : "bg-slate-400 text-slate-600"} shadow-md transition-all duration-300 w-full bg-amber-700 text-white scale-105`}
+                >
+                  {"MR. HEENA"}
+                </button>
 
-
-                {["HR1", "HR2", "HR3"].map((hr, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedHR(hr)}
-                    className={`px-5 py-2 mx-3 rounded-md shadow-md transition-all duration-300 w-full ${selectedHR === hr
-                      ? "bg-amber-700 text-white scale-105"
-                      : "bg-white text-gray-700 hover:bg-amber-100"}`}
-                  >
-                    {hr}
-                  </button>
-                ))}
               </div>
             </div>
           </div>
         );
       })}
-
     </div>
   </div>)
 }

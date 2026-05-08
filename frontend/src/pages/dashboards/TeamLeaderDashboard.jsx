@@ -20,6 +20,9 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
 import EmployeeModal from "../../modals/EmployeeModal";
 import ProfileModal from "../../modals/ProfileModal";
+import axios from "axios";
+import { toast } from "react-toastify";
+const API_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 function TLDashboard() {
     // const { requisitionData } = useContext(TestContext)
     const { loginInformation, requisitionApproveStatus, reloadPage } = useContext(EmployeeLoginContext)
@@ -52,6 +55,9 @@ function TLDashboard() {
     };
     const [activeFilter, setActiveFilter] = useState("all");
 
+
+    console.log(requisitionApproveStatus)
+
     const filteredRequests = requisitionApproveStatus?.map((data) => ({ ...data, name: loginInformation?.empName, designation: loginInformation?.designation })).filter(
         (item) => (item.requisitionDetails.status || item.status) === activeFilter
     );
@@ -78,11 +84,35 @@ function TLDashboard() {
         return past.toLocaleDateString();
     };
 
- const handleEdit=async(data)=>{
-    setUpdateRequisitionData(data)
-    // await reloadPage()
-  }
+    const handleEdit = async (data) => {
+        setUpdateRequisitionData(data)
+        // await reloadPage()
+    }
 
+    const handleDelete = async (id) => {
+
+        try {
+
+            const confirmed = window.confirm(
+                "Confirm to delete this data?"
+            );
+
+            if (confirmed) {
+
+                const deleteResponse = await axios.delete(
+                    `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+                );
+
+                toast.success(deleteResponse.data?.message);
+
+                await reloadPage();
+            }
+
+        } catch (error) {
+
+            toast.error(error.response?.data?.message || error.message);
+        }
+    };
 
     return (
         <div className="w-full flex bg-gray-100">
@@ -276,7 +306,9 @@ function TLDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-3 gap-6 px-6">
                         {(activeFilter !== "all" ? filteredRequests : requisitionApproveStatus).map((item, index) => {
 
-                            const isItemNew = isNew(item.requisition?.createdAt);
+
+                            console.log(item?.status)
+                            const isItemNew = isNew(item.requisitionDetails?.createdAt);
 
                             return (
                                 <motion.div
@@ -285,8 +317,8 @@ function TLDashboard() {
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: index * 0.08 }}
                                     whileHover={{ scale: 1.03 }}
-                                    className={`rounded-xl shadow-md p-5 border transition-all duration-200 ${isItemNew
-                                        ? "bg-blue-50 border-blue-400 shadow-blue-100"
+                                    className={`rounded-xl shadow-md p-5 border-4 transition-all duration-200 ${isItemNew
+                                        ? "bg-blue-50 border-amber-800 shadow-blue-100"
                                         : "bg-white"
                                         }`}
                                 >
@@ -403,7 +435,7 @@ function TLDashboard() {
                                     {/* Actions */}
                                     <div className="mt-4 flex justify-end gap-2 text-white text-xl">
 
-                                        <button onClick={() => { setEditJobModal(true); setStepperData(item?.requisitionDetails?.id); handleEdit(item?.requisitionDetails); }} className={`px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all ${(item.requisitionDetails.status || item.status) === "approved" || (item.requisitionDetails.status || item.status) === "rejected"?'bg-slate-400 text-slate-300':""}`} disabled={(item.requisitionDetails.status || item.status) === "approved"}>
+                                        <button onClick={() => { setEditJobModal(true); setStepperData(item?.requisitionDetails?.id); handleEdit(item?.requisitionDetails); }} className={`px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all ${(item.requisitionDetails.status || item.status) === "done" || (item.requisitionDetails.status || item.status) === "rejected" ? 'bg-slate-400 text-slate-300' : ""}`} disabled={(item.requisitionDetails.status || item.status) === "done" || (item.requisitionDetails.status || item.status) === "rejected"}>
                                             Edit
                                         </button>
 
@@ -413,6 +445,9 @@ function TLDashboard() {
 
                                         <button onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(item) }} className="px-3 py-1 bg-black rounded-md hover:text-blue-300 hover:shadow-blue-500 transition-all">
                                             Show
+                                        </button>
+                                        <button onClick={() => { handleDelete(item?.requisitionDetails?.id) }} className={`px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all ${(item.requisitionDetails.status || item.status) === "done" || (item.requisitionDetails.status || item.status) === "rejected" ? 'bg-slate-400 text-slate-300' : ""}`} disabled={(item.requisitionDetails.status || item.status) === "done" || (item.requisitionDetails.status || item.status) === "rejected"}>
+                                            Delete
                                         </button>
 
                                     </div>

@@ -66,11 +66,19 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
   const {refetch}=useContext(GetApprovalDataContext)
 
   useEffect(() => {
+
     if (updateRequisitionData) {
-      reset(updateRequisitionData);  //BEST WAY
-       
+
+        reset({
+            ...updateRequisitionData,
+
+            deadline: updateRequisitionData?.deadline
+                ? updateRequisitionData.deadline.split("T")[0]
+                : ""
+        });
     }
-  }, [updateRequisitionData, reset]);
+
+}, [updateRequisitionData, reset]);
 
   const onSubmit = async (data) => {
 
@@ -181,6 +189,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
             toast.success(requisitionResponse?.data?.message);
             await reloadPage()
+            await refetch()
           }
 
           reset();

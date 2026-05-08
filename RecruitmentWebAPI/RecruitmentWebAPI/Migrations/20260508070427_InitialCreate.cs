@@ -6,11 +6,30 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RecruitmentWebAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class AddRequisitionVerifier : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "HRActionModels",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ApprovalID = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RequisitionID = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AssignedByEmpID = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AssignedToEmpID = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Seen = table.Column<bool>(type: "bit", nullable: true),
+                    CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HRActionModels", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "RequisitionVerifierModels",
                 columns: table => new
@@ -19,7 +38,7 @@ namespace RecruitmentWebAPI.Migrations
                     EmpID = table.Column<string>(type: "nvarchar(20)", nullable: true),
                     RequisitionID = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StepOrder = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ActionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -34,6 +53,9 @@ namespace RecruitmentWebAPI.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "HRActionModels");
+
             migrationBuilder.DropTable(
                 name: "RequisitionVerifierModels");
         }

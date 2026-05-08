@@ -15,6 +15,7 @@ import SubAdminDashboard from "../pages/dashboards/SubAdminDashboard";
 import AdminDashboard from "../pages/dashboards/AdminDashboard";
 import PersonalAssitanceDashboard from "../pages/dashboards/PersonalAssistanceDashboard";
 import UpperAdminDashboard from "../pages/dashboards/UpperAdminDashboard";
+import SubHRDashboard from "../pages/dashboards/SubHRDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -45,11 +46,19 @@ export const router = createBrowserRouter([
         children: [
           { path: "/admin_dashboard", element: <AdminDashboard /> },
           { path: "/upper_admin_dashboard", element: <UpperAdminDashboard /> },
-          {path: "/personal_assistance_dashboard", element: <PersonalAssitanceDashboard/>},
+          { path: "/personal_assistance_dashboard", element: <PersonalAssitanceDashboard /> },
           { path: "/sub_admin_dashboard", element: <SubAdminDashboard /> },
         ],
       },
-      
+
+      // TL Dashboard (only TL allowed)
+      {
+        element: <PrivateRoute allowedRoles={["L3", "L4"]} />,
+        children: [
+          { path: "/sub_hr_dashboard", element: <SubHRDashboard /> },
+        ],
+      },
+
 
       // Access Denied
       {

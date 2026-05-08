@@ -17,7 +17,8 @@ const authSlice = createSlice({
     user: savedAuth || null,
     isAuthenticated: !!savedAuth,
     level: savedAuth?.level || null,
-    accessLevel:savedAuth?.accessLevel || null
+    accessLevel:savedAuth?.accessLevel || null,
+    dept:savedAuth?.dept || null,
   },
   reducers: {
     loginSuccess: (state, action) => {

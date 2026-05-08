@@ -72,9 +72,9 @@ namespace RecruitmentWebAPI.Models
         [ForeignKey(nameof(RequisitionID))]
         public RequisitionModels? Requisition { get; set; }
 
-        public int StepOrder { get; set; }   
+        public int StepOrder { get; set; }
 
-        public string Status { get; set; }   // Pending, Approved, Rejected
+        public string? Status { get; set; }   // Pending, Approved, Rejected
 
         public DateTime? ActionDate { get; set; }
 

@@ -37,7 +37,7 @@ function UpperAdminDashboard() {
   const [showModalOpen, setShowModelOpen] = useState(false)
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const { loginInformation, requisitionInformation } = useContext(EmployeeLoginContext)
+  const { loginInformation, requisitionInformation, reloadPage } = useContext(EmployeeLoginContext)
   const [tableData, setTableData] = useState([])
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
@@ -48,7 +48,7 @@ function UpperAdminDashboard() {
   const [stepperData, setStepperData] = useState('')
   const { requisitionApprovalData, refetch } = useContext(GetApprovalDataContext)
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
-
+  const [created, setCreated] = useState('')
 
 
   function formatDate(dateString) {
@@ -136,14 +136,45 @@ function UpperAdminDashboard() {
   };
 
 
-   const handleEdit=async(data)=>{
+  const handleEdit = async (data) => {
     setUpdateRequisitionData(data)
   }
 
 
   const result = filterData(requisitionApprovalData, filter);
 
-    console.log("adafdsa", requisitionUpdateId)
+  const handleDelete = async (id) => {
+
+    try {
+
+      const confirmed = window.confirm(
+        "Confirm to delete this data?"
+      );
+
+      if (confirmed) {
+
+        const deleteResponse = await axios.delete(
+          `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+        );
+
+        toast.success(deleteResponse.data?.message);
+
+        await reloadPage();
+      }
+
+    } catch (error) {
+
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
+
+
+  const hasCreated = result.some(
+    (r) => r.status === "created"
+  );
+
+  console.log(hasCreated)
+  console.log(result)
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -349,112 +380,127 @@ function UpperAdminDashboard() {
                         <th className="p-3 text-center">Modification</th>
                         <th className="p-3 text-center">View</th>
                         <th className="p-3 text-center">Track Requisition</th>
+                        {hasCreated && <th className="p-3 text-center">Deleted</th>}
                       </tr>
                     </thead>
 
 
                     <tbody>
-                      {result.map((r, idx) => (
-                        <tr key={idx} className="border-b hover:bg-gray-50 text-center">
+                      {result.map((r, idx) => {
 
-                          <td className="p-3 font-medium">{r?.creator?.empName}</td>
-                          <td className="p-3 font-medium">{r?.creator?.designation}</td>
-                          <td className="p-3 text-gray-600">{r?.creator?.dept}</td>
-                          <td className="p-3 text-gray-600">{r?.requisitionDetails?.jobTitle}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.createdAt?.split("T")[0])}</td>
-                          <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.deadline?.split("T")[0])}</td>
+                        
 
-                          <td className="p-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "approved"
-                              ? "bg-green-100 text-green-700"
-                              : r.status === "rejected"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                              }`}>
-                              {r.status}
-                            </span>
-                          </td>
+                        return (
+                          <tr key={idx} className="border-b hover:bg-gray-50 text-center">
+
+                            <td className="p-3 font-medium">{r?.creator?.empName}</td>
+                            <td className="p-3 font-medium">{r?.creator?.designation}</td>
+                            <td className="p-3 text-gray-600">{r?.creator?.dept}</td>
+                            <td className="p-3 text-gray-600">{r?.requisitionDetails?.jobTitle}</td>
+                            <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.createdAt?.split("T")[0])}</td>
+                            <td className="p-3 text-gray-600">{formatDate(r?.requisitionDetails?.deadline?.split("T")[0])}</td>
+
+                            <td className="p-3">
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status === "approved"
+                                ? "bg-green-100 text-green-700"
+                                : r.status === "rejected"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
+                                }`}>
+                                {r.status}
+                              </span>
+                            </td>
 
 
-                          <td className="p-3 flex gap-2 justify-center mt-5">
-                            <button
-                              onClick={() => updateStatus(r?.requisitionID, "approved")}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                            >
-                              Approve {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
+                            <td className="p-3 flex gap-2 justify-center mt-5">
+                              <button
+                                onClick={() => updateStatus(r?.requisitionID, "approved")}
+                                className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='done' || hasCreated ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                                disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='done'||r.status === 'created'}
+                              >
+                                Approve {loading ? <FidgetSpinner
+                                  preset='rainbow'
+                                  visible={true}
+                                  height="20"
+                                  width="20"
+                                  radius="40"
+                                  color="#4fa94d"
+                                  ariaLabel="watch-loading"
+                                  wrapperStyle={{}}
+                                  wrapperClass=""
+                                /> : ""}
+                              </button>
 
-                            <button
-                              onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
-                            >
-                              Reject {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-                          </td>
+                              <button
+                                onClick={() => updateStatus(r?.requisitionID, "rejected")}
+                                disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='done' || r.status === 'created'}
+                                className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='done' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                              >
+                                Reject {loading ? <FidgetSpinner
+                                  preset='rainbow'
+                                  visible={true}
+                                  height="20"
+                                  width="20"
+                                  radius="40"
+                                  color="#4fa94d"
+                                  ariaLabel="watch-loading"
+                                  wrapperStyle={{}}
+                                  wrapperClass=""
+                                /> : ""}
+                              </button>
+                            </td>
 
-                          <td className="p-3">
-                            <button
-                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                            >
-                              Modify {loading ? <FidgetSpinner
-                                preset='rainbow'
-                                visible={true}
-                                height="20"
-                                width="20"
-                                radius="40"
-                                color="#4fa94d"
-                                ariaLabel="watch-loading"
-                                wrapperStyle={{}}
-                                wrapperClass=""
-                              /> : ""}
-                            </button>
-                          </td>
+                            <td className="p-3">
+                              <button
+                                onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
+                                className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='done' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                                disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='done' || r.status === 'created'}
+                              >
+                                Modify {loading ? <FidgetSpinner
+                                  preset='rainbow'
+                                  visible={true}
+                                  height="20"
+                                  width="20"
+                                  radius="40"
+                                  color="#4fa94d"
+                                  ariaLabel="watch-loading"
+                                  wrapperStyle={{}}
+                                  wrapperClass=""
+                                /> : ""}
+                              </button>
+                            </td>
 
-                          <td className="p-3">
-                            <button
+                            <td className="p-3">
+                              <button
 
-                              onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
-                              className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
-                            >
-                              Show
-                            </button>
-                          </td>
-                          <td className="p-3">
-                            <button
+                                onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(requisitionApprovalData[idx]) }}
+                                className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
+                              >
+                                Show
+                              </button>
+                            </td>
+                            <td className="p-3">
+                              <button
 
-                              onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
-                              className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
-                            >
-                              Track
-                            </button>
-                          </td>
+                                onClick={() => { setShow(true); setStepperData(requisitionApprovalData[idx].requisitionID) }}
+                                className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                              >
+                                Track
+                              </button>
+                            </td>
+                            {r.status==='created' && <td className="p-3">
+                              <button
 
-                        </tr>
-                      ))}
+                                onClick={() => { handleDelete(requisitionApprovalData[idx].requisitionID) }}
+                                className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                            }
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -487,8 +533,8 @@ function UpperAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created'  || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'  || r.status==='done'}
                         >
                           Approve {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -505,8 +551,8 @@ function UpperAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
                           Reject {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -523,8 +569,8 @@ function UpperAdminDashboard() {
 
                         <button
                           onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
                         >
                           Modify {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -554,6 +600,18 @@ function UpperAdminDashboard() {
                         >
                           Track
                         </button>
+
+
+                        {r.status === 'created' &&
+                          <button
+
+                            onClick={() => {handleDelete(requisitionApprovalData[idx].requisitionID) }}
+                            className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                          >
+                            Delete
+                          </button>
+
+                        }
                       </div>
                     </div>
                   ))}

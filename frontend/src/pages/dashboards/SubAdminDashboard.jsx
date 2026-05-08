@@ -27,13 +27,13 @@ function SubAdminDashboard() {
 
   const [requests, setRequests] = useState([]);
   const { setUpdateRequisitionData } = useContext(UpdateRequisitionContext);
-  const [filter,setFilter] = useState("All");
+  const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [show, setShow] = useState(false)
   const [showModalOpen, setShowModelOpen] = useState(false)
   const dispatch = useDispatch();
-  const [loading,  setLoading] = useState(false);
-  const { loginInformation, requisitionInformation } = useContext(EmployeeLoginContext)
+  const [loading, setLoading] = useState(false);
+  const { loginInformation, requisitionInformation, reloadPage } = useContext(EmployeeLoginContext)
   const [tableData, setTableData] = useState([])
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
@@ -94,7 +94,7 @@ function SubAdminDashboard() {
   };
 
 
-  const handleEdit=async(data)=>{
+  const handleEdit = async (data) => {
     setUpdateRequisitionData(data)
   }
 
@@ -134,7 +134,37 @@ function SubAdminDashboard() {
   };
 
 
+
+  const handleDelete = async (id) => {
+
+    try {
+
+      const confirmed = window.confirm(
+        "Confirm to delete this data?"
+      );
+
+      if (confirmed) {
+
+        const deleteResponse = await axios.delete(
+          `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+        );
+
+        toast.success(deleteResponse.data?.message);
+
+        await reloadPage();
+      }
+
+    } catch (error) {
+
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
+
   const result = filterData(requisitionApprovalData, filter);
+
+   const hasCreated = result.some(
+    (r) => r.status === "created"
+  );
   return (
     <div className="min-h-screen bg-gray-100 flex">
 
@@ -215,11 +245,11 @@ function SubAdminDashboard() {
 
                   <div className="flex justify-between items-center p-4 bg-amber-950 text-amber-100">
 
-                  <h2 className="text-xl font-bold mb-6 text-amber-100">
-                    Requisition Tracking
-                  </h2>
-                  <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
-                </div>
+                    <h2 className="text-xl font-bold mb-6 text-amber-100">
+                      Requisition Tracking
+                    </h2>
+                    <button onClick={tearClick} className=" bg-slate-800 text-white rounded-lg hover:shadow-md hover:shadow-slate-800 p-2  hover:bg-white transition-all duration-300 text-xl font-light hover:text-slate-800 flex items-center justify-center">Close</button>
+                  </div>
 
                   <Stepper data={stepperData} />
 
@@ -331,6 +361,7 @@ function SubAdminDashboard() {
                         <th className="p-3 text-center">Modification</th>
                         <th className="p-3 text-center">View</th>
                         <th className="p-3 text-center">Track Requisition</th>
+                        {hasCreated && <th className="p-3 text-center">Deleted</th>}
                       </tr>
                     </thead>
 
@@ -360,8 +391,8 @@ function SubAdminDashboard() {
                           <td className="p-3 flex gap-2 justify-center mt-5">
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "approved")}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
                             >
                               Approve {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -378,8 +409,8 @@ function SubAdminDashboard() {
 
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                             >
                               Reject {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -398,8 +429,8 @@ function SubAdminDashboard() {
                           <td className="p-3">
                             <button
                               onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
                             >
                               Modify {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -433,7 +464,16 @@ function SubAdminDashboard() {
                               Track
                             </button>
                           </td>
+                                {r.status==='created' && <td className="p-3">
+                              <button
 
+                                onClick={() => { handleDelete(requisitionApprovalData[idx].requisitionID) }}
+                                className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                            }
                         </tr>
                       ))}
                     </tbody>
@@ -468,8 +508,8 @@ function SubAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created' }
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
                         >
                           Approve {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -486,8 +526,8 @@ function SubAdminDashboard() {
 
                         <button
                           onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created' }
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status==='created'  ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
                           Reject {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -504,8 +544,8 @@ function SubAdminDashboard() {
 
                         <button
                           onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved'  || r.status==='created' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status==='created' }
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
                         >
                           Modify {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -535,6 +575,18 @@ function SubAdminDashboard() {
                         >
                           Track
                         </button>
+
+
+                        {r.status === 'created' &&
+                          <button
+
+                            onClick={() => {handleDelete(requisitionApprovalData[idx].requisitionID) }}
+                            className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                          >
+                            Delete
+                          </button>
+
+                        }
                       </div>
                     </div>
                   ))}

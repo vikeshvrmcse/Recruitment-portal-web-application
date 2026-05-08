@@ -87,6 +87,31 @@ namespace RecruitmentWebAPI.Controllers
             });
         }
 
+
+        [HttpDelete("DeleteRequisition/{reqId}")]
+        public async Task<IActionResult> DeleteRequisition(string reqId)
+        {
+            var checkData = await _context.Requisitions
+                .FirstOrDefaultAsync(x => x.Id == reqId);
+
+            if (checkData == null)
+            {
+                return NotFound(new
+                {
+                    message = "Requisition not found"
+                });
+            }
+
+            _context.Requisitions.Remove(checkData);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Requisition deleted successfully"
+            });
+        }
+
         [HttpGet("with-employee/{id}")]
         public async Task<IActionResult> GetRequisitionWithEmployeeById(string id)
         {
@@ -160,7 +185,7 @@ namespace RecruitmentWebAPI.Controllers
                         on a.EmpID equals e.EmpID
                     join r in _context.Requisitions
                         on a.RequisitionID equals r.Id
-                    where a.EmpID == irb
+                    where a.EmpID == irb orderby a.UpdatedAt ascending
                     select new
                     {
                         a.RequisitionID,
@@ -175,7 +200,8 @@ namespace RecruitmentWebAPI.Controllers
                             e.Dept
                         },
 
-                        RequisitionDetails = new {
+                        RequisitionDetails = new
+                        {
                             r.CreatedAt,
                             r.Deadline,
                             r.JobTitle,
@@ -191,7 +217,7 @@ namespace RecruitmentWebAPI.Controllers
                             r.Location,
                             r.YearOfExperience,
                             r.Vacancy
-                            },
+                        },
 
                         Creator = (from c in _context.EmployeeDetails
                                    where c.EmpID == r.EmpID
@@ -229,10 +255,10 @@ namespace RecruitmentWebAPI.Controllers
 
 
             var datas = await (from req in _context.Requisitions
-                               where req.EmpID == id
+                               where req.EmpID == id orderby req.CreatedAt descending
                                select new
                                {
-                                
+
                                    RequisitionDetails = new
                                    {
                                        Id = req.Id,
@@ -253,14 +279,18 @@ namespace RecruitmentWebAPI.Controllers
                                        Vacancy = req.Vacancy,
                                        YearOfExperience = req.YearOfExperience,
 
-                                       
-                                       
+
+
                                    },
-                                       Status = 
-                                           (from rvm in _context.RequisitionVerifierModels join emp in _context.EmployeeDetails on rvm.EmpID equals emp.EmpID
-                                            where req.Id == rvm.RequisitionID
-                                            select rvm.Status)
-                                           .FirstOrDefault()
+                                   Status = _context.RequisitionVerifierModels
+                                            .Where(rvm => req.Id == rvm.RequisitionID)
+                                            .OrderByDescending(rvm => rvm.StepOrder)
+                                            .Select(rvm =>
+                                                rvm.Status == "pending" && rvm.StepOrder == 1
+                                                    ? "created"
+                                                    : rvm.Status
+                                            )
+                                            .FirstOrDefault()
                                        ,
 
                                    Verifier = (

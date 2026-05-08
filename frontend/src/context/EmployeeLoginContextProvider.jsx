@@ -79,6 +79,21 @@ function EmployeeLoginContextProvider({ children }) {
         return;
       }
 
+      // ================= L3 HR / L4 =================
+      if (
+        (user?.level === "L3" &&
+          user?.accessLevel === 6 && user?.dept==="HR") ||
+
+        (user?.level === "L4" &&
+          user?.accessLevel === 7)
+      ) {
+
+        
+        setLoginInformation(user);
+
+        return;
+      }
+
     } catch (error) {
 
       console.log(error?.message);
