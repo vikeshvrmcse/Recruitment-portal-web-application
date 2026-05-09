@@ -56,19 +56,23 @@ namespace RecruitmentWebAPI.Controllers
 
                 var getHRSeen = await _context.HRActionModels.Where(x => x.ApprovalID==getApproveData.Id).Select(x=>x).FirstOrDefaultAsync();
 
-                
+
 
                 var collect = new
                 {
                     CreatorName = employee?.EmpName,
                     VerifierName = verifierEmpNamef?.EmpName,
                     ApprovalID = getApproveData.Id,
+                    RequisitionTitle = getUser.JobTitle,
+                    RequisitionDeadline = getUser.Deadline,
                     RequisitionID = getApproveData.RequisitionID,
                     Status = getApproveData?.Status,
                     CreatedAt = getUser?.CreatedAt,
                     UpdatedAt = getApproveData?.UpdatedAt,
                     Seen = getHRSeen?.Seen ?? false,
-                    MainId=getHRSeen?.Id??""
+                    AssignedToEmpID = getHRSeen?.Seen==true ? getHRSeen.AssignedToEmpID : "",
+                    MainId =getHRSeen?.Id??"",
+                    //pdatedAt = getApproveData.UpdatedAt
                 };
 
                 jsonData.Add(collect);
@@ -136,16 +140,20 @@ namespace RecruitmentWebAPI.Controllers
                                     Employee = _context.EmployeeDetails
                                         .FirstOrDefault(a => a.IRB == x.EmpID),
                                     Status=x.Status,
+                                    UpdatedAt=x.UpdatedAt
                                 })
                                 .FirstOrDefaultAsync();
                 var reqData = await _context.Requisitions.Where(x => x.Id == item.RequisitionID).Select(x => x).FirstOrDefaultAsync();
                 var senderData = await _context.EmployeeDetails.Where(x => x.EmpID == item.AssignedByEmpID).Select(x => x).FirstOrDefaultAsync();
+                var creator = await _context.EmployeeDetails.Where(x => x.EmpID == reqData.EmpID).Select(x => x).FirstOrDefaultAsync();
 
                 var collect = new
                 {
                     Id=item.Id,
                     approvalID= item.ApprovalID,
+                    RequisitionTitle=reqData.JobTitle,
                     requisitionApproval= apprData,
+                    requisitionDeadline=reqData.Deadline,
                     requisitionID= item.RequisitionID,
                     requisition= reqData,
                     assignedByEmpID=item.AssignedByEmpID,
@@ -154,10 +162,11 @@ namespace RecruitmentWebAPI.Controllers
                     seen= item.Seen,
                     completedAt= item.CompletedAt,
                     createdAt= item.CreatedAt,
-                    
-                    updatedAt= item.UpdatedAt
-                }
-            ;
+                    Creator = creator,
+
+                    Status=apprData.Status,
+                    updatedAt = apprData.UpdatedAt
+                };      
 
                 jsonData.Add(collect);
             }
@@ -166,6 +175,37 @@ namespace RecruitmentWebAPI.Controllers
                 return NotFound(new { Data = jsonData, Message = "Not found any data" });
             }
             return Ok(new { Data = jsonData });
+        }
+
+        [HttpPut("HRActionSeenBySubHr/{id}")]
+        public async Task<IActionResult> HRActionSeenBySubHr(string id)
+        {
+            // Find particular data
+            var seenData = await _context.HRActionModels.FindAsync(id);
+
+            // Check if data exists
+            if (seenData == null)
+            {
+                return NotFound(new
+                {
+                    message = "Data not found"
+                });
+            }
+
+            // Update field
+            seenData.Seen = true;
+
+            // Optional updated time
+            seenData.UpdatedAt = DateTime.UtcNow;
+
+            // Save changes
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Updated successfully",
+                data = seenData
+            });
         }
     }
 }

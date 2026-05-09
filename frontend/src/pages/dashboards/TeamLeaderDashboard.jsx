@@ -85,6 +85,7 @@ function TLDashboard() {
     };
 
     const handleEdit = async (data) => {
+        console.log(data)
         setUpdateRequisitionData(data)
         // await reloadPage()
     }

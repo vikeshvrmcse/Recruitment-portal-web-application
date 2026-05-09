@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { RiLogoutCircleLine } from 'react-icons/ri';
 import { logout } from '../../features/auth/authSlice';
+import { toast } from 'react-toastify';
 
 const API_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 
@@ -38,6 +39,27 @@ function SubHRDashboard() {
             setLoading(false);
         }
     };
+
+    const ImSeen=async(id)=>{
+        try {
+
+            setLoading(true);
+
+            const seenResponse = await axios.put(
+                `${API_BACKEND_URL}/FinalApproval/HRActionSeenBySubHr/${id}`
+            );
+
+            toast.success(seenResponse.data?.message)
+
+        } catch (error) {
+
+            console.log(error.message);
+
+        } finally {
+
+            setLoading(false);
+        }
+    }
 
     useEffect(() => {
 
@@ -171,19 +193,19 @@ function SubHRDashboard() {
                                         </td>
 
                                         <td className="p-3">
-                                            {item.requisition.employeeDetailDatas.empName}
+                                            {item.creator?.empName}
                                         </td>
 
                                         <td className="p-3">
-                                            {item.requisitionApproval.employee.empName}
+                                            {item.requisitionApproval?.employee?.empName}
                                         </td>
 
                                         <td className="p-3">
                                             <span
                                                 className={`px-3 py-1 rounded-full text-sm text-white
-                                                ${item.requisitionApproval.status === 'done'
+                                                ${item.requisitionApproval?.status === 'done'
                                                         ? 'bg-green-500'
-                                                        : item.status === 'Pending'
+                                                        : item.status === 'pending'
                                                             ? 'bg-yellow-500'
                                                             : 'bg-red-500'
                                                     }`}
@@ -194,7 +216,7 @@ function SubHRDashboard() {
 
                                         <td className="p-3">
 
-                                            {item.seen ? (
+                                            {item?.seen ? (
 
                                                 <span className="text-green-600 font-semibold">
                                                     Seen
@@ -211,8 +233,8 @@ function SubHRDashboard() {
                                         </td>
 
                                         <td className="p-3">
-                                            {item.createdAt
-                                                ? new Date(item.createdAt).toLocaleDateString()
+                                            {item?.createdAt
+                                                ? new Date(item?.createdAt).toLocaleDateString()
                                                 : 'N/A'}
                                         </td>
 
@@ -266,7 +288,7 @@ function SubHRDashboard() {
                                                 : 'bg-green-500'
                                             }`}
                                     >
-                                        {item.requisition?.status}
+                                        {item.requisitionApproval?.status}
                                     </span>
 
                                 </div>
@@ -323,19 +345,41 @@ function SubHRDashboard() {
                                         }
                                     </p>
 
-                                    <div className="mt-3">
+                                    <div className='flex w-full justify-between items-center'>
 
-                                        <span
-                                            className={`px-3 py-1 rounded-full text-white text-xs
+                                        <div className="mt-3">
+
+                                            <span
+                                                className={`px-3 py-1 rounded-md text-white text-md
                                 ${item.seen
-                                                    ? "bg-green-500"
-                                                    : "bg-red-500"
-                                                }`}
-                                        >
-                                            {item.seen ? "Seen" : "Unseen"}
-                                        </span>
+                                                        ? "bg-green-500"
+                                                        : "bg-red-300"
+                                                    }`}
+                                            >
+                                                {item.seen ? "Seen" : "Unseen"}
+                                            </span>
+
+                                        </div>
+
+                                        <div className="mt-3">
+
+                                            <button
+                                                onClick={()=>ImSeen(item.id)}
+                                                disabled={(item.seen === true) ? true : false}
+                                                className={`px-3 py-1 rounded-md text-white text-md
+                                ${item.seen
+                                                        ? "bg-green-200 text-green-500"
+                                                        : "bg-slate-800 text-white hover:border-2 hover:scale-110 transition-all hover:bg-white hover:text-slate-900"
+                                                    }`}
+                                            >
+                                                {item.seen ? "Seen" : "Unseen"}
+                                            </button>
+
+                                        </div>
 
                                     </div>
+
+
 
                                 </div>
 

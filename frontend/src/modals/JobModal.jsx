@@ -115,10 +115,11 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
       setLoading(true);
 
       setTimeout(async () => {
-
+         debugger
         try {
 
-          if (operationMode === "update") {
+         
+          if (operationMode === "update" && (loginInformation?.empID===updatedData?.empID)) {
 
             const finalData = {
               ...updatedData,
@@ -141,6 +142,31 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
             toast.success(response.data.message);
             await reloadPage()
           }
+
+          if (operationMode === "update") {
+
+            const finalData = {
+              ...updatedData,
+              empID:updatedData?.empID,
+                // loginInformation?.level === "L1"
+                //   ? updatedData?.empID
+                //   : loginInformation?.empID,
+              status: "pending",
+              createdAt: new Date(),
+            };
+
+            const response = await axios.put(
+              differentOperationUrl,
+              {
+                id: requisitionId,
+                ...finalData
+              }
+            );
+
+            toast.success(response.data.message);
+            await reloadPage()
+          }
+
 
           if (operationMode === "create") {
 

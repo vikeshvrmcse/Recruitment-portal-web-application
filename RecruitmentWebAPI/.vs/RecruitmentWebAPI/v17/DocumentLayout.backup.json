@@ -1,48 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\controllers\\subadminaprovalcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\controllers\\subadminaprovalcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\controllers\\requisitioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\controllers\\requisitioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\controllers\\finalapprovalcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\controllers\\finalapprovalcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\controllers\\employeedetailscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\controllers\\employeedetailscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\models\\hractionmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\models\\hractionmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\models\\requisitionmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\models\\requisitionmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\models\\employeedetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\models\\employeedetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|d:\\recruitment-portal-web-application\\recruitmentwebapi\\recruitmentwebapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{32144886-8026-475B-9BBE-6B3F8D98B3FB}|RecruitmentWebAPI\\RecruitmentWebAPI.csproj|solutionrelative:recruitmentwebapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -50,22 +9,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": -1,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "EmployeeDetailsController.cs",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Controllers\\EmployeeDetailsController.cs",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\Controllers\\EmployeeDetailsController.cs",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Controllers\\EmployeeDetailsController.cs",
-              "RelativeToolTip": "RecruitmentWebAPI\\Controllers\\EmployeeDetailsController.cs",
-              "ViewState": "AgIAABkAAAAAAAAAAAAmwCoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-01T08:58:08.109Z",
-              "IsPinned": true,
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
@@ -73,122 +18,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "RequisitionModels.cs",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Models\\RequisitionModels.cs",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\Models\\RequisitionModels.cs",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Models\\RequisitionModels.cs",
-              "RelativeToolTip": "RecruitmentWebAPI\\Models\\RequisitionModels.cs",
-              "ViewState": "AgIAADoAAAAAAAAAAAA6wA4AAABBAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-01T06:30:19.842Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "EmployeeDetails.cs",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Models\\EmployeeDetails.cs",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\Models\\EmployeeDetails.cs",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Models\\EmployeeDetails.cs",
-              "RelativeToolTip": "RecruitmentWebAPI\\Models\\EmployeeDetails.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAswCoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T10:58:27.029Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "RequisitionController.cs",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Controllers\\RequisitionController.cs",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\Controllers\\RequisitionController.cs",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Controllers\\RequisitionController.cs",
-              "RelativeToolTip": "RecruitmentWebAPI\\Controllers\\RequisitionController.cs",
-              "ViewState": "AgIAAAgBAAAAAAAAAAAkwCQBAAA9AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T05:11:45.183Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "SubAdminAprovalController.cs",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Controllers\\SubAdminAprovalController.cs",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\Controllers\\SubAdminAprovalController.cs",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Controllers\\SubAdminAprovalController.cs",
-              "RelativeToolTip": "RecruitmentWebAPI\\Controllers\\SubAdminAprovalController.cs",
-              "ViewState": "AgIAALADAAAAAAAAAAAqwNEDAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T08:59:26.902Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "HRActionModels.cs",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Models\\HRActionModels.cs",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\Models\\HRActionModels.cs",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Models\\HRActionModels.cs",
-              "RelativeToolTip": "RecruitmentWebAPI\\Models\\HRActionModels.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAxwAsAAABSAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-08T04:01:18.04Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "ApplicationDBContext.cs",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Data\\ApplicationDBContext.cs",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\Data\\ApplicationDBContext.cs",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Data\\ApplicationDBContext.cs",
-              "RelativeToolTip": "RecruitmentWebAPI\\Data\\ApplicationDBContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-01T07:04:48.416Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "FinalApprovalController.cs",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Controllers\\FinalApprovalController.cs",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\Controllers\\FinalApprovalController.cs",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Controllers\\FinalApprovalController.cs",
-              "RelativeToolTip": "RecruitmentWebAPI\\Controllers\\FinalApprovalController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIgAAABPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-06T09:59:07.928Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Program.cs",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\Program.cs",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\Program.cs",
-              "RelativeToolTip": "RecruitmentWebAPI\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAA/AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-05T05:16:40.398Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\appsettings.json",
-              "RelativeDocumentMoniker": "RecruitmentWebAPI\\appsettings.json",
-              "ToolTip": "D:\\Recruitment-portal-web-application\\RecruitmentWebAPI\\RecruitmentWebAPI\\appsettings.json",
-              "RelativeToolTip": "RecruitmentWebAPI\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-05-02T03:57:21.19Z"
             }
           ]
         }

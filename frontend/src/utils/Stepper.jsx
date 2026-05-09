@@ -51,6 +51,27 @@ const Stepper = ({ data }) => {
     fetch()
   }, [data])
 
+
+const formatDateTime = (dateString) => {
+  if (!dateString) return "No date";
+
+  // Add Z to treat backend time as UTC
+  const utcDate = new Date(dateString + "Z");
+
+  return utcDate.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+};
+
+// console.log(formatDateTime("2026-05-09T04:50:11.0455466"));
+
   return (
     <div className="w-full mx-auto p-4 my-4">
 
@@ -108,8 +129,9 @@ const Stepper = ({ data }) => {
 
                     {/* Date */}
                     <p className="text-xs text-gray-400 mt-3">
+                      
                       {step.updatedAt?.split("T")[0]
-                        ? new Date(step.updatedAt?.split("T")[0]).toLocaleString()
+                        ? formatDateTime(step?.updatedAt)
                         : "No date"}
                     </p>
 

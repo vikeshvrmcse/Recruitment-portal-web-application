@@ -145,6 +145,7 @@ function SubAdminDashboard() {
   };
 
   const handleEdit = async (data) => {
+    console.log(data)
     setUpdateRequisitionData(data)
   }
 
@@ -680,9 +681,9 @@ const FinalApprovalModal = ({ finalData = [] }) => {
         console.log(response?.data.data)
         setData(response.data?.data)
         // await refetch()
-        toast.success("All")
+        // toast.success("All")
       } catch (error) {
-        console.log(error.data.message)
+        // console.log(error.data.message)
       }
     }
     fetch()
@@ -732,16 +733,30 @@ const FinalApprovalModal = ({ finalData = [] }) => {
           timeStyle: "short"
         });
 
+        const deadline = new Date(item?.requisititionDeadline).toLocaleString("en-IN", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        });
+
         return (
           <div
             key={index}
-            className={`${item?.seen == false ? 'bg-white' : 'bg-green-700'} rounded-2xl shadow-lg p-6 border-l-4 border-purple-700  transition-all duration-300`}
+            className={`${item?.seen == false ? 'bg-white' : 'bg-green-100'} rounded-2xl shadow-lg p-6 border-l-4 border-purple-700  transition-all duration-300`}
           >
             {/* HEADER */}
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-lg font-semibold text-gray-800">
-                {item.creatorName}
+                {item?.requisitionTitle}
               </h2>
+
+              <h2 className="text-lg font-semibold text-gray-800">
+                {item?.seen == false?"":`Seened By ${item?.assignedToEmpID}`}
+              </h2>
+
+              <h2 className="text-md text-gray-800">
+                {item?.creatorName}
+              </h2>
+
               <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-semibold">
                 {item.status && item.status[0].toUpperCase() + item.status.substring(1)}
               </span>
@@ -765,6 +780,11 @@ const FinalApprovalModal = ({ finalData = [] }) => {
                 {updated}
               </p>
 
+              <p>
+                <span className="font-semibold text-gray-800">Deadline Date:</span>{" "}
+                {deadline}
+              </p>
+
             </div>
 
             {/* FOOTER */}
@@ -783,7 +803,7 @@ const FinalApprovalModal = ({ finalData = [] }) => {
                 </button>
                 <button
                   disabled={item?.mainId === "" ? false : true}
-                  onClick={() => { sendToBelowHrClick(item.approvalID, item?.requisitionID, "PMA0608") }}
+                  onClick={() => { sendToBelowHrClick(item.approvalID, item?.requisitionID, "PMA0638") }}
                   className={`px-5 py-2 mx-3 rounded-md ${item?.mainId === "" ? "" : "bg-slate-400 text-slate-600"} shadow-md transition-all duration-300 w-full bg-amber-700 text-white scale-105`}
                 >
                   {"MR. CHANDAN"}
@@ -793,7 +813,7 @@ const FinalApprovalModal = ({ finalData = [] }) => {
                   onClick={() => { sendToBelowHrClick(item.approvalID, item?.requisitionID, "PMA0608") }}
                   className={`px-5 py-2 mx-3 rounded-md ${item?.mainId === "" ? "" : "bg-slate-400 text-slate-600"} shadow-md transition-all duration-300 w-full bg-amber-700 text-white scale-105`}
                 >
-                  {"MR. HEENA"}
+                  {"MS. HEENA"}
                 </button>
 
               </div>

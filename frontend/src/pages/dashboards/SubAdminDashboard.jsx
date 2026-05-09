@@ -42,6 +42,7 @@ function SubAdminDashboard() {
   const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
   const { requisitionApprovalData, refetch } = useContext(GetApprovalDataContext)
 
+  console.log(requisitionApprovalData)
 
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -95,6 +96,7 @@ function SubAdminDashboard() {
 
 
   const handleEdit = async (data) => {
+    console.log(data)
     setUpdateRequisitionData(data)
   }
 
@@ -428,7 +430,7 @@ function SubAdminDashboard() {
 
                           <td className="p-3">
                             <button
-                              onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails) }}
+                              onClick={() => { setOpen(true); handleEdit({...requisitionApprovalData[idx].requisitionDetails}) }}
                               className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
                               disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
                             >
@@ -543,7 +545,7 @@ function SubAdminDashboard() {
                         </button>
 
                         <button
-                          onClick={() => { setOpen(true); handleEdit(requisitionApprovalData[idx].requisitionDetails); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
+                          onClick={() => { setOpen(true); handleEdit({...requisitionApprovalData[idx].requisitionDetails}); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
                           className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
                           disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
                         >

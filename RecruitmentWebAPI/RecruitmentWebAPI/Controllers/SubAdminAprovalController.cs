@@ -40,31 +40,7 @@ namespace RecruitmentWebAPI.Controllers
         //    return Ok(data);
         //}
 
-        [HttpGet("with-employee")]
-        public IActionResult GetRequisitionsWithEmployee()
-        {
-            var data = (from r in _context.Requisitions
-                        join e in _context.EmployeeDetails
-                        on r.EmpID equals e.EmpID
-                        select new
-                        {
-                            r.Id,
-                            r.JobTitle,
-                            r.Department,
-                            r.Status,
-                            r.EmpID,
-                            Employee = new
-                            {
-                                e.EmpID,
-                                e.EmpName,
-                                e.Designation,
-                                e.Dept,
-                                e.MailID
-                            }
-                        }).ToList();
-
-            return Ok(data);
-        }
+        
 
         [HttpPost("RequisitionStatusUpdate")]
         public IActionResult RequisitionStatusUpdate([FromBody] RequisitionApprovalModel request)
@@ -89,29 +65,7 @@ namespace RecruitmentWebAPI.Controllers
                 data = request
             });
         }
-        [HttpPost("RequisitionStatusUpdateWithNextUpdator")]
-        public IActionResult RequisitionStatusUpdateWithNextUpdator([FromBody] RequisitionApprovalModel request)
-        {
-            if (request == null)
-                return BadRequest("Invalid request");
-            // Example logic
-            // Update database here
-            request.Id = Guid.NewGuid().ToString(); // since Id is string
-            request.CreatedAt = DateTime.Now;
-            //request.CurrentStatus = "pending";
-
-            //Console.WriteLine(request.PreviousStatus);
-            //Console.WriteLine(request.NextEmpID);
-            //Console.WriteLine(request.CurrentStatus);
-            //var entity = _context.RequisitionApprovalModels.FirstOrDefault(x => x.RequisitionId == request.RequisitionId);
-            _context.RequisitionApprovalModels.Add(request);
-            _context.SaveChanges();
-            return Ok(new
-            {
-                message = "Status updated successfully",
-                data = request
-            });
-        }
+        
 
         [HttpGet("GetByEmpID/{empID}")]
         public IActionResult GetByEmpID(string empID)
@@ -173,335 +127,7 @@ namespace RecruitmentWebAPI.Controllers
             });
         }
 
-        [HttpGet("ForNextEmployee")]
-        public async Task<IActionResult> ForNextEmployee(string empId)
-        {
-            var approverName = _context.EmployeeDetails.AsNoTracking()
-                .FirstOrDefault(r => r.EmpID == empId);
-            if (approverName == null)
-            {
-                return NotFound("User is not found");
-            }
-            var data = await (
-                from approval in _context.RequisitionApprovalModels
-                join req in _context.Requisitions
-                    on approval.RequisitionID equals req.Id
-                join emp in _context.EmployeeDetails
-                    on req.EmpID equals emp.EmpID
-
-                join irbEmp in _context.EmployeeDetails
-                    on emp.IRB equals irbEmp.EmpID into irbGroup
-                from irbEmp in irbGroup.DefaultIfEmpty()
-
-                where approval.NextEmpID == empId
-                      && approval.PreviousStatus == "approved"
-
-                select new
-                {
-                    //Approval Info
-                    ApprovalId = approval.Id,
-                    approval.RequisitionID,
-                    CurrentApprover = approval.EmpID,
-                    ApproverName = irbEmp.EmpName,
-                    NextApprover = approval.NextEmpID,
-                    PreviousStatus = approval.PreviousStatus,
-                    CurrentStatus = approval.CurrentStatus,
-                    //EmpName=approval.EmpName
-
-                    //Requisition Info
-                    req.Id,
-                    req.JobTitle,
-                    req.Description,
-                    req.Department,
-                    req.CreatedAt,
-                    req.Deadline,
-                    req.Vacancy,
-
-                    //Created By
-                    CreatedByEmpID = emp.EmpID,
-                    CreatedByName = emp.EmpName,
-                    emp.MailID,
-                    emp.Dept,
-                    emp.Designation
-                }
-            ).ToListAsync();
-
-            return Ok(data);
-        }
-        [HttpGet("ForNextEmployeeByAdmin")]
-        public async Task<IActionResult> ForNextEmployeeByAdmin(string empId)
-        {
-            var approverName = _context.EmployeeDetails.AsNoTracking()
-                .FirstOrDefault(r => r.EmpID == empId);
-            if (approverName == null)
-            {
-                return NotFound("User is not found");
-            }
-            var data = await (
-                from approval in _context.RequisitionApprovalModels
-                join req in _context.Requisitions
-                    on approval.RequisitionID equals req.Id
-                join emp in _context.EmployeeDetails
-                    on req.EmpID equals emp.EmpID
-
-                join irbEmp in _context.EmployeeDetails
-                    on emp.IRB equals irbEmp.EmpID into irbGroup
-                from irbEmp in irbGroup.DefaultIfEmpty()
-
-                where approval.NextEmpID == empId
-                      && approval.PreviousStatus == "approved" && approval.CurrentStatus != "approved"
-
-                select new
-                {
-                    //Approval Info
-                    ApprovalId = approval.Id,
-                    approval.RequisitionID,
-                    CurrentApprover = approval.EmpID,
-                    ApproverName = irbEmp.EmpName,
-                    NextApprover = approval.NextEmpID,
-                    PreviousStatus = approval.PreviousStatus,
-                    CurrentStatus = approval.CurrentStatus,
-                    //EmpName=approval.EmpName
-
-                    //Requisition Info
-                    req.Id,
-                    req.JobTitle,
-                    req.Description,
-                    req.Department,
-                    req.CreatedAt,
-                    req.Deadline,
-                    req.Vacancy,
-
-                    //Created By
-                    CreatedByEmpID = emp.EmpID,
-                    CreatedByName = emp.EmpName,
-                    emp.MailID,
-                    emp.Dept,
-                    emp.Designation
-                }
-            ).ToListAsync();
-
-            return Ok(data);
-        }
-        [HttpGet("ForNextEmployeeByAdminForMunjal")]
-        public async Task<IActionResult> ForNextEmployeeByAdminForMunjal(string empId)
-        {
-            var approverName = _context.EmployeeDetails.AsNoTracking()
-                .FirstOrDefault(r => r.EmpID == empId);
-            if (approverName == null)
-            {
-                return NotFound("User is not found");
-            }
-            var data = await (
-                from approval in _context.RequisitionApprovalModels
-                join req in _context.Requisitions
-                    on approval.RequisitionID equals req.Id
-                join emp in _context.EmployeeDetails
-                    on req.EmpID equals emp.EmpID
-
-                join irbEmp in _context.EmployeeDetails
-                    on emp.IRB equals irbEmp.EmpID into irbGroup
-                from irbEmp in irbGroup.DefaultIfEmpty()
-
-                join mnemp in _context.EmployeeDetails on approval.EmpID equals mnemp.EmpID
-
-                where approval.NextEmpID == empId
-                      && (approval.PreviousStatus == "approved" && approval.CurrentStatus == "approved")
-
-                select new
-                {
-                    //Approval Info
-                    ApprovalId = approval.Id,
-                    approval.RequisitionID,
-                    CurrentApprover = mnemp.EmpName,
-                    ApproverName = irbEmp.EmpName,
-                    NextApprover = approval.NextEmpID,
-                    PreviousStatus = approval.PreviousStatus,
-                    CurrentStatus = approval.CurrentStatus,
-                    //EmpName=approval.EmpName
-
-                    //Requisition Info
-                    req.Id,
-                    req.JobTitle,
-                    req.Description,
-                    req.Department,
-                    req.CreatedAt,
-                    req.Deadline,
-                    req.Vacancy,
-
-                    //Created By
-                    CreatedByEmpID = emp.EmpID,
-                    CreatedByName = emp.EmpName,
-                    emp.MailID,
-                    emp.Dept,
-                    emp.Designation
-                }
-            ).ToListAsync();
-
-            return Ok(data);
-        }
-        [HttpGet("ForNextEmployeeApprovedStatus")]
-        public async Task<IActionResult> ForNextEmployeeApprovedStatus(string empId)
-        {
-            var approverName = _context.EmployeeDetails.AsNoTracking().FirstOrDefault(r => r.EmpID == empId);
-            if (approverName == null)
-            {
-                return NotFound("User is not found");
-            }
-            var data = await (
-                from approval in _context.RequisitionApprovalModels
-                join req in _context.Requisitions
-                    on approval.RequisitionID equals req.Id
-                join emp in _context.EmployeeDetails
-                    on req.EmpID equals emp.EmpID
-                join irbEmp in _context.EmployeeDetails
-                    on emp.IRB equals irbEmp.EmpID into irbGroup
-                from irbEmp in irbGroup.DefaultIfEmpty()
-
-                where approval.EmpID == empId
-                      && approval.PreviousStatus == "approved"
-                      && (approval.CurrentStatus == "approved" || approval.CurrentStatus == "rejected")
-
-                orderby approval.CreatedAt descending
-
-                select new
-                {
-                    ApprovalId = approval.Id,
-                    approval.RequisitionID,
-                    CurrentApprover = approval.EmpID,
-                    ApproverName = irbEmp.EmpName,
-                    NextApprover = approval.NextEmpID,
-                    PreviousStatus = approval.PreviousStatus,
-                    CurrentStatus = approval.CurrentStatus,
-
-                    req.Id,
-                    req.JobTitle,
-                    req.Description,
-                    req.Department,
-                    req.CreatedAt,
-                    req.Deadline,
-                    req.Vacancy,
-
-                    CreatedByEmpID = emp.EmpID,
-                    CreatedByName = emp.EmpName,
-                    emp.MailID,
-                    emp.Dept,
-                    emp.Designation
-                }).GroupBy(x => x.RequisitionID).Select(g => g.First()).ToListAsync();
-
-            return Ok(data);
-        }
-        [HttpGet("ForNextMainAdminApprovedStatus")]
-        public async Task<IActionResult> ForNextMainAdminApprovedStatus(string empId)
-        {
-            var approverName = _context.EmployeeDetails.AsNoTracking().FirstOrDefault(r => r.EmpID == empId);
-            if (approverName == null)
-            {
-                return NotFound("User is not found");
-            }
-            var data = await (
-                from approval in _context.RequisitionApprovalModels
-                join req in _context.Requisitions
-                    on approval.RequisitionID equals req.Id
-                join emp in _context.EmployeeDetails
-                    on req.EmpID equals emp.EmpID
-                join irbEmp in _context.EmployeeDetails
-                    on emp.IRB equals irbEmp.EmpID into irbGroup
-                from irbEmp in irbGroup.DefaultIfEmpty()
-
-                where approval.EmpID == empId
-                      && approval.PreviousStatus == "approved"
-                      && (approval.CurrentStatus == "approved" || approval.CurrentStatus == "rejected") && approval.NextEmpID == empId
-
-                orderby approval.CreatedAt descending
-
-                select new
-                {
-                    ApprovalId = approval.Id,
-                    approval.RequisitionID,
-                    CurrentApprover = approval.EmpID,
-                    ApproverName = irbEmp.EmpName,
-                    NextApprover = approval.NextEmpID,
-                    PreviousStatus = approval.PreviousStatus,
-                    CurrentStatus = approval.CurrentStatus,
-
-                    req.Id,
-                    req.JobTitle,
-                    req.Description,
-                    req.Department,
-                    req.CreatedAt,
-                    req.Deadline,
-                    req.Vacancy,
-
-                    CreatedByEmpID = emp.EmpID,
-                    CreatedByName = emp.EmpName,
-                    emp.MailID,
-                    emp.Dept,
-                    emp.Designation
-                }).GroupBy(x => x.RequisitionID).Select(g => g.First()).ToListAsync();
-
-            return Ok(data);
-        }
-
-        [HttpGet("ForNextEmployeeForMunjalApproval")]
-        public async Task<IActionResult> ForNextEmployeeForMunjalApproval(string empId)
-        {
-            var baseQuery = (
-                from approval in _context.RequisitionApprovalModels
-                join req in _context.Requisitions
-                    on approval.RequisitionID equals req.Id
-                join emp in _context.EmployeeDetails
-                    on req.EmpID equals emp.EmpID
-
-                join irbEmp in _context.EmployeeDetails
-                    on emp.IRB equals irbEmp.EmpID into irbGroup
-                from irbEmp in irbGroup.DefaultIfEmpty()
-
-                select new
-                {
-                    ApprovalId = approval.Id,
-                    approval.RequisitionID,
-                    CurrentApprover = approval.EmpID,
-                    ApproverName = irbEmp.EmpName,
-                    NextApprover = approval.NextEmpID,
-                    PreviousStatus = approval.PreviousStatus,
-                    CurrentStatus = approval.CurrentStatus,
-
-                    req.Id,
-                    req.JobTitle,
-                    req.Description,
-                    req.Department,
-                    req.CreatedAt,
-                    req.Deadline,
-                    req.Vacancy,
-
-                    CreatedByEmpID = emp.EmpID,
-                    CreatedByName = emp.EmpName,
-                    emp.MailID,
-                    emp.Dept,
-                    emp.Designation
-                }
-            );
-
-            var pendingForMe = await baseQuery
-                .Where(x => x.NextApprover == empId && x.PreviousStatus == "approved")
-                .ToListAsync();
-
-            var myApprovals = await baseQuery
-                .Where(x => x.CurrentApprover == empId)
-                .ToListAsync();
-
-            var completed = await baseQuery
-                .Where(x => x.CurrentStatus == "approved" || x.CurrentStatus == "rejected")
-                .ToListAsync();
-
-            return Ok(new
-            {
-                pendingForMe,
-                myApprovals,
-                completed
-            });
-        }
+        
 
 
         [HttpGet("GetUniqueEmployeesWithStatus")]
@@ -713,118 +339,7 @@ namespace RecruitmentWebAPI.Controllers
             return Ok(data);
         }
 
-        //[HttpGet("GetApprovedRequisitions")]
-        //public async Task<IActionResult> GetApprovedRequisitions(string empId)
-        //{
-        //    var data = await _context.RequisitionVerifierModels
-        //        .Include(r => r.Requisition)
-        //        .Where(r => r.EmpID == empId && r.Status == "approved")
-        //        .Select(r => new
-        //        {
-        //            r.RequisitionID,
-        //            r.StepOrder,
-        //            r.Status,
-        //            r.ActionDate,
-        //            RequisitionTitle = r.Requisition.JobTitle
-        //        })
-        //        .ToListAsync();
-
-        //    return Ok(data);
-        //}
-        //[HttpGet("GetRejectedRequisitions")]
-        //public async Task<IActionResult> GetRejectedRequisitions(string empId)
-        //{
-        //    var data = await _context.RequisitionVerifierModels
-        //        .Include(r => r.Requisition)
-        //        .Where(r => r.EmpID == empId && r.Status == "pending")
-        //        .Select(r => new
-        //        {
-        //            r.RequisitionID,
-        //            r.StepOrder,
-        //            r.Status,
-        //            r.ActionDate,
-        //            RequisitionTitle = r.Requisition.JobTitle
-        //        })
-        //        .ToListAsync();
-
-        //    return Ok(data);
-        //}
-
-        //[HttpPost("RequisitionApproveByIRB")]
-        //public IActionResult Approve(string previousId, string reqId, string userId, int stepOrder)
-        //{
-        //    var current = _context.RequisitionVerifierModels
-        //        .FirstOrDefault(x =>
-        //            x.RequisitionID == reqId &&
-        //            x.StepOrder == stepOrder &&
-        //            x.EmpID == previousId);
-
-        //    if (current == null)
-        //        return BadRequest("Invalid approval step");
-
-        //    //current.Status = "approved";
-        //    //current.ActionDate = DateTime.Now;
-
-        //    var next = _context.RequisitionVerifierModels
-        //        .FirstOrDefault(x =>
-        //            x.RequisitionID == reqId &&
-        //            x.StepOrder == stepOrder + 1);
-
-        //    if (next != null)
-        //    {
-        //        next.Status = "pending";
-        //        next.EmpID = userId;
-        //    }
-        //    else
-        //    {
-        //        var req = _context.Requisitions
-        //            .FirstOrDefault(r => r.Id == reqId);
-
-        //        req.Status = "approved";
-        //    }
-
-        //    _context.SaveChanges();
-
-        //    return Ok("Approved successfully");
-        //}
-
-        //[HttpPost("Approve")]
-        //public IActionResult Approve(string reqId, string userId)
-        //{
-        //    var current = _context.RequisitionVerifierModels
-        //        .FirstOrDefault(x => x.RequisitionID == reqId && x.EmpID == userId);
-
-        //    current.Status = "approved";
-        //    current.ActionDate = DateTime.Now;
-
-        //    var next = _context.RequisitionVerifierModels
-        //        .FirstOrDefault(x =>
-        //            x.RequisitionID == reqId &&
-        //            x.StepOrder == current.StepOrder + 1);
-
-        //    if (next != null)
-        //    {
-        //        next.Status = "pending";
-
-        //        //_notificationService.Notify(new NotificationDto
-        //        //{
-        //        //    UserId = next.EmpID,
-        //        //    Title = "Approval Required",
-        //        //    Message = $"Requisition {reqId} is waiting for your approval"
-        //        //});
-        //    }
-        //    else
-        //    {
-        //        var req = _context.Requisitions
-        //            .FirstOrDefault(r => r.Id == reqId);
-
-        //        req.Status = "approved";
-        //    }
-
-        //    _context.SaveChanges();
-
-        //    return Ok("Approved and next user notified");
-        //}
+        
 
 
         [HttpGet("GetRequisitionDetails/{empId}")]
@@ -989,6 +504,7 @@ namespace RecruitmentWebAPI.Controllers
 
                  RequisitionDetails = new
                  {
+                     r.EmpID,
                      r.CreatedAt,
                      r.Deadline,
                      r.JobTitle,
@@ -1033,25 +549,25 @@ namespace RecruitmentWebAPI.Controllers
 
                 Creator = a.Creator,
 
-                Requisitions = chain.Select((emp, index) =>
-                {
-                    verifierMap.TryGetValue((a.RequisitionID, emp), out var record);
+                //Requisitions = chain.Select((emp, index) =>
+                //{
+                //    verifierMap.TryGetValue((a.RequisitionID, emp), out var record);
 
-                    employeeMap.TryGetValue(emp, out var empInfo);
+                //    employeeMap.TryGetValue(emp, out var empInfo);
 
-                    return new
-                    {
-                        EmpID = emp,
-                        EmpName = empInfo?.EmpName,
+                //    return new
+                //    {
+                //        EmpID = emp,
+                //        EmpName = empInfo?.EmpName,
 
-                        Status = record?.Status == null ? "Pending" : record.Status,
-                        CreatedAt = record?.CreatedAt,
-                        UpdatedAt = record?.UpdatedAt,
-                        ActionDate = record?.ActionDate,
+                //        Status = record?.Status == null ? "Pending" : record.Status,
+                //        CreatedAt = record?.CreatedAt,
+                //        UpdatedAt = record?.UpdatedAt,
+                //        ActionDate = record?.ActionDate,
 
-                        StepOrder = index
-                    };
-                }).ToList()
+                //        StepOrder = index
+                //    };
+                //}).ToList()
             }).ToList();
 
             return Ok(result);

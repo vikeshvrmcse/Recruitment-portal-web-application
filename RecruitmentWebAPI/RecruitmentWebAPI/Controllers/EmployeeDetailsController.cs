@@ -30,11 +30,11 @@ namespace RecruitmentWebAPI.Controllers
 
             if (employee == null)
             {
-                return Unauthorized("User not found");
+                return Unauthorized(new {Message = "User not found", Success=false});
             }
             if (employee.Password != model.Password)
             {
-                return Unauthorized("Entered password is wrong");
+                return Unauthorized(new { Message = "Credential are invalid", Success = false });
             }
             return Ok(new { Message = "Login successfull", Data = employee, Success = true });
         }

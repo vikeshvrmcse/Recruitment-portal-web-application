@@ -112,142 +112,7 @@ namespace RecruitmentWebAPI.Controllers
             });
         }
 
-        [HttpGet("with-employee/{id}")]
-        public async Task<IActionResult> GetRequisitionWithEmployeeById(string id)
-        {
-            var data = await (from r in _context.Requisitions
-                              join e in _context.EmployeeDetails
-                              on r.EmpID equals e.EmpID
-                              where r.EmpID == id
-                              select new
-                              {
-                                  r,
-                                  Employee = new
-                                  {
-                                      e.EmpID,
-                                      e.IRB,
-                                      e.EmpName,
-                                      e.Designation,
-                                      e.Dept,
-                                      e.MailID
-                                  }
-                              })
-                              .FirstOrDefaultAsync();
-
-            if (data == null)
-                return NotFound("Record not found");
-            return Ok(data);
-        }
-
-
-        [HttpGet("with-employee-by-irb/{irb}")]
-        public async Task<IActionResult> GetRequisitionByIRB(string irb)
-        {
-
-            var data = await (from r in _context.Requisitions
-                              join e in _context.EmployeeDetails
-                              on r.EmpID equals e.EmpID
-                              where e.IRB == irb
-                              select new
-                              {
-                                  r,
-                                  Employee = new
-                                  {
-                                      e.EmpID,
-                                      e.IRB,
-                                      e.EmpName,
-                                      e.Designation,
-                                      e.Dept,
-                                      e.MailID
-                                  }
-                              })
-                              .ToListAsync();
-
-            if (data == null || !data.Any())
-                return NotFound(new
-                {
-                    success = false,
-                    message = "No requisition found for this IRB"
-                });
-
-            return Ok(data);
-        }
-
-
-
-
-        [HttpGet("GetRequisitionByIRBFromImprove/{irb}")]
-        public async Task<IActionResult> GetRequisitionByIRBFromImprove(string irb)
-        {
-            var result = await (
-                    from a in _context.RequisitionVerifierModels
-                    join e in _context.EmployeeDetails
-                        on a.EmpID equals e.EmpID
-                    join r in _context.Requisitions
-                        on a.RequisitionID equals r.Id
-                    where a.EmpID == irb orderby a.UpdatedAt ascending
-                    select new
-                    {
-                        a.RequisitionID,
-                        a.EmpID,
-                        a.Status,
-                        a.CreatedAt,
-
-                        Employee = new
-                        {
-                            e.EmpName,
-                            e.Designation,
-                            e.Dept
-                        },
-
-                        RequisitionDetails = new
-                        {
-                            r.CreatedAt,
-                            r.Deadline,
-                            r.JobTitle,
-                            r.Skills,
-                            r.ExperienceLevel,
-                            r.Description,
-                            r.Department,
-                            r.ReqType,
-                            r.JobType,
-                            r.HighestQualification,
-                            r.RequisitionReason,
-                            r.Requirements,
-                            r.Location,
-                            r.YearOfExperience,
-                            r.Vacancy
-                        },
-
-                        Creator = (from c in _context.EmployeeDetails
-                                   where c.EmpID == r.EmpID
-                                   select new
-                                   {
-                                       c.EmpName,
-                                       c.Designation,
-                                       c.Dept
-                                   }).FirstOrDefault(),
-
-                        Requisitions = (from x in _context.RequisitionVerifierModels
-                                        join n in _context.EmployeeDetails
-                                            on x.EmpID equals n.EmpID
-                                        where x.RequisitionID == a.RequisitionID
-                                        orderby x.StepOrder
-                                        select new
-                                        {
-                                            x.Status,
-                                            x.CreatedAt,
-                                            x.EmpID,
-                                            x.StepOrder,
-                                            x.UpdatedAt,
-                                            x.ActionDate,
-                                            n.EmpName
-                                        }).ToList()
-                    }
-                ).ToListAsync();
-
-            return Ok(result);
-        }
+        
 
         [HttpGet("with-employee-by-id/{id}")]
         public async Task<IActionResult> GetApprovedRequisition(string id)
@@ -277,6 +142,8 @@ namespace RecruitmentWebAPI.Controllers
                                        EmpID = req.EmpID,
                                        Deadline = req.Deadline,
                                        Vacancy = req.Vacancy,
+                                       ExperienceLevel = req.ExperienceLevel,
+                                       ReqType = req.ReqType,
                                        YearOfExperience = req.YearOfExperience,
 
 

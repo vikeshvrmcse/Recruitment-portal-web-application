@@ -17,7 +17,7 @@ import { fetchRequisitionsApprovalsByEmpID } from "../../../utils/FetchApprovedD
 
 function Login() {
   const { setLoginInformation, setRequisitionInformation } = useContext(EmployeeLoginContext)
-  const {refetch, setRequisitionApprovalData}=useContext(GetApprovalDataContext)
+  const { refetch, setRequisitionApprovalData } = useContext(GetApprovalDataContext)
   const {
     register,
     handleSubmit,
@@ -32,40 +32,43 @@ function Login() {
 
   const onSubmit = async (data) => {
     try {
-      setLoading(true);
-      if (data.captcha !== captchaValue) {
-        toast.error("Invalid captcha!");
-        return;
-      }
-
+      setLoading(true)
       const response = await axios.post(
         `${APP_BACKEND_URL}/EmployeeDetails/GetUser`,
         {
           empID: data.empID,
-          password: data.password
+          password: data.password,
         }
       );
 
       const user = response.data?.data;
 
       if (!user) {
-        toast.error("Invalid login");
+        toast.error(response.data?.message || "Invalid login");
         return;
       }
 
       localStorage.clear();
-      setLoginInformation([])
-      setRequisitionApprovalData([])
+      setLoginInformation([]);
+      setRequisitionApprovalData([]);
       localStorage.setItem("auth", JSON.stringify(user));
 
-      // Redux
       dispatch(loginSuccess(user));
-      toast.success(user?.message || "Login successful");
+
+      toast.success(response.data?.message || "Login successful");
+
       await refetch();
       reset();
 
     } catch (error) {
-      toast.error(error.message);
+      console.log("Login error:", error);
+
+      const message =
+        error?.response?.data?.message ||   // backend message
+        error?.message ||                  // axios error
+        "Something went wrong";
+
+      toast.error(message);
     } finally {
       setLoading(false);
     }
