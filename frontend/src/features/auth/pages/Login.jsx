@@ -34,10 +34,11 @@ function Login() {
     try {
       setLoading(true)
       const response = await axios.post(
-        `${APP_BACKEND_URL}/EmployeeDetails/GetUser`,
+        // `${APP_BACKEND_URL}/EmployeeDetails/GetUser`,
+        `${APP_BACKEND_URL}/login/`,
         {
-          empID: data.empID,
-          password: data.password,
+          EmpId: data.empID,
+          Password: data.password,
         }
       );
 

@@ -11,7 +11,8 @@ import { useNotification } from "../context/NotificationContextProvider";
 const APP_BACKEND_URL = import.meta.env.VITE_DOTNET_BACKEND_URL;
 
 function JobModel({ close, setClose, modelTitleModification, differentOperationUrl, operationMode, requisitionId }) {
-  console.log(requisitionId)
+
+
   const { requisitionData, setRequisitionData } = useContext(TestContext)
   const { loginInformation, reloadPage } = useContext(EmployeeLoginContext);
   // const [experiences, setExperiences] = useState([]);
@@ -24,7 +25,8 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
     deadline: "",
     department: "",
     description: "",
-    empID: "",
+    // empID: "",
+    empId: "",
     experienceLevel: [],
     highestQualification: "",
     jobTitle: "",
@@ -80,6 +82,8 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
 }, [updateRequisitionData, reset]);
 
+  console.log("requisition data",updateRequisitionData)
+  console.log("requisition id", requisitionId)
   const onSubmit = async (data) => {
 
     const {
@@ -123,7 +127,8 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
             const finalData = {
               ...updatedData,
-              empID:loginInformation?.empID,
+              // empID:loginInformation?.empID,
+              empId:loginInformation?.empID,
                 // loginInformation?.level === "L1"
                 //   ? updatedData?.empID
                 //   : loginInformation?.empID,
@@ -147,7 +152,8 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
             const finalData = {
               ...updatedData,
-              empID:updatedData?.empID,
+              // empID:updatedData?.empID,
+              empId:updatedData?.empID,
                 // loginInformation?.level === "L1"
                 //   ? updatedData?.empID
                 //   : loginInformation?.empID,
@@ -172,7 +178,7 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
 
             const finalData = {
               ...updatedData,
-              empID: loginInformation?.empID,
+              empId: loginInformation?.empID,
               status: "pending",
               createdAt: new Date(),
             };
@@ -190,11 +196,15 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
             setCreatingReqStatus(requisitionResponse?.data);
 
             await axios.post(
-              `${APP_BACKEND_URL}/SubAdminAproval/create`,
+              // `${APP_BACKEND_URL}/SubAdminAproval/create`,
+              `${APP_BACKEND_URL}/approval/create/`,
               {
-                empID: loginInformation?.empID,
-                requisitionID:
-                  requisitionResponse.data?.data?.id,
+                // empID: loginInformation?.empID,
+                empId: loginInformation?.empID,
+                // requisitionID:
+                requisitionId:
+                  // requisitionResponse.data?.data?.id,
+                  requisitionResponse.data?.id,
                 stepOrder: 0,
                 status: "created",
                 remarks: "Everything OK",
@@ -202,11 +212,15 @@ function JobModel({ close, setClose, modelTitleModification, differentOperationU
             );
 
             await axios.post(
-              `${APP_BACKEND_URL}/SubAdminAproval/create`,
+              // `${APP_BACKEND_URL}/SubAdminAproval/create`,
+              `${APP_BACKEND_URL}/approval/create/`,
               {
-                empID: loginInformation?.irb,
-                requisitionID:
-                  requisitionResponse.data?.data?.id,
+                // empID: loginInformation?.irb,
+                empId: loginInformation?.irb,
+                // requisitionID:
+                requisitionId:
+                  // requisitionResponse.data?.data?.id,
+                  requisitionResponse.data?.id,
                 stepOrder: 1,
                 status: "pending",
                 remarks: "Everything OK",

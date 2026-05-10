@@ -41,7 +41,8 @@ const Stepper = ({ data }) => {
     const fetch = async () => {
       const value = '61d2310e-44e2-43d7-8362-7ed08aea6fe8'
       try {
-        const response = await axios.get(`${API_BACKEND_URL}/SubAdminAproval/employee-requisition-chain/${data}`)
+        const response = await axios.get(`${API_BACKEND_URL}/employee-requisition-chain/${data}/`)
+        console.log("requisition chain", response.data)
         setData(response.data)
       } catch (error) {
         console.log(error.message)

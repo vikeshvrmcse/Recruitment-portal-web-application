@@ -70,17 +70,25 @@ function UpperAdminDashboard() {
 
 
         try {
-          // debugger
-          const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
+          //debugger
+          // const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
+          let responseNew;
 
-          // Second API call directly here
-          await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
-            empID: loginInformation?.irb,
-            requisitionID: id,
-            stepOrder: responseNew.data?.stepOrder + 1,
-            status: "pending",
-            remarks: "Everything OK",
-          });
+          if (status === "approved") {
+            responseNew = await axios.post(`${API_BACKEND_URL}/approval/approve/`, { requisitionId: id, empId: loginInformation?.empID });
+            // Second API call directly here
+            // await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
+            await axios.post(`${API_BACKEND_URL}/approval/create/`, {
+              empId: loginInformation?.irb,
+              requisitionId: id,
+              stepOrder: responseNew.data?.stepOrder + 1,
+              status: "pending",
+              remarks: "Everything OK",
+            });
+          }
+          if (status === "rejected") {
+            responseNew = await axios.post(`${API_BACKEND_URL}/approval/reject/`, { requisitionId: id, empId: loginInformation?.empID });
+          }
 
           toast.success(responseNew?.data.message);
           await refetch()
@@ -154,7 +162,8 @@ function UpperAdminDashboard() {
       if (confirmed) {
 
         const deleteResponse = await axios.delete(
-          `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+          // `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+          `${API_BACKEND_URL}/requisition/delete/${id}/`
         );
 
         toast.success(deleteResponse.data?.message);
@@ -295,7 +304,9 @@ function UpperAdminDashboard() {
               {isCreateRequisition && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                   <div className="w-full max-w-5xl">
-                    <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
+                    {/* <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} /> */}
+                    <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={`${API_BACKEND_URL}/requisition/create/`} operationMode={"create"} />
+                    
                   </div>
                 </div>
               )}
@@ -303,7 +314,9 @@ function UpperAdminDashboard() {
               {open && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                   <div className="w-full max-w-5xl">
-                    <JobModel requisitionId={requisitionUpdateId} close={open} setClose={setOpen} modelTitleModification={"Modify requisition via your superviser"} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} />
+                    {/* <JobModel requisitionId={requisitionUpdateId} close={open} setClose={setOpen} modelTitleModification={"Modify requisition via your superviser"} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} /> */}
+                    <JobModel requisitionId={requisitionUpdateId} key={open ? "open" : "closed"} close={open} setClose={setOpen} differentOperationUrl={`${API_BACKEND_URL}/update-requisition/`} operationMode={"update"} />
+                  
                   </div>
                 </div>
               )}

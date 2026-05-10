@@ -15,7 +15,8 @@ function GetAllEmployeeContextProvider({ children }) {
       setError(null);
 
       const res = await axios.get(
-        `${APP_BACKEND_URL}/EmployeeDetails`
+        // `${APP_BACKEND_URL}/EmployeeDetails`
+        `${APP_BACKEND_URL}/employees`
       );
 
       setAllEmployeesData(res.data);

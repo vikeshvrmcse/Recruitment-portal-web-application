@@ -59,7 +59,7 @@ function TLDashboard() {
     console.log(requisitionApproveStatus)
 
     const filteredRequests = requisitionApproveStatus?.map((data) => ({ ...data, name: loginInformation?.empName, designation: loginInformation?.designation })).filter(
-        (item) => (item.requisitionDetails.status || item.status) === activeFilter
+        (item) => (item?.requisitionDetails?.status || item?.status) === activeFilter
     );
 
 
@@ -101,7 +101,8 @@ function TLDashboard() {
             if (confirmed) {
 
                 const deleteResponse = await axios.delete(
-                    `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+                    // `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+                    `${API_BACKEND_URL}/requisition/delete/${id}/`
                 );
 
                 toast.success(deleteResponse.data?.message);
@@ -171,14 +172,15 @@ function TLDashboard() {
                     {open && (
                         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                             <div className="w-full max-w-5xl">
-                                <JobModel requisitionId={"NA"} key={open ? "open" : "closed"} close={open} setClose={setOpen} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
+                                <JobModel requisitionId={"NA"} key={open ? "open" : "closed"} close={open} setClose={setOpen} differentOperationUrl={`${API_BACKEND_URL}/requisition/create/`} operationMode={"create"} />
                             </div>
                         </div>
                     )}
                     {editJobModal && (
                         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                             <div className="w-full max-w-5xl">
-                                <JobModel requisitionId={stepperData} key={editJobModal ? "open" : "closed"} close={editJobModal} setClose={setEditJobModal} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} />
+                                {/* <JobModel requisitionId={stepperData} key={editJobModal ? "open" : "closed"} close={editJobModal} setClose={setEditJobModal} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} /> */}
+                                <JobModel requisitionId={stepperData} key={editJobModal ? "open" : "closed"} close={editJobModal} setClose={setEditJobModal} differentOperationUrl={`${API_BACKEND_URL}/update-requisition/`}   operationMode={"update"} />
                             </div>
                         </div>
                     )}
@@ -305,7 +307,7 @@ function TLDashboard() {
                     </motion.div>
 
                     <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-3 gap-6 px-6">
-                        {(activeFilter !== "all" ? filteredRequests : requisitionApproveStatus).map((item, index) => {
+                        {(activeFilter !== "all" ? filteredRequests : requisitionApproveStatus)?.map((item, index) => {
 
 
                             console.log(item?.status)
@@ -351,12 +353,12 @@ function TLDashboard() {
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Requisition Status</span>
                                             <span
-                                                className={`text-xs px-1 py-1 rounded-full flex items-center gap-1 capitalize ${statusStyles[item.status] || "bg-gray-100 text-gray-600"}`}>
-                                                {(item.requisitionDetails.status || item.status) === "created" && <MdCreateNewFolder />}
-                                                {(item.requisitionDetails.status || item.status) === "approved" && <FaCheckCircle />}
-                                                {(item.requisitionDetails.status || item.status) === "pending" && <FaClock />}
-                                                {(item.requisitionDetails.status || item.status) === "rejected" && <FaTimesCircle />}
-                                                {(item.requisitionDetails.status || item.status)}
+                                                className={`text-xs px-1 py-1 rounded-full flex items-center gap-1 capitalize ${statusStyles[item?.status] || "bg-gray-100 text-gray-600"}`}>
+                                                {(item?.requisitionDetails?.status?.toLowerCase() || item?.status?.toLowerCase()) === "created" && <MdCreateNewFolder />}
+                                                {(item?.requisitionDetails?.status?.toLowerCase() || item?.status?.toLowerCase()) === "approved" && <FaCheckCircle />}
+                                                {(item?.requisitionDetails?.status?.toLowerCase() || item?.status?.toLowerCase()) === "pending" && <FaClock />}
+                                                {(item?.requisitionDetails?.status?.toLowerCase() || item?.status?.toLowerCase()) === "rejected" && <FaTimesCircle />}
+                                                {(item?.requisitionDetails?.status?.toLowerCase() || item?.status?.toLowerCase())}
                                             </span>
                                         </div>
 
@@ -369,14 +371,14 @@ function TLDashboard() {
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Vacancy</span>
                                             <span className="font-semibold text-gray-800">
-                                                {item.requisitionDetails?.vacancy ?? "-"}
+                                                {item?.requisitionDetails?.vacancy ?? "-"}
                                             </span>
                                         </div>
 
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Experience</span>
                                             <span className="font-semibold text-gray-800">
-                                                {item.requisitionDetails?.year_of_experience ?? "-"} yrs
+                                                {item?.requisitionDetails?.year_of_experience ?? "-"} yrs
                                             </span>
                                         </div>
 
@@ -436,7 +438,7 @@ function TLDashboard() {
                                     {/* Actions */}
                                     <div className="mt-4 flex justify-end gap-2 text-white text-xl">
 
-                                        <button onClick={() => { setEditJobModal(true); setStepperData(item?.requisitionDetails?.id); handleEdit(item?.requisitionDetails); }} className={`px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all ${(item.requisitionDetails.status || item.status) === "done" || (item.requisitionDetails.status || item.status) === "rejected" ? 'bg-slate-400 text-slate-300' : ""}`} disabled={(item.requisitionDetails.status || item.status) === "done" || (item.requisitionDetails.status || item.status) === "rejected"}>
+                                        <button onClick={() => { setEditJobModal(true); setStepperData(item?.requisitionDetails?.id); handleEdit(item?.requisitionDetails); }} className={`px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all ${(item?.requisitionDetails?.status || item?.status) === "approved" || (item?.requisitionDetails?.status || item?.status) === "rejected" ? 'bg-slate-400 text-slate-300' : ""}`} disabled={(item?.requisitionDetails?.status || item?.status) === "approved" || (item?.requisitionDetails?.status || item.status) === "rejected"}>
                                             Edit
                                         </button>
 
@@ -447,7 +449,7 @@ function TLDashboard() {
                                         <button onClick={() => { setShowModelOpen(true); setUpdateRequisitionData(item) }} className="px-3 py-1 bg-black rounded-md hover:text-blue-300 hover:shadow-blue-500 transition-all">
                                             Show
                                         </button>
-                                        <button onClick={() => { handleDelete(item?.requisitionDetails?.id) }} className={`px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all ${(item.requisitionDetails.status || item.status) === "done" || (item.requisitionDetails.status || item.status) === "rejected" ? 'bg-slate-400 text-slate-300' : ""}`} disabled={(item.requisitionDetails.status || item.status) === "done" || (item.requisitionDetails.status || item.status) === "rejected"}>
+                                        <button onClick={() => { handleDelete(item?.requisitionDetails?.id) }} className={`px-3 py-1 bg-black rounded-md hover:text-green-300 hover:shadow-green-500 transition-all ${(item.requisitionDetails?.status || item.status) === "approved" || (item?.requisitionDetails?.status || item?.status) === "rejected" ? 'bg-slate-400 text-slate-300' : ""}`} disabled={(item?.requisitionDetails?.status || item.status) === "done" || (item?.requisitionDetails?.status || item?.status) === "rejected"}>
                                             Delete
                                         </button>
 

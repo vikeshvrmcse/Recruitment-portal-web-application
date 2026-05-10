@@ -70,9 +70,11 @@ function EmployeeLoginContextProvider({ children }) {
       ) {
 
         const res = await axios.get(
-          `${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user?.empID}`
+          // `${APP_BACKEND_URL}/Requisition/with-employee-by-id/${user?.empID}`
+          `${APP_BACKEND_URL}/requisition/with-employee-by-id/${user?.empID}`
         );
 
+        console.log(res.data)
         setRequisitionApproveStatus(res?.data);
         setLoginInformation(user);
 

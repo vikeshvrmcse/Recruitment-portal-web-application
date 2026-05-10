@@ -39,10 +39,10 @@ function SubAdminDashboard() {
   const [open, setOpen] = useState(false);
   const [isCreateRequisition, setIsCreateRequisition] = useState(false);
   const [profileModelShow, setProfileModelShow] = useState(false)
-  const [requisitionUpdateId, setUpdateRequisitionId] = useState("")
+  const [requisitionUpdateId, setUpdateRequisitionId] = useState(null)
   const { requisitionApprovalData, refetch } = useContext(GetApprovalDataContext)
 
-  console.log(requisitionApprovalData)
+
 
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -68,16 +68,28 @@ function SubAdminDashboard() {
 
         try {
           //debugger
-          const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
+          // const responseNew = await axios.post(`${API_BACKEND_URL}/SubAdminAproval/approve?reqId=${id}&userId=${loginInformation?.empID}`);
+          let responseNew;
 
-          // Second API call directly here
-          await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
-            empID: loginInformation?.irb,
-            requisitionID: id,
-            stepOrder: responseNew.data?.stepOrder + 1,
-            status: "pending",
-            remarks: "Everything OK",
-          });
+          if (status === "approved") {
+            responseNew = await axios.post(`${API_BACKEND_URL}/approval/approve/`, { requisitionId: id, empId: loginInformation?.empID });
+            // Second API call directly here
+            // await axios.post(`${API_BACKEND_URL}/SubAdminAproval/create`, {
+            await axios.post(`${API_BACKEND_URL}/approval/create/`, {
+              // empID: loginInformation?.irb,
+              empId: loginInformation?.irb,
+              requisitionId: id,
+              stepOrder: responseNew.data?.stepOrder+1,
+              // stepOrder: 2,
+              status: "pending",
+              remarks: "Everything OK",
+            });
+          }
+          if (status === "rejected") {
+            // responseNew = await axios.post(`${API_BACKEND_URL}/approval/reject/`, { requisitionId: id, empId: loginInformation?.empID });
+          }
+
+
 
           toast.success(responseNew?.data.message);
           await refetch()
@@ -148,7 +160,8 @@ function SubAdminDashboard() {
       if (confirmed) {
 
         const deleteResponse = await axios.delete(
-          `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+          // `${API_BACKEND_URL}/Requisition/DeleteRequisition/${id}`
+          `${API_BACKEND_URL}/requisition/delete/${id}/`
         );
 
         toast.success(deleteResponse.data?.message);
@@ -164,7 +177,11 @@ function SubAdminDashboard() {
 
   const result = filterData(requisitionApprovalData, filter);
 
-   const hasCreated = result.some(
+  console.log("Result",result)
+
+    console.log("req id",requisitionUpdateId)
+
+  const hasCreated = result.some(
     (r) => r.status === "created"
   );
   return (
@@ -281,7 +298,9 @@ function SubAdminDashboard() {
               {isCreateRequisition && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                   <div className="w-full max-w-5xl">
-                    <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} />
+                    {/* <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={"https://localhost:7073/api/Requisition"} operationMode={"create"} /> */}
+                    <JobModel requisitionId={"NA"} key={isCreateRequisition ? "open" : "closed"} close={isCreateRequisition} setClose={setIsCreateRequisition} differentOperationUrl={`${API_BACKEND_URL}/requisition/create/`} operationMode={"create"} />
+
                   </div>
                 </div>
               )}
@@ -289,7 +308,8 @@ function SubAdminDashboard() {
               {open && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                   <div className="w-full max-w-5xl">
-                    <JobModel requisitionId={requisitionUpdateId} close={open} setClose={setOpen} modelTitleModification={"Modify requisition via your superviser"} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} />
+                    {/* <JobModel requisitionId={requisitionUpdateId} close={open} setClose={setOpen} modelTitleModification={"Modify requisition via your superviser"} differentOperationUrl={"https://localhost:7073/api/SubAdminAproval"} operationMode={"update"} /> */}
+                    <JobModel requisitionId={requisitionUpdateId} key={open ? "open" : "closed"} close={open} setClose={setOpen} differentOperationUrl={`${API_BACKEND_URL}/update-requisition/`} operationMode={"update"} />
                   </div>
                 </div>
               )}
@@ -393,8 +413,8 @@ function SubAdminDashboard() {
                           <td className="p-3 flex gap-2 justify-center mt-5">
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "approved")}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done'}
                             >
                               Approve {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -411,8 +431,8 @@ function SubAdminDashboard() {
 
                             <button
                               onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done'}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                             >
                               Reject {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -430,9 +450,9 @@ function SubAdminDashboard() {
 
                           <td className="p-3">
                             <button
-                              onClick={() => { setOpen(true); handleEdit({...requisitionApprovalData[idx].requisitionDetails}) }}
-                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
+                              onClick={() => { setOpen(true); handleEdit({ ...requisitionApprovalData[idx].requisitionDetails }); setUpdateRequisitionId(r.requisitionID) }}
+                              className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                              disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done'}
                             >
                               Modify {loading ? <FidgetSpinner
                                 preset='rainbow'
@@ -466,16 +486,16 @@ function SubAdminDashboard() {
                               Track
                             </button>
                           </td>
-                                {r.status==='created' && <td className="p-3">
-                              <button
+                          {r.status === 'created' && <td className="p-3">
+                            <button
 
-                                onClick={() => { handleDelete(requisitionApprovalData[idx].requisitionID) }}
-                                className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
-                              >
-                                Delete
-                              </button>
-                            </td>
-                            }
+                              onClick={() => { handleDelete(requisitionApprovalData[idx].requisitionID) }}
+                              className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                          }
                         </tr>
                       ))}
                     </tbody>
@@ -509,9 +529,10 @@ function SubAdminDashboard() {
                       <div className="mt-5 grid grid-cols-2 gap-2">
 
                         <button
-                          onClick={() => updateStatus(r?.requisitionID, "approved")}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
+                          // onClick={() => updateStatus(r?.requisitionID, "approved")}
+                          onClick={() => updateStatus(r?.requisitionId, "approved")}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-green-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done'}
                         >
                           Approve {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -527,9 +548,10 @@ function SubAdminDashboard() {
                         </button>
 
                         <button
-                          onClick={() => updateStatus(r?.requisitionID, "rejected")}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
+                          // onClick={() => updateStatus(r?.requisitionID, "rejected")}
+                          onClick={() => updateStatus(r?.requisitionId, "rejected")}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done'}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-red-600 text-white text-xs py-1 px-2 rounded"}`}
                         >
                           Reject {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -545,9 +567,9 @@ function SubAdminDashboard() {
                         </button>
 
                         <button
-                          onClick={() => { setOpen(true); handleEdit({...requisitionApprovalData[idx].requisitionDetails}); setUpdateRequisitionId(requisitionApprovalData[idx].requisitionID) }}
-                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
-                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status==='done'}
+                          onClick={() => { setOpen(true); handleEdit({ ...requisitionApprovalData[idx].requisitionDetails }); setUpdateRequisitionId(r.requisitionID) }}
+                          className={`${r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done' ? "bg-gray-200 text-xs px-2 py-1 text-slate-500" : "bg-orange-600 text-white text-xs py-1 px-2 rounded"}`}
+                          disabled={r.status === 'rejected' || r.status === 'approved' || r.status === 'created' || r.status === 'done'}
                         >
                           Modify {loading ? <FidgetSpinner
                             preset='rainbow'
@@ -582,7 +604,7 @@ function SubAdminDashboard() {
                         {r.status === 'created' &&
                           <button
 
-                            onClick={() => {handleDelete(requisitionApprovalData[idx].requisitionID) }}
+                            onClick={() => { handleDelete(requisitionApprovalData[idx].requisitionID) }}
                             className="px-3 py-1 text-xs rounded bg-blue-950 text-white"
                           >
                             Delete

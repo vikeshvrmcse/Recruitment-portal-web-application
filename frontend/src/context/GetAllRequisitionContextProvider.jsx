@@ -13,7 +13,8 @@ function GetAllRequisitionContextProvider({ children }) {
     try {
       setLoading(true);
       const res = await axios.get(
-        `${APP_BACKEND_URL}/Requisition`
+        // `${APP_BACKEND_URL}/Requisition`
+        `${APP_BACKEND_URL}/requisition/all`
       );
 
       setAllRequisitionsData(res.data);

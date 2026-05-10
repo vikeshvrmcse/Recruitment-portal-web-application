@@ -19,9 +19,10 @@ function GetApprovalDataContextProvider({ children }) {
       setError(null);
 
       const res = await axios.get(
-        `${APP_BACKEND_URL}/SubAdminAproval/GetRequisitionByIRBFromImprove/${user?.empID}`
+        // `${APP_BACKEND_URL}/SubAdminAproval/GetRequisitionByIRBFromImprove/${user?.empID}`
+        `${APP_BACKEND_URL}/requisition/by_irb/${user?.empID}`
       );
-
+      console.log("next approval", res.data)
       setRequisitionApprovalData(res.data);
     } catch (err) {
       console.error(err.message);

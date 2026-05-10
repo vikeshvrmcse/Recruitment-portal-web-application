@@ -25,7 +25,8 @@ function SubHRDashboard() {
             setLoading(true);
 
             const seenResponse = await axios.get(
-                `${API_BACKEND_URL}/FinalApproval/GetHRActionSeen/${user?.empID}`
+                // `${API_BACKEND_URL}/FinalApproval/GetHRActionSeen/${user?.empID}`
+                `${API_BACKEND_URL}/GetHRActionSeen/${user?.empID}/`
             );
 
             setData(seenResponse.data?.data || []);
@@ -46,7 +47,7 @@ function SubHRDashboard() {
             setLoading(true);
 
             const seenResponse = await axios.put(
-                `${API_BACKEND_URL}/FinalApproval/HRActionSeenBySubHr/${id}`
+                `${API_BACKEND_URL}/HRActionSeenBySubHr/${id}/`
             );
 
             toast.success(seenResponse.data?.message)
@@ -203,7 +204,7 @@ function SubHRDashboard() {
                                         <td className="p-3">
                                             <span
                                                 className={`px-3 py-1 rounded-full text-sm text-white
-                                                ${item.requisitionApproval?.status === 'done'
+                                                ${item.requisitionApproval?.status === 'approved'
                                                         ? 'bg-green-500'
                                                         : item.status === 'pending'
                                                             ? 'bg-yellow-500'
