@@ -6,7 +6,7 @@ import { CgMenuGridR, CgProfile } from "react-icons/cg";
 import { RiCloseCircleFill } from "react-icons/ri";
 import axios from "axios";
 import { reverseTransform } from "../../utils/dataFormatter";
-import { fetchRequisitionsApprovalsByEmpID } from "../../utils/fetchApprovedData";
+import { fetchRequisitionsApprovalsByEmpID } from "../../utils/FetchApprovedData";
 import EmployeeModal from "../../modals/EmployeeModal";
 import ProfileModal from "../../modals/ProfileModal";
 import NotificationBell from "../../utils/NotificationBell";

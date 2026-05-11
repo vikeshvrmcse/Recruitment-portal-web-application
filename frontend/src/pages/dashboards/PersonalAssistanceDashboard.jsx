@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
 import axios from "axios";
-import { fetchRequisitionsApprovalsByEmpID } from "../../utils/fetchApprovedData";
+import { fetchRequisitionsApprovalsByEmpID } from "../../utils/FetchApprovedData";
 import { FidgetSpinner } from "react-loader-spinner";
 import { toast } from "react-toastify";
 import ProfileModal from "../../modals/ProfileModal";
