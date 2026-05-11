@@ -3,7 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 
 import Home from "../pages/Home";
-import Login from "../features/auth/pages/Login";
+import Login from "../features/pages/Login";
 import Dashboard from "../pages/dashboards/AdminDashboard";
 import AccessDenied from "../pages/AccessDenied";
 
